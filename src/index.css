@@ -79,6 +79,12 @@
     scroll-behavior: smooth;
   }
 
+  @media (max-width: 1023px) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
   body {
     @apply min-h-svh font-sans antialiased;
     background: var(--color-void);
@@ -95,6 +101,12 @@
 .site-aurora-3 {
   filter: blur(80px);
   animation: site-aurora-float 28s ease-in-out infinite;
+}
+
+@media (max-width: 1023px) {
+  .site-aurora-root {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -129,6 +141,16 @@
 
 .nav-glass-scrolled {
   @apply rounded-2xl border border-white/12 bg-void/75 shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_12px_40px_-10px_rgba(0,0,0,0.55),0_0_80px_-24px_rgba(45,212,191,0.18)] backdrop-blur-2xl;
+}
+
+/* backdrop-filter is very costly on mobile Safari while scrolling. */
+@media (max-width: 1023px) {
+  .nav-glass,
+  .nav-glass-scrolled {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: color-mix(in oklab, var(--color-void) 94%, white);
+  }
 }
 
 .section-ambient {
@@ -196,6 +218,13 @@
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
+/* SVG turbulence filter is expensive on low-power GPUs when scrolling. */
+@media (max-width: 1023px) {
+  .grain {
+    display: none;
+  }
+}
+
 .btn-primary {
   @apply relative inline-flex cursor-pointer items-center justify-center overflow-hidden rounded-full bg-gradient-to-r from-teal-400 via-cyan-400 to-teal-500 px-7 py-3.5 text-sm font-bold text-void;
   box-shadow:
@@ -219,6 +248,39 @@
 
 .btn-ghost:hover {
   @apply border-teal-400/45 shadow-[0_0_40px_-10px_rgba(45,212,191,0.35)] bg-white/[0.1];
+}
+
+@media (max-width: 1023px) {
+  :where(
+      .backdrop-blur-sm,
+      .backdrop-blur-md,
+      .backdrop-blur-lg,
+      .backdrop-blur-xl,
+      .backdrop-blur-2xl,
+      .backdrop-blur-3xl
+    ) {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  .btn-ghost {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .hero-gradient-text {
+    animation: none;
+    background-position: 50% 50%;
+    filter: drop-shadow(0 0 24px color-mix(in oklab, var(--color-aurora-a) 20%, transparent));
+  }
+
+  .section-ambient::before {
+    opacity: 0.2;
+  }
+
+  .card-shine::after {
+    content: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

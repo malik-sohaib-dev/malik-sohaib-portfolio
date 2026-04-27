@@ -1,4 +1,5 @@
 import { type ReactNode, useRef } from 'react'
+import { useLgDown } from '../hooks/useMediaQuery'
 
 type Props = {
   children: ReactNode
@@ -6,10 +7,11 @@ type Props = {
 }
 
 /**
- * 3D tilt on hover (CSS perspective) — Awwards-style card depth without extra WebGL.
+ * 3D tilt on hover — disabled below `lg` to avoid extra compositing and pointer work on touch devices.
  */
 export function TiltCard({ children, className = '' }: Props) {
   const ref = useRef<HTMLDivElement>(null)
+  const lgDown = useLgDown()
 
   const onMove = (e: React.MouseEvent) => {
     if (!ref.current) return
@@ -24,6 +26,10 @@ export function TiltCard({ children, className = '' }: Props) {
     if (!ref.current) return
     ref.current.style.setProperty('--tilt-x', '0')
     ref.current.style.setProperty('--tilt-y', '0')
+  }
+
+  if (lgDown) {
+    return <div className={className}>{children}</div>
   }
 
   return (

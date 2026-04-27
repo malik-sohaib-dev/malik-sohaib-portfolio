@@ -2,12 +2,18 @@ import { stackMarquee } from '../data/content'
 
 const doubled = [...stackMarquee, ...stackMarquee]
 
-type Props = { reduceMotion?: boolean }
+type Props = {
+  reduceMotion?: boolean
+  /** Below `lg`: no infinite scroll animation (saves GPU / main thread). */
+  liteViewport?: boolean
+}
 
-export function TechMarquee({ reduceMotion }: Props) {
-  if (reduceMotion) {
+export function TechMarquee({ reduceMotion, liteViewport }: Props) {
+  const staticOnly = reduceMotion || liteViewport
+
+  if (staticOnly) {
     return (
-      <div className="pointer-events-none relative mt-12 border-y border-white/[0.08] bg-black/30 py-4 backdrop-blur-sm sm:mt-16">
+      <div className="pointer-events-none relative mt-12 border-y border-white/[0.08] bg-black/30 py-4 sm:mt-16 lg:backdrop-blur-sm">
         <p className="px-4 text-center font-mono text-[0.65rem] font-medium uppercase tracking-[0.18em] text-mist/75">
           {stackMarquee.join(' · ')}
         </p>

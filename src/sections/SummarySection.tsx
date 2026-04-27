@@ -9,7 +9,7 @@ export function SummarySection() {
       aria-labelledby="summary-heading"
     >
       <div
-        className="pointer-events-none absolute right-0 top-1/4 h-64 w-64 rounded-full bg-violet-500/6 blur-3xl"
+        className="pointer-events-none absolute right-0 top-1/4 hidden h-64 w-64 rounded-full bg-violet-500/6 blur-3xl lg:block"
         aria-hidden
       />
       <div className="mx-auto max-w-6xl px-4 sm:px-6">

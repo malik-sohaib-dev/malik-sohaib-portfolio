@@ -4,7 +4,7 @@
 export function SiteAurora() {
   return (
     <div
-      className="pointer-events-none fixed inset-0 -z-20 overflow-hidden"
+      className="site-aurora-root pointer-events-none fixed inset-0 -z-20 overflow-hidden"
       aria-hidden
     >
       <div

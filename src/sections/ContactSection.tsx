@@ -13,11 +13,11 @@ export function ContactSection() {
       aria-labelledby="contact-heading"
     >
       <div
-        className="pointer-events-none absolute -left-1/4 bottom-0 h-80 w-80 rounded-full bg-teal-500/8 blur-3xl"
+        className="pointer-events-none absolute -left-1/4 bottom-0 hidden h-80 w-80 rounded-full bg-teal-500/8 blur-3xl lg:block"
         aria-hidden
       />
       <div
-        className="pointer-events-none absolute -right-1/4 top-0 h-72 w-72 rounded-full bg-violet-500/8 blur-3xl"
+        className="pointer-events-none absolute -right-1/4 top-0 hidden h-72 w-72 rounded-full bg-violet-500/8 blur-3xl lg:block"
         aria-hidden
       />
 
