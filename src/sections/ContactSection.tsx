@@ -9,41 +9,59 @@ export function ContactSection() {
   return (
     <section
       id="contact"
-      className="relative py-20 sm:py-28"
+      className="section-ambient relative overflow-hidden py-22 sm:py-32"
       aria-labelledby="contact-heading"
     >
+      <div
+        className="pointer-events-none absolute -left-1/4 bottom-0 h-80 w-80 rounded-full bg-teal-500/8 blur-3xl"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute -right-1/4 top-0 h-72 w-72 rounded-full bg-violet-500/8 blur-3xl"
+        aria-hidden
+      />
+
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="grid gap-10 lg:grid-cols-2 lg:items-end">
+        <div className="grid gap-12 lg:grid-cols-2 lg:items-end lg:gap-16">
           <div>
+            <p className="font-mono text-[0.65rem] uppercase tracking-[0.24em] text-teal-400/90">
+              Contact
+            </p>
             <h2
               id="contact-heading"
-              className="font-display text-3xl font-medium tracking-tight text-foam sm:text-4xl"
+              className="mt-3 font-display text-3xl font-semibold leading-tight tracking-tight text-foam sm:text-4xl md:text-5xl"
             >
-              Let&apos;s build the next system.
+              <span className="bg-gradient-to-br from-foam via-foam to-mist/85 bg-clip-text text-transparent">
+                Let&apos;s build the next system.
+              </span>
             </h2>
-            <p className="mt-3 max-w-md text-mist/90">
+            <p className="mt-4 max-w-md text-pretty text-base text-mist/90 sm:text-lg">
               Open to remote opportunities and thoughtful collaborations across
               product engineering, AI, and platform work.
             </p>
           </div>
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.07] to-transparent p-5 sm:p-6"
+            transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+            className="card-shine flex flex-col gap-4 rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.08] to-white/[0.02] p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_32px_80px_-28px_rgba(45,212,191,0.12)] sm:p-7"
           >
             <a
               href={`mailto:${site.email}`}
-              className="group text-lg text-teal-300 transition hover:text-teal-200 sm:text-xl"
+              className="group cursor-pointer text-lg text-teal-300 transition duration-200 hover:text-teal-200 sm:text-xl"
             >
               {site.email}
-              <span className="ml-1 inline opacity-0 transition group-hover:opacity-100" aria-hidden>
+              <span
+                className="ml-1 inline opacity-0 transition group-hover:opacity-100"
+                aria-hidden
+              >
                 ↗
               </span>
             </a>
             <a
               href={`tel:${site.phone.replace(/[-\s]/g, '')}`}
-              className="text-mist/90 transition hover:text-foam"
+              className="cursor-pointer text-mist/90 transition hover:text-foam"
             >
               {site.phone}
             </a>
@@ -52,7 +70,7 @@ export function ContactSection() {
                 href={site.linkedIn}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-foam transition hover:border-white/30"
+                className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-white/16 bg-white/[0.06] px-3.5 py-2 text-xs font-medium text-foam transition hover:border-teal-400/35 hover:bg-white/[0.1]"
               >
                 LinkedIn
                 <span aria-hidden>↗</span>
@@ -60,15 +78,15 @@ export function ContactSection() {
               <button
                 type="button"
                 onClick={() => copyToClipboard(site.email)}
-                className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-foam transition hover:border-white/30"
+                className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-white/16 bg-white/[0.06] px-3.5 py-2 text-xs font-medium text-foam transition hover:border-teal-400/35 hover:bg-white/[0.1]"
               >
                 Copy email
               </button>
             </div>
           </motion.div>
         </div>
-        <p className="mt-20 text-center text-xs text-mist/45">
-          © {new Date().getFullYear()} {site.name}. Crafted with React, Vite, Tailwind & Three.js.
+        <p className="mt-24 text-center font-mono text-[0.65rem] uppercase tracking-[0.15em] text-mist/40">
+          © {new Date().getFullYear()} {site.name} · React · Vite · Tailwind · Three.js
         </p>
       </div>
     </section>

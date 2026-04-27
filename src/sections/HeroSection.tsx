@@ -13,7 +13,7 @@ const container = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
-    transition: { staggerChildren: 0.08, delayChildren: 0.08 },
+    transition: { staggerChildren: 0.08, delayChildren: 0.06 },
   },
 } as const
 
@@ -31,7 +31,7 @@ export function HeroSection() {
   return (
     <section
       id="top"
-      className="relative min-h-svh overflow-hidden border-b border-white/5"
+      className="relative min-h-svh overflow-hidden border-b border-white/[0.06]"
       onPointerMove={(e) => {
         if (reduced) return
         if (window.matchMedia('(pointer: coarse)').matches) {
@@ -47,7 +47,7 @@ export function HeroSection() {
         <div
           className="pointer-events-none absolute inset-0 z-[1] mix-blend-screen"
           style={{
-            background: `radial-gradient(520px circle at ${glow.x}px ${glow.y}px, rgba(45,212,191,0.16), rgba(99,102,241,0.05) 38%, transparent 55%)`,
+            background: `radial-gradient(520px circle at ${glow.x}px ${glow.y}px, rgba(45,212,191,0.14), rgba(99,102,241,0.06) 38%, transparent 55%)`,
           }}
           aria-hidden
         />
@@ -65,16 +65,23 @@ export function HeroSection() {
         className="absolute inset-0 -z-10"
         style={{
           background:
-            'linear-gradient(120deg, rgba(3,7,18,0.2) 0%, rgba(3,7,18,0.5) 40%, #030712 100%), linear-gradient(180deg, rgba(3,7,18,0.1) 0%, rgba(3,7,18,0.88) 70%, #030712 100%)',
+            'linear-gradient(120deg, rgba(1,4,9,0.15) 0%, rgba(1,4,9,0.45) 42%, #010409 100%), linear-gradient(180deg, rgba(1,4,9,0.05) 0%, rgba(1,4,9,0.9) 68%, #010409 100%)',
         }}
         aria-hidden
       />
 
-      <div className="mesh-spotlight pointer-events-none absolute -left-1/4 top-0 h-[60%] w-[60%] rounded-full bg-teal-500/10 blur-[100px] sm:w-[50%]" />
-      <div className="mesh-spotlight pointer-events-none absolute -right-1/4 top-1/3 h-1/2 w-1/2 rounded-full bg-violet-500/10 blur-[90px] [animation-delay:2.5s]" />
+      <div className="mesh-spotlight pointer-events-none absolute -left-1/4 top-0 h-[60%] w-[60%] rounded-full bg-teal-500/12 blur-[100px] sm:w-[50%]" />
+      <div className="mesh-spotlight pointer-events-none absolute -right-1/4 top-1/3 h-1/2 w-1/2 rounded-full bg-violet-500/11 blur-[90px] [animation-delay:2.5s]" />
 
-      <div className="relative z-10 mx-auto flex min-h-svh max-w-6xl flex-col px-4 pb-12 pt-24 sm:px-6 sm:pt-28">
-        <div className="grid flex-1 items-center gap-10 lg:grid-cols-12 lg:gap-6">
+      <div className="pointer-events-none absolute inset-x-0 top-[12%] z-[2] flex justify-center sm:top-[14%]">
+        <div
+          className="h-24 w-px max-w-px bg-gradient-to-b from-teal-400/50 via-white/20 to-transparent sm:h-32"
+          aria-hidden
+        />
+      </div>
+
+      <div className="relative z-10 mx-auto flex min-h-svh max-w-6xl flex-col px-4 pb-14 pt-28 sm:px-6 sm:pt-32">
+        <div className="grid flex-1 items-center gap-12 lg:grid-cols-12 lg:gap-8">
           <motion.div
             variants={container}
             initial="hidden"
@@ -83,26 +90,36 @@ export function HeroSection() {
           >
             <motion.p
               variants={item}
-              className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-gradient-to-r from-white/[0.08] to-white/[0.02] px-3 py-1.5 text-xs text-mist/95 shadow-[0_0_0_1px_rgba(255,255,255,0.04)] backdrop-blur-md"
+              className="mb-6 inline-flex max-w-full flex-wrap items-center gap-2.5 rounded-full border border-white/10 bg-gradient-to-r from-white/[0.1] to-white/[0.02] px-3.5 py-2 text-xs text-mist/95 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_8px_32px_-12px_rgba(0,0,0,0.4)] backdrop-blur-xl"
             >
               <span
-                className="size-1.5 animate-pulse rounded-full bg-gradient-to-r from-teal-400 to-cyan-300 shadow-[0_0_10px_2px_rgba(45,212,191,0.5)]"
+                className={`size-1.5 shrink-0 rounded-full bg-gradient-to-r from-teal-400 to-cyan-300 shadow-[0_0_12px_2px_rgba(45,212,191,0.55)] ${reduced ? '' : 'animate-pulse'}`}
                 aria-hidden
               />
-              {site.location} · {site.remote} · Open to impact roles
+              <span className="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-mist/80">
+                {site.location}
+              </span>
+              <span className="text-mist/40" aria-hidden>
+                ·
+              </span>
+              <span>{site.remote}</span>
+              <span className="text-mist/40" aria-hidden>
+                ·
+              </span>
+              <span className="text-foam/95">Open to impact roles</span>
             </motion.p>
             <motion.h1
               variants={item}
-              className="font-display text-[2.5rem] font-extrabold leading-[0.95] tracking-tight sm:text-6xl md:text-[4.5rem] lg:text-[4.8rem]"
+              className="font-display text-[2.65rem] font-extrabold leading-[0.95] tracking-tight sm:text-6xl md:text-[4.5rem] lg:text-[4.9rem]"
             >
-              <span className="hero-gradient-text block">{name[0]}</span>
-              <span className="mt-1 block text-[0.5em] font-semibold text-mist/85 sm:mt-2 sm:text-[0.45em]">
+              <span className="hero-gradient-text block drop-shadow-2xl">{name[0]}</span>
+              <span className="mt-1.5 block text-[0.48em] font-semibold text-mist/90 sm:mt-2 sm:text-[0.45em]">
                 {name.slice(1).join(' ')}
               </span>
             </motion.h1>
             <motion.p
               variants={item}
-              className="font-display text-lg font-medium tracking-wide text-teal-200/80 sm:text-xl"
+              className="font-display text-lg font-medium tracking-wide text-teal-200/90 sm:text-xl"
             >
               {site.title}
             </motion.p>
@@ -112,19 +129,20 @@ export function HeroSection() {
             >
               {site.tagline}
             </motion.p>
-            <motion.div
-              variants={item}
-              className="mt-8 flex flex-wrap gap-4"
-            >
+            <motion.div variants={item} className="mt-9 flex flex-wrap gap-3 sm:gap-4">
               {heroStats.map((s) => (
                 <div
                   key={s.label}
-                  className="min-w-[9rem] rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 shadow-[0_0_30px_-12px_rgba(45,212,191,0.2)]"
+                  className="group relative min-w-[8.5rem] overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.07] to-white/[0.02] p-4 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_20px_50px_-24px_rgba(45,212,191,0.2)] backdrop-blur-md transition duration-300 hover:border-teal-400/30 hover:shadow-[0_24px_60px_-20px_rgba(45,212,191,0.35)]"
                 >
-                  <p className="text-2xl font-bold tracking-tight text-foam sm:text-3xl">
+                  <div
+                    className="pointer-events-none absolute -right-6 -top-6 size-24 rounded-full bg-teal-400/10 blur-2xl transition group-hover:scale-110"
+                    aria-hidden
+                  />
+                  <p className="font-display text-2xl font-bold tracking-tight text-foam sm:text-3xl">
                     {s.value}
                   </p>
-                  <p className="text-[0.7rem] uppercase tracking-[0.15em] text-mist/70">
+                  <p className="mt-0.5 font-mono text-[0.65rem] uppercase tracking-[0.2em] text-mist/75">
                     {s.label}
                   </p>
                 </div>
@@ -132,50 +150,69 @@ export function HeroSection() {
             </motion.div>
             <motion.div
               variants={item}
-              className="mt-10 flex flex-wrap items-center gap-3"
+              className="mt-10 flex flex-wrap items-center gap-3 sm:gap-4"
             >
-              <a
-                href="#experience"
-                className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-gradient-to-r from-teal-400 via-cyan-400 to-teal-500 px-7 py-3 text-sm font-bold text-void shadow-[0_0_50px_-8px_rgba(45,212,191,0.65),inset_0_1px_0_rgba(255,255,255,0.3)] transition hover:brightness-110"
-              >
+              <a href="#experience" className="btn-primary group">
                 <span className="relative z-10 flex items-center gap-2">
                   Explore experience
-                  <span className="transition group-hover:translate-x-0.5" aria-hidden>
+                  <span
+                    className="transition group-hover:translate-x-0.5"
+                    aria-hidden
+                  >
                     →
                   </span>
                 </span>
               </a>
-              <a
-                href="#contact"
-                className="rounded-full border border-white/20 bg-white/5 px-6 py-3 text-sm font-medium text-foam/95 backdrop-blur transition hover:border-teal-400/40 hover:shadow-[0_0_30px_-8px_rgba(45,212,191,0.25)]"
-              >
+              <a href="#contact" className="btn-ghost">
                 Start a conversation
               </a>
             </motion.div>
           </motion.div>
-          {/* <div
-            className="pointer-events-none relative hidden h-48 max-h-[50vh] lg:col-span-4 lg:block"
+
+          <motion.aside
+            initial={{ opacity: 0, x: 16 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.45, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            className="hidden lg:col-span-4 lg:block"
             aria-hidden
           >
-            <div className="absolute inset-0 scale-110 bg-gradient-to-tr from-teal-500/0 via-cyan-500/10 to-violet-500/5 blur-3xl" />
-            <div className="absolute right-0 top-1/2 w-32 -translate-y-1/2 rounded-2xl border border-white/5 bg-gradient-to-b from-white/10 to-transparent p-3 text-right text-xs text-mist/60 backdrop-blur">
-              <p className="font-display text-lg font-semibold text-teal-200/90">
-                WebGL
+            <div className="card-shine relative ml-auto max-w-sm rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.07] to-transparent p-5 shadow-[0_0_80px_-30px_rgba(124,58,237,0.35)]">
+              <p className="font-mono text-[0.6rem] uppercase tracking-[0.22em] text-mist/70">
+                Focus
               </p>
-              <p className="mt-0.5">Immersive hero</p>
+              <p className="mt-3 font-display text-lg font-semibold text-foam/95">
+                Real-time systems, AI in production, platform craft.
+              </p>
+              <ul className="mt-4 space-y-2 text-sm text-mist/88">
+                <li className="flex gap-2">
+                  <span className="text-teal-400/80">—</span>
+                  Multi-cloud & edge
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-teal-400/80">—</span>
+                  RAG & data planes
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-teal-400/80">—</span>
+                  Product velocity
+                </li>
+              </ul>
             </div>
-          </div> */}
+          </motion.aside>
         </div>
 
         <TechMarquee reduceMotion={reduced} />
 
         <motion.div
           initial={{ opacity: 0 }}
-          animate={{ opacity: 0.5 }}
+          animate={{ opacity: 0.55 }}
           transition={{ delay: 1.1, duration: 0.6 }}
-          className="mt-6 text-center text-xs text-mist/50 md:mt-4"
+          className="mt-8 text-center text-xs text-mist/50 md:mt-6"
         >
-          <span className="inline-block translate-y-0.5 animate-bounce" aria-hidden>
+          <span
+            className={`inline-block translate-y-0.5 text-teal-400/50 ${reduced ? '' : 'animate-bounce'}`}
+            aria-hidden
+          >
             ↓
           </span>{' '}
           Scroll

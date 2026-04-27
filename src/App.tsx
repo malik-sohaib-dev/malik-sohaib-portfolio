@@ -1,4 +1,5 @@
 import { Navigation } from './components/Navigation'
+import { SiteAurora } from './components/SiteAurora'
 import { ContactSection } from './sections/ContactSection'
 import { EducationSection } from './sections/EducationSection'
 import { ExperienceSection } from './sections/ExperienceSection'
@@ -10,8 +11,9 @@ import { SummarySection } from './sections/SummarySection'
 function App() {
   return (
     <>
+      <SiteAurora />
       <div className="grain" aria-hidden />
-      <div className="bg-void text-foam">
+      <div className="relative bg-void text-foam">
         <Navigation />
         <main>
           <HeroSection />

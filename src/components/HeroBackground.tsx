@@ -137,8 +137,8 @@ function OrbitingGems() {
 function Scene() {
   return (
     <>
-      <fog attach="fog" args={['#030712', 4, 22]} />
-      <color attach="background" args={['#030712']} />
+      <fog attach="fog" args={['#010409', 4, 22]} />
+      <color attach="background" args={['#010409']} />
       <ParallaxRig>
         <ambientLight intensity={0.15} />
         <pointLight

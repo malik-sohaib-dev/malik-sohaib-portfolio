@@ -7,7 +7,7 @@ export function StaticHeroBackdrop({ className = '' }: Props) {
       aria-hidden
       style={{
         background:
-          'radial-gradient(ellipse 120% 100% at 20% 0%, rgba(45,212,191,0.22) 0%, transparent 45%), radial-gradient(ellipse 90% 80% at 100% 20%, rgba(99,102,241,0.2) 0%, transparent 40%), radial-gradient(ellipse 60% 50% at 50% 100%, rgba(6,182,212,0.1) 0%, transparent 50%), #020617',
+          'radial-gradient(ellipse 120% 100% at 20% 0%, rgba(45,212,191,0.2) 0%, transparent 45%), radial-gradient(ellipse 90% 80% at 100% 20%, rgba(99,102,241,0.18) 0%, transparent 40%), radial-gradient(ellipse 60% 50% at 50% 100%, rgba(6,182,212,0.1) 0%, transparent 50%), #010409',
       }}
     />
   )
