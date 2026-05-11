@@ -213,7 +213,66 @@ function Scene({ theme, sceneBg }: SceneProps) {
   )
 }
 
-type HeroBackgroundProps = { className?: string }
+// ---------------------------------------------------------------------------
+// Lite scene – used for low-performance devices.
+// Keeps the signature torus knot but drops every expensive feature:
+// Float physics, MeshDistortMaterial, OrbitingGems, Sparkles,
+// ContactShadows, Environment HDR, fog, ParallaxRig.
+// Canvas is configured with antialias=false, dpr=1, powerPreference=low-power.
+// ---------------------------------------------------------------------------
+
+function LiteKnot({ isLight }: { isLight: boolean }) {
+  const mesh = useRef<Mesh>(null)
+
+  useFrame((state, delta) => {
+    if (!mesh.current) return
+    mesh.current.rotation.x += delta * 0.22
+    mesh.current.rotation.y += delta * 0.18
+    // Lightweight pointer parallax (single lerp, no spring physics)
+    mesh.current.position.x = MathUtils.lerp(mesh.current.position.x, state.pointer.x * 0.3, 0.04)
+    mesh.current.position.y = MathUtils.lerp(mesh.current.position.y, state.pointer.y * 0.2, 0.04)
+  })
+
+  return (
+    <mesh ref={mesh}>
+      <torusKnotGeometry args={[0.9, 0.28, 80, 12]} />
+      <meshStandardMaterial
+        color={isLight ? '#0f766e' : '#0d9488'}
+        emissive={isLight ? '#7c3aed' : '#4c1d95'}
+        emissiveIntensity={isLight ? 0.7 : 0.6}
+        metalness={0.8}
+        roughness={0.25}
+      />
+    </mesh>
+  )
+}
+
+function LiteScene({ theme, sceneBg }: SceneProps) {
+  const isLight = theme === 'light'
+  return (
+    <>
+      <color attach="background" args={[sceneBg]} />
+      <ambientLight intensity={isLight ? 0.5 : 0.2} />
+      <pointLight position={[3, 4, 6]} intensity={isLight ? 1.8 : 1.2} color="#5eead4" />
+      <pointLight position={[-6, -1, 4]} intensity={isLight ? 1.0 : 0.6} color="#a78bfa" />
+      <LiteKnot isLight={isLight} />
+      <Stars
+        key={`stars-${theme}`}
+        radius={60}
+        depth={40}
+        count={isLight ? 200 : 400}
+        factor={isLight ? 1.45 : 2.1}
+        saturation={0}
+        fade
+        speed={0.15}
+      />
+    </>
+  )
+}
+
+// ---------------------------------------------------------------------------
+
+type HeroBackgroundProps = { className?: string; lowPerf?: boolean }
 
 /**
  * Post-processing (Bloom/Vignette) was removed: when the WebGL context is lost,
@@ -276,7 +335,7 @@ function ContextGuard({ onFail }: { onFail: () => void }) {
   return null
 }
 
-export function HeroBackground({ className = '' }: HeroBackgroundProps) {
+export function HeroBackground({ className = '', lowPerf = false }: HeroBackgroundProps) {
   const [gpuFailed, setGpuFailed] = useState(false)
   const { theme } = useTheme()
   const sceneBg = webglBackgroundFromCss()
@@ -304,13 +363,13 @@ export function HeroBackground({ className = '' }: HeroBackgroundProps) {
        * updated props, Environment/Stars use their own key to swap presets.
        */}
       <Canvas
-        dpr={[1, 1.5]}
-        performance={{ min: 0.5 }}
+        dpr={lowPerf ? 1 : [1, 1.5]}
+        performance={lowPerf ? undefined : { min: 0.5 }}
         camera={{ position: [0, 0.1, 6.2], fov: 40 }}
         gl={{
-          antialias: true,
+          antialias: !lowPerf,
           alpha: true,
-          powerPreference: 'default',
+          powerPreference: lowPerf ? 'low-power' : 'default',
         }}
         onCreated={({ gl }) => {
           gl.setClearColor('#000000', 0)
@@ -322,7 +381,11 @@ export function HeroBackground({ className = '' }: HeroBackgroundProps) {
         }}
         style={{ width: '100%', height: '100%' }}
       >
-        <Scene theme={theme} sceneBg={sceneBg} />
+        {lowPerf ? (
+          <LiteScene theme={theme} sceneBg={sceneBg} />
+        ) : (
+          <Scene theme={theme} sceneBg={sceneBg} />
+        )}
         <ToneMapSync theme={theme} />
         <ContextGuard onFail={() => setGpuFailed(true)} />
       </Canvas>

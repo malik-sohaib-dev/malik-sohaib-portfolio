@@ -38,14 +38,14 @@ export function HeroSection() {
   }, [lowPerf])
   
   const [glow, setGlow] = useState<{ x: number; y: number } | null>(null)
-  const staticBackdrop = reduced || lgDown || lowPerf
+  const staticBackdrop = reduced || lgDown
 
   return (
     <section
       id="top"
       className="relative min-h-svh overflow-hidden border-b border-border-subtle"
       onPointerMove={(e) => {
-        if (reduced || lgDown || lowPerf) return
+        if (reduced || lgDown) return
         if (window.matchMedia('(pointer: coarse)').matches) {
           setGlow(null)
           return
@@ -55,7 +55,7 @@ export function HeroSection() {
       }}
       onPointerLeave={() => setGlow(null)}
     >
-      {glow && !reduced && !lgDown && !lowPerf && (
+      {glow && !reduced && !lgDown && (
         <div
           className="pointer-events-none absolute inset-0 z-[1] mix-blend-screen"
           style={{
@@ -69,7 +69,7 @@ export function HeroSection() {
         <StaticHeroBackdrop />
       ) : (
         <Suspense fallback={<StaticHeroBackdrop />}>
-          <HeroBackground />
+          <HeroBackground lowPerf={lowPerf} />
         </Suspense>
       )}
 

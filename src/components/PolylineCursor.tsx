@@ -92,7 +92,7 @@ export function PolylineCursor() {
   const lowPerf = useLowPerformance()
 
   useEffect(() => {
-    if (reduced || lgDown || lowPerf) return
+    if (reduced || lgDown) return
     if (typeof window === 'undefined') return
     if (window.matchMedia('(pointer: coarse)').matches) return
 
@@ -100,8 +100,12 @@ export function PolylineCursor() {
     if (!host) return
     const hostEl = host
 
+    // Lite mode: fewer lines, shorter trails, DPR capped at 1
+    const lineCount = lowPerf ? 2 : PALETTE.length
+    const pointCount = lowPerf ? 10 : 20
+
     const renderer = new Renderer({
-      dpr: Math.min(window.devicePixelRatio ?? 1, 2),
+      dpr: lowPerf ? 1 : Math.min(window.devicePixelRatio ?? 1, 2),
       alpha: true,
       depth: false,
       premultipliedAlpha: false,
@@ -114,7 +118,7 @@ export function PolylineCursor() {
     const scene = new Transform()
     const lines: TrailLine[] = []
 
-    for (let i = 0; i < PALETTE.length; i++) {
+    for (let i = 0; i < lineCount; i++) {
       const spring = random(0.035, 0.09)
       const friction = random(0.78, 0.93)
       const line: Omit<TrailLine, 'polyline'> = {
@@ -124,8 +128,7 @@ export function PolylineCursor() {
         mouseOffset: new Vec3(random(-1, 1) * 0.025, random(-1, 1) * 0.025, 0),
         points: [],
       }
-      const count = 20
-      for (let j = 0; j < count; j++) line.points.push(new Vec3())
+      for (let j = 0; j < pointCount; j++) line.points.push(new Vec3())
 
       const polyline = new Polyline(gl, {
         points: line.points,
@@ -225,7 +228,7 @@ export function PolylineCursor() {
     }
   }, [lgDown, lowPerf, reduced])
 
-  if (reduced || lgDown || lowPerf) return null
+  if (reduced || lgDown) return null
 
   return (
     <div
