@@ -6,9 +6,9 @@ import {
   Sparkles,
   Stars,
 } from '@react-three/drei'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { damp3 } from 'maath/easing'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { Group, Mesh } from 'three'
 import { ACESFilmicToneMapping, MathUtils, SRGBColorSpace } from 'three'
 import { useTheme } from '../theme'
@@ -34,7 +34,7 @@ function ParallaxRig({ children }: { children: React.ReactNode }) {
   return <group ref={group}>{children}</group>
 }
 
-function CoreCluster() {
+function CoreCluster({ isLight }: { isLight: boolean }) {
   const knot = useRef<Mesh>(null)
   const core = useRef<Mesh>(null)
   const ring = useRef<Mesh>(null)
@@ -59,9 +59,9 @@ function CoreCluster() {
         <mesh ref={knot} position={[0, 0.1, 0]}>
           <torusKnotGeometry args={[0.9, 0.28, 200, 32]} />
           <meshPhysicalMaterial
-            color="#0d9488"
-            emissive="#4c1d95"
-            emissiveIntensity={0.85}
+            color={isLight ? '#0f766e' : '#0d9488'}
+            emissive={isLight ? '#7c3aed' : '#4c1d95'}
+            emissiveIntensity={isLight ? 1.6 : 0.85}
             metalness={0.9}
             roughness={0.2}
             clearcoat={0.4}
@@ -77,8 +77,8 @@ function CoreCluster() {
           <icosahedronGeometry args={[0.45, 6]} />
           <MeshDistortMaterial
             color="#5eead4"
-            emissive="#312e81"
-            emissiveIntensity={0.55}
+            emissive={isLight ? '#4c1d95' : '#312e81'}
+            emissiveIntensity={isLight ? 1.2 : 0.55}
             roughness={0.12}
             metalness={0.85}
             distort={0.5}
@@ -93,7 +93,7 @@ function CoreCluster() {
         <meshStandardMaterial
           color="#7dd3fc"
           emissive="#38bdf8"
-          emissiveIntensity={0.8}
+          emissiveIntensity={isLight ? 1.4 : 0.8}
           metalness={0.95}
           roughness={0.1}
         />
@@ -102,7 +102,7 @@ function CoreCluster() {
   )
 }
 
-function OrbitingGems() {
+function OrbitingGems({ isLight }: { isLight: boolean }) {
   const g = useRef<Group>(null)
   const seeds = [0, 1, 2, 3, 4] as const
 
@@ -125,7 +125,7 @@ function OrbitingGems() {
           <meshStandardMaterial
             color={i % 2 ? '#a78bfa' : '#2dd4bf'}
             emissive={i % 2 ? '#6d28d9' : '#0f766e'}
-            emissiveIntensity={0.4}
+            emissiveIntensity={isLight ? 0.9 : 0.4}
             metalness={0.8}
             roughness={0.25}
           />
@@ -143,7 +143,7 @@ type SceneProps = {
 function Scene({ theme, sceneBg }: SceneProps) {
   const isLight = theme === 'light'
   const starCount = isLight ? 720 : 2500
-  const sparkleOpacity = isLight ? 0.42 : 0.75
+  const sparkleOpacity = isLight ? 0.65 : 0.75
   const shadowOpacity = isLight ? 0.32 : 0.5
 
   return (
@@ -151,31 +151,31 @@ function Scene({ theme, sceneBg }: SceneProps) {
       <fog attach="fog" args={[sceneBg, 4, 22]} />
       <color attach="background" args={[sceneBg]} />
       <ParallaxRig>
-        <ambientLight intensity={isLight ? 0.35 : 0.15} />
+        <ambientLight intensity={isLight ? 0.6 : 0.15} />
         <pointLight
           position={[3, 4, 6]}
-          intensity={isLight ? 1.1 : 1.4}
+          intensity={isLight ? 2.2 : 1.4}
           color="#5eead4"
         />
         <pointLight
           position={[-6, -1, 4]}
-          intensity={isLight ? 0.65 : 0.8}
+          intensity={isLight ? 1.4 : 0.8}
           color="#a78bfa"
         />
         <pointLight
           position={[0, 5, -2]}
-          intensity={isLight ? 0.85 : 0.5}
+          intensity={isLight ? 1.6 : 0.5}
           color="#f0f9ff"
         />
         <spotLight
           position={[0, 8, 2]}
           angle={0.45}
           penumbra={0.4}
-          intensity={isLight ? 0.85 : 0.6}
+          intensity={isLight ? 1.6 : 0.6}
           color="#e0f2fe"
         />
-        <CoreCluster />
-        <OrbitingGems />
+        <CoreCluster isLight={isLight} />
+        <OrbitingGems isLight={isLight} />
         <Stars
           key={`stars-${theme}`}
           radius={60}
@@ -204,7 +204,7 @@ function Scene({ theme, sceneBg }: SceneProps) {
         <Environment
           key={theme}
           preset={isLight ? 'apartment' : 'night'}
-          environmentIntensity={isLight ? 0.42 : 0.55}
+          environmentIntensity={isLight ? 0.7 : 0.55}
         />
       </ParallaxRig>
     </>
@@ -224,6 +224,54 @@ function webglBackgroundFromCss(): string {
     getComputedStyle(document.documentElement).getPropertyValue('--tp-webgl-bg').trim() ||
     '#010409'
   )
+}
+
+/**
+ * Syncs toneMappingExposure whenever the theme changes without remounting the Canvas.
+ * Must be rendered as a child of <Canvas> to access the R3F renderer via useThree.
+ */
+function ToneMapSync({ theme }: { theme: 'dark' | 'light' }) {
+  const { gl } = useThree()
+  useEffect(() => {
+    gl.toneMappingExposure = theme === 'light' ? 1.35 : 1.15
+  }, [gl, theme])
+  return null
+}
+
+/**
+ * Listens for WebGL context loss/restoration inside the Canvas lifecycle so the
+ * listener is always paired with a matching cleanup. A short grace window
+ * (4 s) distinguishes driver-level loss from intentional teardowns, giving the
+ * browser time to issue a contextrestored event before falling back to the
+ * static backdrop.
+ */
+function ContextGuard({ onFail }: { onFail: () => void }) {
+  const { gl } = useThree()
+  useEffect(() => {
+    const el = gl.domElement
+    let recoverTimer: ReturnType<typeof setTimeout> | null = null
+
+    const onLost = (e: Event) => {
+      e.preventDefault()
+      recoverTimer = setTimeout(onFail, 4000)
+    }
+    const onRestored = () => {
+      if (recoverTimer !== null) {
+        clearTimeout(recoverTimer)
+        recoverTimer = null
+      }
+    }
+
+    el.addEventListener('webglcontextlost', onLost)
+    el.addEventListener('webglcontextrestored', onRestored)
+
+    return () => {
+      if (recoverTimer !== null) clearTimeout(recoverTimer)
+      el.removeEventListener('webglcontextlost', onLost)
+      el.removeEventListener('webglcontextrestored', onRestored)
+    }
+  }, [gl, onFail])
+  return null
 }
 
 export function HeroBackground({ className = '' }: HeroBackgroundProps) {
@@ -247,8 +295,13 @@ export function HeroBackground({ className = '' }: HeroBackgroundProps) {
       className={`pointer-events-none absolute inset-0 -z-10 ${className}`}
       aria-hidden
     >
+      {/*
+       * key={theme} was intentionally removed. Re-keying destroys the WebGL
+       * context which fires webglcontextlost → permanent fallback. Theme changes
+       * are handled reactively: ToneMapSync updates exposure, Scene receives
+       * updated props, Environment/Stars use their own key to swap presets.
+       */}
       <Canvas
-        key={theme}
         dpr={[1, 1.5]}
         camera={{ position: [0, 0.1, 6.2], fov: 40 }}
         gl={{
@@ -259,20 +312,16 @@ export function HeroBackground({ className = '' }: HeroBackgroundProps) {
         onCreated={({ gl }) => {
           gl.setClearColor('#000000', 0)
           gl.toneMapping = ACESFilmicToneMapping
-          gl.toneMappingExposure = theme === 'light' ? 1.05 : 1.15
+          gl.toneMappingExposure = theme === 'light' ? 1.35 : 1.15
           if ('outputColorSpace' in gl) {
             gl.outputColorSpace = SRGBColorSpace
           }
-          const el = gl.domElement
-          const onLost = (e: Event) => {
-            e.preventDefault()
-            setGpuFailed(true)
-          }
-          el.addEventListener('webglcontextlost', onLost)
         }}
         style={{ width: '100%', height: '100%' }}
       >
         <Scene theme={theme} sceneBg={sceneBg} />
+        <ToneMapSync theme={theme} />
+        <ContextGuard onFail={() => setGpuFailed(true)} />
       </Canvas>
     </div>
   )
