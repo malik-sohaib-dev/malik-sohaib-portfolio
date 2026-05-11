@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import { useEffect } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { CaseStudyArchitectureDiagram } from '../components/CaseStudyArchitectureDiagram'
-import { getArchitectureMermaidBodyForProject } from '../data/architecture'
+import { getArchitectureDiagramForProject } from '../data/architecture'
 import { getProjectBySlug } from '../data/content'
 
 function StudyBlock({
@@ -58,7 +58,7 @@ export function ProjectCaseStudyPage() {
   }
 
   const { caseStudy: cs } = project
-  const architectureMermaidBody = getArchitectureMermaidBodyForProject(project.slug)
+  const architectureDiagram = getArchitectureDiagramForProject(project.slug)
 
   return (
     <article
@@ -102,12 +102,12 @@ export function ProjectCaseStudyPage() {
           </ul>
         </header>
 
-        {architectureMermaidBody ? (
+        {architectureDiagram ? (
           <CaseStudyArchitectureDiagram
             key={project.slug}
-            mermaidBody={architectureMermaidBody}
-            ariaLabel={`${project.name} — system architecture before and after migration`}
-            description="Before: Photon via the JS SDK on Express, large in-memory snapshots, and many SSE streams per browser. After: Elixir datasync with a custom Photon client, Phoenix Channels, ETS for inactive/active/file lists, MongoDB, and cloud adapters — Express handles non-sync HTTP only."
+            mermaidBody={architectureDiagram.mermaidBody}
+            ariaLabel={architectureDiagram.ariaLabel}
+            description={architectureDiagram.description}
           />
         ) : null}
 

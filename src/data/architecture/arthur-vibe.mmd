@@ -1,0 +1,70 @@
+flowchart TB
+  ADP["Go AI adapters · dynamic provider selection"]
+  LLM[("OpenAI · Gemini · Anthropic")]
+  PG[("Postgres + pgvector")]
+
+  ADP --> LLM
+
+  subgraph portal["Portal — create Vibe"]
+    direction TB
+    CR["Creator — vibe type · bot · strictness · deadline · questions"]
+    API["Go Fiber — Postgres · MongoDB ecosystem sync"]
+    CR --> API
+    API --> INV["Invitation email"]
+    API --> ADP
+  end
+
+  subgraph meet["Meeting runtime"]
+    direction TB
+    PT["Participant — language · voice · optional anonymity"]
+    R3D["Browser — Three.js 3D room · branded bot"]
+    ML["Meeting Lambda — Go · prompts · question logic"]
+    RD[("Redis — resumable dialogue")]
+    INV --> PT
+    PT --> R3D
+    R3D --> ML
+    ML --> RD
+    ML --> ADP
+  end
+
+  subgraph transcripts["Transcript capture"]
+    direction TB
+    ML --> S3T[("S3 — transcript")]
+    S3T --> TEN["Normalize to English if needed"]
+    TEN --> S3EN[("S3 — English transcript")]
+  end
+
+  subgraph ingest["S3-triggered processing"]
+    direction TB
+    S3EN --> PLAMB["Meeting processing Lambda — Go<br/>chunk · embed"]
+    PLAMB --> ADP
+    PLAMB --> PG
+  end
+
+  subgraph orch["Report pipeline — Step Functions"]
+    direction TB
+    TR["Trigger — all done · deadline · manual"]
+    GEN["Report gen Lambda — batches of 5 · merge<br/>prompts from Postgres · portal-tunable"]
+    TRL["Translator Lambda — vibe locale"]
+    EMB["Embeddings Lambda — report chunks"]
+    S3R[("S3 — report JSON")]
+    TR --> GEN
+    GEN --> ADP
+    GEN --> S3R
+    GEN --> TRL
+    TRL --> ADP
+    TRL --> S3R
+    S3R --> EMB
+    EMB --> ADP
+    EMB --> PG
+    TR --> MAIL["Email — report ready"]
+  end
+
+  subgraph front["Report UI — React"]
+    direction TB
+    UI["Structured JSON · share · public / private"]
+    ASST["Assistant — RAG · optional voice · translate"]
+    S3R --> UI
+    ASST --> PG
+    ASST --> ADP
+  end
