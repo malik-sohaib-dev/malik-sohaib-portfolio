@@ -319,8 +319,6 @@
   background: var(--tp-hero-vignette);
 }
 
-.site-aurora-1,
-.site-aurora-2,
 .site-aurora-3 {
   filter: blur(80px);
   animation: site-aurora-float 28s ease-in-out infinite;
@@ -333,8 +331,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .site-aurora-1,
-  .site-aurora-2,
   .site-aurora-3 {
     animation: none;
   }
