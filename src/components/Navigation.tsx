@@ -13,26 +13,22 @@ const links = [
 ] as const
 
 function LogoMark({ className = '' }: { className?: string }) {
+  const bg =
+    '[fill:var(--color-accent)] [stroke-width:0] theme-light:[fill:var(--color-surface)] theme-light:stroke-[var(--tp-border-muted)] theme-light:[stroke-width:1]'
+  const bar =
+    '[fill:var(--color-void)] theme-light:[fill:var(--color-accent)]'
   return (
     <svg
       className={className}
-      width="20"
-      height="20"
+      width="22"
+      height="22"
       viewBox="0 0 24 24"
-      fill="none"
       aria-hidden
     >
-      <path
-        d="M12 2L3 7v10l9 5 9-5V7l-9-5z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M12 2v20M3 7l9 5 9-5"
-        stroke="currentColor"
-        strokeWidth="1.2"
-        className="text-logo-dim"
-      />
+      <rect width="24" height="24" rx="5.5" className={bg} />
+      <rect x="5" y="6.5" width="14" height="3.25" rx="1.6" className={bar} />
+      <rect x="8" y="10.875" width="9" height="3.25" rx="1.6" className={bar} />
+      <rect x="5" y="15.25" width="11" height="3.25" rx="1.6" className={bar} />
     </svg>
   )
 }
@@ -112,7 +108,7 @@ export function Navigation() {
             to="/#top"
             className="group flex cursor-pointer items-center gap-2.5 font-display text-sm font-semibold tracking-tight text-foam/95 transition hover:text-accent"
           >
-            <span className="text-accent transition group-hover:scale-105 theme-dark:text-teal-400/90 theme-light:text-accent-dim">
+            <span className="shrink-0 transition group-hover:scale-105">
               <LogoMark />
             </span>
             <span>{site.name.split(' ')[0]}</span>
