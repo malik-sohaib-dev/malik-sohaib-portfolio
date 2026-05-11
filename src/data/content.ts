@@ -283,37 +283,50 @@ export const projects: readonly Project[] = [
     },
   },
   {
-    slug: 'solar-design-pvx',
-    name: 'Solar Design Tool (pvx.ai)',
-    blurb: 'Web PV design with rich UI and real-time engineering calculations.',
+    slug: 'zoom-meeting-agent',
+    name: 'Zoom Meeting Agent',
+    blurb:
+      'Configurable voice agents that join Zoom meetings: admin console for prompts and models, a participant bridge page for audio and OpenAI WebRTC, and a LiveKit-backed bot worker—plus HeyGen avatars on a parallel path.',
     tagline:
-      'A browser-based PV layout and engineering workflow where the UI stayed responsive while calculations streamed in.',
-    stack: ['React', 'Node.js', 'Firebase', 'GCP', 'MongoDB', 'Realtime calcs'],
+      'From authenticated agent configuration through Zoom audio bridging and session bootstrapping on Node, to a LiveKit room and an MCP-style Python dispatcher that launches the bot with the right prompt, voice, and avatar.',
+    stack: [
+      'React',
+      'Node.js',
+      'OpenAI · Grok',
+      'OpenAI Realtime · WebRTC',
+      'LiveKit',
+      'Python',
+      'Zoom',
+      'HeyGen',
+      'STT · TTS',
+    ],
     caseStudy: {
       context: [
-        'Solar designers needed a web tool that paired a polished layout experience with engineering-grade calculations—without the round-trips typical of desktop legacy tools.',
-        'The team was small; shipping quickly while hardening infra and auth mattered as much as feature breadth.',
+        'Operators configure meeting agents in a React app: display name, wake word, system prompt, LLM (OpenAI or Grok), speech-to-text and text-to-speech choices, and optional avatar imagery. Access to agent management is behind email-and-password authentication with proper session handling.',
+        'Participants use a dedicated webpage that joins the Zoom meeting and shuttles meeting audio in both directions between Zoom and that page. After the Node.js backend initializes the realtime session, the page connects to OpenAI over WebRTC for low-latency dialogue.',
+        'Separately, a worker path brings up a LiveKit room; a Python CLI—shaped like a small MCP-style server—dispatches the bot into that room and applies the same prompt, avatar, and runtime settings the operator saved. HeyGen avatars use another frontend flow that streams the avatar output while reusing the same OpenAI realtime / “brain” logic.',
       ],
       problem: [
-        'Heavy geometry and irradiance-style calculations had to feel instant. Blocking the main thread or spamming naive API calls would kill trust in the product.',
-        'Auth, saved projects, and sharing semantics had to stay simple for users but safe enough for production traffic.',
+        'In real meetings, several people talk at once. Without a gate, voice activity could wake the assistant constantly and produce wrong or rude interruptions.',
+        'Zoom, WebRTC, and LiveKit each have different connection and lifecycle rules; the product still had to feel like one agent with one configured personality.',
       ],
       approach: [
-        'Push computation to the edges that fit: incremental updates, debounced requests, and clear loading semantics so the canvas never felt frozen.',
-        'Structure the app so dashboards, landing, and the core designer shared a consistent design system and state patterns—fewer one-off bugs.',
-        'Iterate on infra and vulnerability fixes alongside features so security was not a freeze-the-world event later.',
+        'Treat the wake word as an explicit activation step: the model only commits to a full reply after the trigger phrase (for example “Hey, engineering expert, …”), which keeps cross-talk from spoofing user intent.',
+        'Keep session creation authoritative on the Node layer, then let the browser own the WebRTC peer to OpenAI while the bridge page handles Zoom audio I/O.',
+        'Use LiveKit as the media room for the bot worker and a thin Python dispatcher so “send this agent configuration to the room” stays a clear, automatable contract—similar in spirit to an MCP tool that runs one job with a fixed payload.',
       ],
       technical: [
-        'React state and derived layers kept the interactive model predictable; server APIs stayed coarse-grained to match user intent, not per-pixel chatter.',
-        'Firebase and GCP pieces were chosen for auth and hosting fit; MongoDB for document-shaped project data.',
-        'Hardening passes addressed real classes of issues found in review—not checkbox compliance.',
+        'Admin React UI persists agent definitions (models, TTS/STT, prompts, assets) and enforces authenticated sessions.',
+        'The bridge page: Zoom join + capture/playout, backend-initiated OpenAI Realtime session, WebRTC attach, and error recovery tuned for meeting-length runs.',
+        'Node coordinates tokens or session bootstrap for the realtime client; the stack wires STT/TTS through the supported OpenAI-family or Grok-facing paths the product exposes.',
+        'LiveKit hosts the bot media leg; the Python CLI/server dispatches the bot with the stored prompt and avatar metadata. HeyGen integration adds a streaming presentation path on the frontend without forking the core reasoning stack.',
       ],
       outcomes: [
-        'A credible demo-to-production path: designers could run real workflows in the browser with feedback tight enough for day-to-day use.',
-        'The foundation supported training new contributors and interns because patterns were consistent across modules.',
+        'One configuration surface drives both the Zoom bridge experience and the LiveKit bot worker, so demos and production agents stay aligned.',
+        'Wake-word gating made multi-participant rooms usable: the assistant activates on intent, not on every background sentence.',
       ],
       ndaNote:
-        'No proprietary engineering formulas or client project data are included below—only product and architecture-level lessons.',
+        'No customer names, meeting content, or internal runbooks—architecture and product behavior only.',
     },
   },
 ]

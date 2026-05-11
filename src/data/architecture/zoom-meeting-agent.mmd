@@ -1,0 +1,43 @@
+flowchart TB
+  subgraph portal["Portal — agent management — React"]
+    direction TB
+    OP["Operator — name · wake word · prompt"]
+    MODELS["LLM OpenAI · Grok · STT · TTS · avatar"]
+    AUTH["Email · password · sessions"]
+    API["Node.js — persist agents · auth · bootstrap"]
+    OP --> MODELS
+    MODELS --> AUTH
+    AUTH --> API
+  end
+
+  subgraph zoomBridge["Zoom bridge — browser page"]
+    direction TB
+    PG["Bridge page — join meeting"]
+    ZM[("Zoom — meeting audio")]
+    WAKE["Wake word gate — trigger phrase before reply"]
+    RTC[("OpenAI Realtime — WebRTC peer")]
+    AI[("OpenAI · Grok — model + voice config")]
+    PG <-->|"capture · playout"| ZM
+    PG --> WAKE
+    WAKE --> RTC
+    API -->|"session / token init"| PG
+    RTC --> AI
+  end
+
+  subgraph livekitPath["LiveKit — bot worker"]
+    direction TB
+    DIS["Python CLI — MCP-style dispatch"]
+    LK[("LiveKit room")]
+    BOT["Bot — prompt · avatar · same agent config"]
+    API --> DIS
+    DIS --> LK
+    DIS --> BOT
+    BOT --> LK
+  end
+
+  subgraph heygenPath["HeyGen avatars — alternate frontend"]
+    direction TB
+    HG["React — HeyGen streaming surface"]
+    HG --> RTC
+    API --> HG
+  end
