@@ -31,14 +31,18 @@ export function HeroSection() {
   const reduced = usePrefersReducedMotion()
   const lgDown = useLgDown()
   const lowPerf = useLowPerformance()
-  
+
   // Logging lowPerf
   useEffect(() => {
     console.log('lowPerf', lowPerf)
   }, [lowPerf])
   
+
   const [glow, setGlow] = useState<{ x: number; y: number } | null>(null)
-  const staticBackdrop = reduced || lgDown
+  // Mobile (lgDown) and detected low-spec hardware both get the lite 3D scene.
+  // Only prefers-reduced-motion falls back to the purely static backdrop.
+  const liteBackdrop = lgDown || lowPerf
+  const staticBackdrop = reduced
 
   return (
     <section
@@ -69,7 +73,7 @@ export function HeroSection() {
         <StaticHeroBackdrop />
       ) : (
         <Suspense fallback={<StaticHeroBackdrop />}>
-          <HeroBackground lowPerf={lowPerf} />
+          <HeroBackground lowPerf={liteBackdrop} />
         </Suspense>
       )}
 

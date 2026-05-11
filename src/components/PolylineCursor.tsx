@@ -192,12 +192,17 @@ export function PolylineCursor() {
     }
     document.addEventListener('visibilitychange', onVisibility)
 
-    // Cap at 60 fps so the spring physics and render cost are consistent
-    // regardless of the display refresh rate (144 Hz gaming laptops, 120 Hz
-    // ProMotion, etc.).  Without this, a 144 Hz panel runs 2.4× more work
-    // per second than a 60 Hz display and makes the trail noticeably laggy.
-    const FRAME_CAP_MS = 1000 / 60
-    let lastFrameTime = 0
+    // Delta-time normalised physics — renders at the native display refresh
+    // rate (smooth on 120 Hz ProMotion and 144 Hz gaming panels) while the
+    // spring / friction / lerp strength stays identical regardless of FPS.
+    //
+    // All per-frame operations are scaled by `dtScale` (= elapsed ms / 16.67,
+    // i.e. 1.0 at 60 fps):
+    //   • spring force    → multiply by dtScale (more force per longer frame)
+    //   • friction decay  → f^dtScale (correct exponential decay for any dt)
+    //   • position delta  → velocity × dtScale (distance = speed × time)
+    //   • lerp factor     → 1 − (1−0.9)^dtScale (same formula as friction)
+    let prevTime = 0
 
     function tick() {
       cancelAnimationFrame(raf)
@@ -206,16 +211,21 @@ export function PolylineCursor() {
 
     function loop(now: number) {
       raf = requestAnimationFrame(loop)
-      if (now - lastFrameTime < FRAME_CAP_MS) return
-      lastFrameTime = now
+      const dt = now - prevTime
+      prevTime = now
+      // Skip the first frame (prevTime was 0) and any tab-hidden gaps > 200 ms
+      if (dt <= 0 || dt > 200) return
+      const dtScale = Math.min(dt * 0.06, 2.5) // 0.06 = 1/(1000/60)
       lines.forEach((line) => {
         for (let i = line.points.length - 1; i >= 0; i--) {
           if (i === 0) {
-            tmp.copy(mouse).add(line.mouseOffset).sub(line.points[i]).multiply(line.spring)
-            line.mouseVelocity.add(tmp).multiply(line.friction)
-            line.points[i].add(line.mouseVelocity)
+            tmp.copy(mouse).add(line.mouseOffset).sub(line.points[i]).multiply(line.spring * dtScale)
+            line.mouseVelocity.add(tmp).multiply(Math.pow(line.friction, dtScale))
+            // Reuse tmp to scale velocity → position delta
+            tmp.copy(line.mouseVelocity).multiply(dtScale)
+            line.points[i].add(tmp)
           } else {
-            line.points[i].lerp(line.points[i - 1], 0.9)
+            line.points[i].lerp(line.points[i - 1], 1 - Math.pow(0.1, dtScale))
           }
         }
         line.polyline.updateGeometry()
