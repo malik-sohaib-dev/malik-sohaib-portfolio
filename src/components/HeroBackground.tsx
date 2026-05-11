@@ -55,18 +55,18 @@ function CoreCluster({ isLight }: { isLight: boolean }) {
 
   return (
     <>
-      <Float speed={1.4} rotationIntensity={0.35} floatIntensity={0.5}>
+      <Float speed={1.4} rotationIntensity={0.18} floatIntensity={0.28}>
         <mesh ref={knot} position={[0, 0.1, 0]}>
           <torusKnotGeometry args={[0.9, 0.28, 200, 32]} />
           <meshPhysicalMaterial
             color={isLight ? '#0f766e' : '#0d9488'}
             emissive={isLight ? '#7c3aed' : '#4c1d95'}
-            emissiveIntensity={isLight ? 1.6 : 0.85}
+            emissiveIntensity={isLight ? 0.9 : 0.85}
             metalness={0.9}
             roughness={0.2}
-            clearcoat={0.4}
+            clearcoat={isLight ? 0.15 : 0.4}
             clearcoatRoughness={0.3}
-            iridescence={0.5}
+            iridescence={isLight ? 0 : 0.5}
             iridescenceIOR={1.1}
             iridescenceThicknessRange={[100, 400]}
           />
@@ -78,7 +78,7 @@ function CoreCluster({ isLight }: { isLight: boolean }) {
           <MeshDistortMaterial
             color="#5eead4"
             emissive={isLight ? '#4c1d95' : '#312e81'}
-            emissiveIntensity={isLight ? 1.2 : 0.55}
+            emissiveIntensity={isLight ? 0.7 : 0.55}
             roughness={0.12}
             metalness={0.85}
             distort={0.5}
@@ -93,7 +93,7 @@ function CoreCluster({ isLight }: { isLight: boolean }) {
         <meshStandardMaterial
           color="#7dd3fc"
           emissive="#38bdf8"
-          emissiveIntensity={isLight ? 1.4 : 0.8}
+          emissiveIntensity={isLight ? 0.9 : 0.8}
           metalness={0.95}
           roughness={0.1}
         />
@@ -194,13 +194,15 @@ function Scene({ theme, sceneBg }: SceneProps) {
           color="#7dd3fc"
           opacity={sparkleOpacity}
         />
-        <ContactShadows
-          position={[0, -1.45, 0]}
-          opacity={shadowOpacity}
-          scale={8}
-          blur={1.5}
-          far={2.2}
-        />
+        {!isLight && (
+          <ContactShadows
+            position={[0, -2.1, 0]}
+            opacity={shadowOpacity}
+            scale={8}
+            blur={2.0}
+            far={3.0}
+          />
+        )}
         <Environment
           key={theme}
           preset={isLight ? 'apartment' : 'night'}
