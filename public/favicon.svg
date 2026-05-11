@@ -1,14 +1,28 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <rect width="32" height="32" rx="8" fill="#010409"/>
-  <!-- Solid “M” for Malik — high contrast at 16×16 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+  <style>
+    .logo-main {
+      stroke: #2dd4bf;
+    }
+    .logo-dim {
+      stroke: rgb(255 255 255 / 0.2);
+    }
+    @media (prefers-color-scheme: light) {
+      .logo-main {
+        stroke: #0d9488;
+      }
+      .logo-dim {
+        stroke: rgb(15 23 42 / 0.22);
+      }
+    }
+  </style>
   <path
-    fill="url(#m)"
-    d="M6 26V6h5l5 9 5-9h5v20h-4V13l-5.5 9h-1L10 13v13H6z"
+    class="logo-main"
+    d="M12 2L3 7v10l9 5 9-5V7l-9-5z"
+    stroke-width="1.5"
   />
-  <defs>
-    <linearGradient id="m" x1="6" y1="6" x2="26" y2="26" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#5eead4"/>
-      <stop offset="1" stop-color="#2dd4bf"/>
-    </linearGradient>
-  </defs>
+  <path
+    class="logo-dim"
+    d="M12 2v20M3 7l9 5 9-5"
+    stroke-width="1.2"
+  />
 </svg>
