@@ -57,7 +57,7 @@ function CoreCluster({ isLight }: { isLight: boolean }) {
     <>
       <Float speed={1.4} rotationIntensity={0.18} floatIntensity={0.28}>
         <mesh ref={knot} position={[0, 0.1, 0]}>
-          <torusKnotGeometry args={[0.9, 0.28, 200, 32]} />
+          <torusKnotGeometry args={[0.9, 0.28, 128, 20]} />
           <meshPhysicalMaterial
             color={isLight ? '#0f766e' : '#0d9488'}
             emissive={isLight ? '#7c3aed' : '#4c1d95'}
@@ -74,7 +74,7 @@ function CoreCluster({ isLight }: { isLight: boolean }) {
       </Float>
       <Float speed={2.1} rotationIntensity={0.7} floatIntensity={0.7}>
         <mesh ref={core}>
-          <icosahedronGeometry args={[0.45, 6]} />
+          <icosahedronGeometry args={[0.45, 4]} />
           <MeshDistortMaterial
             color="#5eead4"
             emissive={isLight ? '#4c1d95' : '#312e81'}
@@ -89,7 +89,7 @@ function CoreCluster({ isLight }: { isLight: boolean }) {
         </mesh>
       </Float>
       <mesh ref={ring} position={[0, -0.2, 0]} rotation={[Math.PI / 2.1, 0, 0]}>
-        <torusGeometry args={[1.5, 0.04, 32, 128]} />
+        <torusGeometry args={[1.5, 0.04, 16, 64]} />
         <meshStandardMaterial
           color="#7dd3fc"
           emissive="#38bdf8"
@@ -142,7 +142,7 @@ type SceneProps = {
 
 function Scene({ theme, sceneBg }: SceneProps) {
   const isLight = theme === 'light'
-  const starCount = isLight ? 720 : 2500
+  const starCount = isLight ? 600 : 1800
   const sparkleOpacity = isLight ? 0.65 : 0.75
   const shadowOpacity = isLight ? 0.32 : 0.5
 
@@ -187,7 +187,7 @@ function Scene({ theme, sceneBg }: SceneProps) {
           speed={0.25}
         />
         <Sparkles
-          count={90}
+          count={60}
           scale={6}
           size={isLight ? 1.1 : 1.4}
           speed={0.45}
@@ -305,6 +305,7 @@ export function HeroBackground({ className = '' }: HeroBackgroundProps) {
        */}
       <Canvas
         dpr={[1, 1.5]}
+        performance={{ min: 0.5 }}
         camera={{ position: [0, 0.1, 6.2], fov: 40 }}
         gl={{
           antialias: true,

@@ -1,6 +1,7 @@
 import { Color, Polyline, Renderer, Transform, Vec3 } from 'ogl'
 import { useEffect, useRef } from 'react'
 import { useLgDown } from '../hooks/useMediaQuery'
+import { useLowPerformance } from '../hooks/useLowPerformance'
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion'
 
 /** Matches OGL polylines demo: screen-space width via resolution / DPR (see oframe/ogl examples). */
@@ -88,9 +89,10 @@ export function PolylineCursor() {
   const hostRef = useRef<HTMLDivElement>(null)
   const reduced = usePrefersReducedMotion()
   const lgDown = useLgDown()
+  const lowPerf = useLowPerformance()
 
   useEffect(() => {
-    if (reduced || lgDown) return
+    if (reduced || lgDown || lowPerf) return
     if (typeof window === 'undefined') return
     if (window.matchMedia('(pointer: coarse)').matches) return
 
@@ -221,9 +223,9 @@ export function PolylineCursor() {
       hostEl.removeChild(gl.canvas)
       gl.getExtension('WEBGL_lose_context')?.loseContext()
     }
-  }, [lgDown, reduced])
+  }, [lgDown, lowPerf, reduced])
 
-  if (reduced || lgDown) return null
+  if (reduced || lgDown || lowPerf) return null
 
   return (
     <div

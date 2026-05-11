@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
-import { lazy, Suspense, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { useLgDown } from '../hooks/useMediaQuery'
+import { useLowPerformance } from '../hooks/useLowPerformance'
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion'
 import { heroStats, site } from '../data/content'
 import { ScrambleText } from '../components/ScrambleText'
@@ -29,15 +30,22 @@ const name = site.name.split(' ')
 export function HeroSection() {
   const reduced = usePrefersReducedMotion()
   const lgDown = useLgDown()
+  const lowPerf = useLowPerformance()
+  
+  // Logging lowPerf
+  useEffect(() => {
+    console.log('lowPerf', lowPerf)
+  }, [lowPerf])
+  
   const [glow, setGlow] = useState<{ x: number; y: number } | null>(null)
-  const staticBackdrop = reduced || lgDown
+  const staticBackdrop = reduced || lgDown || lowPerf
 
   return (
     <section
       id="top"
       className="relative min-h-svh overflow-hidden border-b border-border-subtle"
       onPointerMove={(e) => {
-        if (reduced || lgDown) return
+        if (reduced || lgDown || lowPerf) return
         if (window.matchMedia('(pointer: coarse)').matches) {
           setGlow(null)
           return
@@ -47,7 +55,7 @@ export function HeroSection() {
       }}
       onPointerLeave={() => setGlow(null)}
     >
-      {glow && !reduced && !lgDown && (
+      {glow && !reduced && !lgDown && !lowPerf && (
         <div
           className="pointer-events-none absolute inset-0 z-[1] mix-blend-screen"
           style={{
