@@ -40,7 +40,8 @@ export function ProjectsSection() {
             >
               <Link
                 to={`/projects/${p.slug}`}
-                className="group block h-full min-h-[16rem] rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/55 focus-visible:ring-offset-2 focus-visible:ring-offset-void"
+                aria-label={`Open case study: ${p.name}`}
+                className="group block h-full min-h-[16rem] cursor-pointer rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/55 focus-visible:ring-offset-2 focus-visible:ring-offset-void"
               >
                 <TiltCard className="h-full">
                   <article className="card-shine relative flex h-full min-h-[16rem] flex-col justify-between overflow-hidden rounded-2xl border border-border bg-gradient-to-b from-ink/98 via-void/85 to-void/98 p-6 shadow-[inset_0_1px_0_var(--tp-card-shine-line),0_28px_70px_-34px_rgb(99_102_241_/_0.35)] transition duration-300 [transform-style:preserve-3d] group-hover:-translate-y-1 group-hover:border-teal-400/38 group-hover:shadow-[0_32px_80px_-30px_rgb(45_212_191_/_0.42)] theme-light:group-hover:shadow-[0_30px_76px_-28px_rgb(13_148_136_/_0.22)]">
@@ -62,8 +63,16 @@ export function ProjectsSection() {
                       {p.blurb}
                     </p>
                   </div>
-                  <p className="relative mt-5 font-mono text-[0.6rem] font-medium uppercase tracking-[0.2em] text-teal-400/90 opacity-0 transition group-hover:opacity-100">
-                    Case study →
+                  <p className="relative mt-5 flex items-center gap-1.5 font-mono text-[0.65rem] font-medium uppercase tracking-[0.18em] text-mist/75 transition group-hover:gap-2 group-hover:text-teal-400 theme-light:text-ink/55 theme-light:group-hover:text-teal-600">
+                    <span className="border-b border-dotted border-current/40 pb-px group-hover:border-teal-400/60 group-hover:border-solid">
+                      Read case study
+                    </span>
+                    <span
+                      className="text-teal-400/80 transition group-hover:translate-x-0.5 theme-light:text-teal-600/90"
+                      aria-hidden
+                    >
+                      →
+                    </span>
                   </p>
                 </article>
                 </TiltCard>
