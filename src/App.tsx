@@ -1,12 +1,12 @@
 import { Navigation } from './components/Navigation'
 import { SiteAurora } from './components/SiteAurora'
 import { ContactSection } from './sections/ContactSection'
-import { EducationSection } from './sections/EducationSection'
 import { ExperienceSection } from './sections/ExperienceSection'
 import { HeroSection } from './sections/HeroSection'
 import { ProjectsSection } from './sections/ProjectsSection'
 import { SkillsSection } from './sections/SkillsSection'
 import { SummarySection } from './sections/SummarySection'
+import { TestimonialsSection } from './sections/TestimonialsSection'
 
 function App() {
   return (
@@ -21,7 +21,7 @@ function App() {
           <SkillsSection />
           <ExperienceSection />
           <ProjectsSection />
-          <EducationSection />
+          <TestimonialsSection />
           <ContactSection />
         </main>
       </div>

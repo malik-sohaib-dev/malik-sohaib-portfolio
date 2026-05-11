@@ -183,7 +183,37 @@ export const projects = [
   },
 ] as const
 
-export const education = {
-  degree: 'Bachelor of Science – Mechatronics Engineering',
-  years: '2019 – 2023',
-} as const
+export type Testimonial = {
+  author: string
+  title: string
+  organization: string
+  /** Verbatim excerpt from LinkedIn; full recommendation on profile. */
+  excerptParagraphs: readonly string[]
+}
+
+export const testimonials = [
+  {
+    author: 'Syed Mujtaba Raza',
+    title: 'Team Lead',
+    organization: 'Arthur',
+    excerptParagraphs: [
+      'I had the pleasure of working with Malik Sohaib during his time at Arthur, where he served as a Full Stack Developer before earning a well-deserved promotion to Senior Developer, a milestone that came as no surprise to anyone who worked with him.',
+    ],
+  },
+  {
+    author: 'Harold Huggins',
+    title: 'Director',
+    organization: 'Council for Education',
+    excerptParagraphs: [
+      'I have had the pleasure of working closely with Sohaib Ahmad on several projects where he showcased his exceptional skills as an API developer and full-stack engineer. Sohaib consistently delivered high-quality results and demonstrated a deep understanding of both front-end and back-end development.',
+    ],
+  },
+  {
+    author: 'Irtaza Hussan',
+    title: 'Team Lead',
+    organization: 'BH Group',
+    excerptParagraphs: [
+      'I highly recommend Sohaib for his exceptional communication skills, technical expertise, and strong teamwork abilities. He consistently demonstrates a deep understanding of his responsibilities and collaborates effectively with team members to achieve goals. He would be a valuable asset to any team or project.',
+    ],
+  },
+] as const satisfies readonly Testimonial[]
