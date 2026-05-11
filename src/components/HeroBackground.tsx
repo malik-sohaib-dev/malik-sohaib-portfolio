@@ -11,6 +11,7 @@ import { damp3 } from 'maath/easing'
 import { useRef, useState } from 'react'
 import type { Group, Mesh } from 'three'
 import { ACESFilmicToneMapping, MathUtils, SRGBColorSpace } from 'three'
+import { useTheme } from '../theme'
 import { StaticHeroBackdrop } from './StaticHeroBackdrop'
 
 function ParallaxRig({ children }: { children: React.ReactNode }) {
@@ -25,7 +26,7 @@ function ParallaxRig({ children }: { children: React.ReactNode }) {
     group.current.rotation.x = MathUtils.lerp(
       group.current.rotation.x,
       scrollTilt * 0.25,
-      0.05
+      0.05,
     )
     group.current.rotation.y += 0.0011
   })
@@ -134,62 +135,77 @@ function OrbitingGems() {
   )
 }
 
-function Scene() {
+type SceneProps = {
+  theme: 'dark' | 'light'
+  sceneBg: string
+}
+
+function Scene({ theme, sceneBg }: SceneProps) {
+  const isLight = theme === 'light'
+  const starCount = isLight ? 720 : 2500
+  const sparkleOpacity = isLight ? 0.42 : 0.75
+  const shadowOpacity = isLight ? 0.32 : 0.5
+
   return (
     <>
-      <fog attach="fog" args={['#010409', 4, 22]} />
-      <color attach="background" args={['#010409']} />
+      <fog attach="fog" args={[sceneBg, 4, 22]} />
+      <color attach="background" args={[sceneBg]} />
       <ParallaxRig>
-        <ambientLight intensity={0.15} />
+        <ambientLight intensity={isLight ? 0.35 : 0.15} />
         <pointLight
           position={[3, 4, 6]}
-          intensity={1.4}
+          intensity={isLight ? 1.1 : 1.4}
           color="#5eead4"
         />
         <pointLight
           position={[-6, -1, 4]}
-          intensity={0.8}
+          intensity={isLight ? 0.65 : 0.8}
           color="#a78bfa"
         />
         <pointLight
           position={[0, 5, -2]}
-          intensity={0.5}
+          intensity={isLight ? 0.85 : 0.5}
           color="#f0f9ff"
         />
         <spotLight
           position={[0, 8, 2]}
           angle={0.45}
           penumbra={0.4}
-          intensity={0.6}
+          intensity={isLight ? 0.85 : 0.6}
           color="#e0f2fe"
         />
         <CoreCluster />
         <OrbitingGems />
         <Stars
+          key={`stars-${theme}`}
           radius={60}
           depth={40}
-          count={2500}
-          factor={2.1}
-          saturation={0.1}
+          count={starCount}
+          factor={isLight ? 1.45 : 2.1}
+          saturation={isLight ? 0.06 : 0.1}
           fade
           speed={0.25}
         />
         <Sparkles
           count={90}
           scale={6}
-          size={1.4}
+          size={isLight ? 1.1 : 1.4}
           speed={0.45}
           color="#7dd3fc"
-          opacity={0.75}
+          opacity={sparkleOpacity}
         />
         <ContactShadows
           position={[0, -1.45, 0]}
-          opacity={0.5}
+          opacity={shadowOpacity}
           scale={8}
           blur={1.5}
           far={2.2}
         />
-        <Environment preset="night" environmentIntensity={0.55} />
+        <Environment
+          key={theme}
+          preset={isLight ? 'apartment' : 'night'}
+          environmentIntensity={isLight ? 0.42 : 0.55}
+        />
       </ParallaxRig>
     </>
   )
@@ -202,8 +218,18 @@ type HeroBackgroundProps = { className?: string }
  * EffectComposer may read a null context and throw (alpha on null). Scene-only
  * rendering stays stable; ACES filmic tone mapping approximates a punchy look.
  */
+function webglBackgroundFromCss(): string {
+  if (typeof document === 'undefined') return '#010409'
+  return (
+    getComputedStyle(document.documentElement).getPropertyValue('--tp-webgl-bg').trim() ||
+    '#010409'
+  )
+}
+
 export function HeroBackground({ className = '' }: HeroBackgroundProps) {
   const [gpuFailed, setGpuFailed] = useState(false)
+  const { theme } = useTheme()
+  const sceneBg = webglBackgroundFromCss()
 
   if (gpuFailed) {
     return (
@@ -222,6 +248,7 @@ export function HeroBackground({ className = '' }: HeroBackgroundProps) {
       aria-hidden
     >
       <Canvas
+        key={theme}
         dpr={[1, 1.5]}
         camera={{ position: [0, 0.1, 6.2], fov: 40 }}
         gl={{
@@ -232,7 +259,7 @@ export function HeroBackground({ className = '' }: HeroBackgroundProps) {
         onCreated={({ gl }) => {
           gl.setClearColor('#000000', 0)
           gl.toneMapping = ACESFilmicToneMapping
-          gl.toneMappingExposure = 1.15
+          gl.toneMappingExposure = theme === 'light' ? 1.05 : 1.15
           if ('outputColorSpace' in gl) {
             gl.outputColorSpace = SRGBColorSpace
           }
@@ -245,7 +272,7 @@ export function HeroBackground({ className = '' }: HeroBackgroundProps) {
         }}
         style={{ width: '100%', height: '100%' }}
       >
-        <Scene />
+        <Scene theme={theme} sceneBg={sceneBg} />
       </Canvas>
     </div>
   )

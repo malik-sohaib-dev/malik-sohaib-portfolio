@@ -5,7 +5,7 @@ import { SectionLabel } from '../components/SectionLabel'
 export function ExperienceSection() {
   return (
     <section
-      className="section-ambient relative border-b border-white/[0.06] py-22 sm:py-32"
+      className="section-ambient relative border-b border-border-subtle py-22 sm:py-32"
       aria-labelledby="experience-heading"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -40,7 +40,7 @@ export function ExperienceSection() {
                 className="absolute left-0 top-6 z-[1] hidden h-2.5 w-2.5 -translate-x-1/2 rounded-full border-2 border-teal-300/90 bg-void shadow-[0_0_16px_4px_rgba(45,212,191,0.5)] sm:left-[11px] sm:top-7 sm:block"
                 aria-hidden
               />
-              <div className="card-shine group rounded-2xl border border-white/[0.08] bg-gradient-to-br from-white/[0.04] to-transparent p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_20px_50px_-28px_rgba(0,0,0,0.4)] transition hover:border-white/15 sm:p-6">
+              <div className="card-shine group rounded-2xl border border-border-muted bg-gradient-to-br from-frost-d to-transparent p-5 shadow-[0_0_0_1px_var(--tp-btn-ring),0_20px_50px_-28px_rgb(0_0_0_/_0.28)] transition hover:border-border-strong theme-light:shadow-[0_0_0_1px_var(--tp-btn-ring),0_18px_44px_-26px_rgb(15_23_42_/_0.08)] sm:p-6">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between">
                   <div>
                     <h3 className="font-display text-lg font-semibold text-foam sm:text-xl">
@@ -65,7 +65,7 @@ export function ExperienceSection() {
                     </li>
                   ))}
                 </ul>
-                <p className="mt-4 border-t border-white/6 pt-4 font-mono text-[0.65rem] text-mist/55">
+                <p className="mt-4 border-t border-border-subtle pt-4 font-mono text-[0.65rem] text-mist/55">
                   <span className="text-mist/65">Stack:</span> {job.stack}
                 </p>
               </div>

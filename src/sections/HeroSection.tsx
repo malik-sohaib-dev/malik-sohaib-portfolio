@@ -34,7 +34,7 @@ export function HeroSection() {
   return (
     <section
       id="top"
-      className="relative min-h-svh overflow-hidden border-b border-white/[0.06]"
+      className="relative min-h-svh overflow-hidden border-b border-border-subtle"
       onPointerMove={(e) => {
         if (reduced || lgDown) return
         if (window.matchMedia('(pointer: coarse)').matches) {
@@ -64,21 +64,14 @@ export function HeroSection() {
         </Suspense>
       )}
 
-      <div
-        className="absolute inset-0 -z-10"
-        style={{
-          background:
-            'linear-gradient(120deg, rgba(1,4,9,0.15) 0%, rgba(1,4,9,0.45) 42%, #010409 100%), linear-gradient(180deg, rgba(1,4,9,0.05) 0%, rgba(1,4,9,0.9) 68%, #010409 100%)',
-        }}
-        aria-hidden
-      />
+      <div className="hero-backdrop-vignette absolute inset-0 -z-10" aria-hidden />
 
       <div className="mesh-spotlight pointer-events-none absolute -left-1/4 top-0 hidden h-[60%] w-[60%] rounded-full bg-teal-500/12 blur-[100px] lg:block sm:w-[50%]" />
       <div className="mesh-spotlight pointer-events-none absolute -right-1/4 top-1/3 hidden h-1/2 w-1/2 rounded-full bg-violet-500/11 blur-[90px] [animation-delay:2.5s] lg:block" />
 
       <div className="pointer-events-none absolute inset-x-0 top-[12%] z-[2] hidden justify-center sm:top-[14%] lg:flex">
         <div
-          className="h-24 w-px max-w-px bg-gradient-to-b from-teal-400/50 via-white/20 to-transparent sm:h-32"
+          className="h-24 w-px max-w-px bg-gradient-to-b from-teal-400/50 via-[color:var(--tp-hero-line-mid)] to-transparent sm:h-32"
           aria-hidden
         />
       </div>
@@ -93,7 +86,7 @@ export function HeroSection() {
           >
             <motion.p
               variants={item}
-              className="mb-6 inline-flex max-w-full flex-wrap items-center gap-2.5 rounded-full border border-white/10 bg-gradient-to-r from-white/[0.1] to-white/[0.02] px-3.5 py-2 text-xs text-mist/95 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_8px_32px_-12px_rgba(0,0,0,0.4)] backdrop-blur-xl"
+              className="mb-6 inline-flex max-w-full flex-wrap items-center gap-2.5 rounded-full border border-border bg-gradient-to-r from-frost-a to-frost-e px-3.5 py-2 text-xs text-mist/95 shadow-[0_0_0_1px_var(--tp-btn-ring),0_8px_32px_-12px_rgb(0_0_0_/_0.22)] backdrop-blur-xl theme-light:shadow-[0_0_0_1px_var(--tp-btn-ring),0_8px_28px_-12px_rgb(15_23_42_/_0.08)]"
             >
               <span
                 className={`size-1.5 shrink-0 rounded-full bg-gradient-to-r from-teal-400 to-cyan-300 shadow-[0_0_12px_2px_rgba(45,212,191,0.55)] ${reduced || lgDown ? '' : 'animate-pulse'}`}
@@ -115,14 +108,14 @@ export function HeroSection() {
               variants={item}
               className="font-display text-[2.65rem] font-extrabold leading-[0.95] tracking-tight sm:text-6xl md:text-[4.5rem] lg:text-[4.9rem]"
             >
-              <span className="hero-gradient-text block drop-shadow-2xl">{name[0]}</span>
+              <span className="hero-gradient-text">{name[0]}</span>
               <span className="mt-1.5 block text-[0.48em] font-semibold text-mist/90 sm:mt-2 sm:text-[0.45em]">
                 {name.slice(1).join(' ')}
               </span>
             </motion.h1>
             <motion.p
               variants={item}
-              className="font-display text-lg font-medium tracking-wide text-teal-200/90 sm:text-xl"
+              className="font-display text-lg font-medium tracking-wide text-accent sm:text-xl"
             >
               {site.title}
             </motion.p>
@@ -136,7 +129,7 @@ export function HeroSection() {
               {heroStats.map((s) => (
                 <div
                   key={s.label}
-                  className="group relative min-w-[8.5rem] overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.07] to-white/[0.02] p-4 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_20px_50px_-24px_rgba(45,212,191,0.2)] backdrop-blur-md transition duration-300 hover:border-teal-400/30 hover:shadow-[0_24px_60px_-20px_rgba(45,212,191,0.35)]"
+                  className="group relative min-w-[8.5rem] overflow-hidden rounded-2xl border border-border bg-gradient-to-b from-frost-b to-frost-e p-4 shadow-[0_0_0_1px_var(--tp-btn-ring),0_20px_50px_-24px_rgb(45_212_191_/_0.2)] backdrop-blur-md transition duration-300 hover:border-teal-400/30 hover:shadow-[0_24px_60px_-20px_rgb(45_212_191_/_0.35)] theme-light:hover:shadow-[0_24px_56px_-22px_rgb(13_148_136_/_0.22)]"
                 >
                   <div
                     className="pointer-events-none absolute -right-6 -top-6 hidden size-24 rounded-full bg-teal-400/10 blur-2xl transition group-hover:scale-110 lg:block"
@@ -179,7 +172,7 @@ export function HeroSection() {
             className="hidden lg:col-span-4 lg:block"
             aria-hidden
           >
-            <div className="card-shine relative ml-auto max-w-sm rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.07] to-transparent p-5 shadow-[0_0_80px_-30px_rgba(124,58,237,0.35)]">
+            <div className="card-shine relative ml-auto max-w-sm rounded-3xl border border-border bg-gradient-to-br from-frost-b to-transparent p-5 shadow-[0_0_80px_-30px_rgb(124_58_237_/_0.35)] theme-light:shadow-[0_0_72px_-28px_rgb(124_58_237_/_0.18)]">
               <p className="font-mono text-[0.6rem] uppercase tracking-[0.22em] text-mist/70">
                 Focus
               </p>

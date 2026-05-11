@@ -15,6 +15,24 @@
       href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&family=Syne:wght@500;600;700;800&display=swap"
       rel="stylesheet"
     />
+    <script>
+      ;(function () {
+        try {
+          var k = 'portfolio-theme'
+          var s = localStorage.getItem(k)
+          var d = document.documentElement
+          if (s === 'light' || s === 'dark') {
+            d.dataset.theme = s
+          } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+            d.dataset.theme = 'light'
+          } else {
+            d.dataset.theme = 'dark'
+          }
+        } catch (e) {
+          document.documentElement.dataset.theme = 'dark'
+        }
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

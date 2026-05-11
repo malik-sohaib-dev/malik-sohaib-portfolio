@@ -6,7 +6,7 @@ import { TiltCard } from '../components/TiltCard'
 export function ProjectsSection() {
   return (
     <section
-      className="section-ambient relative overflow-hidden border-b border-white/[0.06] py-22 sm:py-32"
+      className="section-ambient relative overflow-hidden border-b border-border-subtle py-22 sm:py-32"
       aria-labelledby="projects-heading"
     >
       <div
@@ -37,9 +37,9 @@ export function ProjectsSection() {
               }}
             >
               <TiltCard>
-                <article className="group card-shine relative flex h-full min-h-[16rem] cursor-default flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-ink/98 via-void/85 to-void/98 p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_28px_70px_-34px_rgba(99,102,241,0.35)] transition duration-300 [transform-style:preserve-3d] hover:-translate-y-1 hover:border-teal-400/38 hover:shadow-[0_32px_80px_-30px_rgba(45,212,191,0.42)]">
+                <article className="group card-shine relative flex h-full min-h-[16rem] cursor-default flex-col justify-between overflow-hidden rounded-2xl border border-border bg-gradient-to-b from-ink/98 via-void/85 to-void/98 p-6 shadow-[inset_0_1px_0_var(--tp-card-shine-line),0_28px_70px_-34px_rgb(99_102_241_/_0.35)] transition duration-300 [transform-style:preserve-3d] hover:-translate-y-1 hover:border-teal-400/38 hover:shadow-[0_32px_80px_-30px_rgb(45_212_191_/_0.42)] theme-light:hover:shadow-[0_30px_76px_-28px_rgb(13_148_136_/_0.22)]">
                   <div
-                    className="absolute -right-4 -top-2 font-mono text-[4.5rem] font-bold leading-none text-white/[0.04] tabular-nums transition group-hover:text-teal-400/[0.08]"
+                    className="absolute -right-4 -top-2 font-mono text-[4.5rem] font-bold leading-none text-foam/[0.06] tabular-nums transition group-hover:text-accent/[0.14]"
                     aria-hidden
                   >
                     {String(i + 1).padStart(2, '0')}

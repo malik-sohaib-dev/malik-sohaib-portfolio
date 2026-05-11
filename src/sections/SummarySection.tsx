@@ -5,7 +5,7 @@ import { SectionLabel } from '../components/SectionLabel'
 export function SummarySection() {
   return (
     <section
-      className="section-ambient relative overflow-hidden border-b border-white/[0.06] py-22 sm:py-32"
+      className="section-ambient relative overflow-hidden border-b border-border-subtle py-22 sm:py-32"
       aria-labelledby="summary-heading"
     >
       <div
@@ -25,7 +25,7 @@ export function SummarySection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-10%' }}
           transition={{ duration: 0.55 }}
-          className="card-shine relative max-w-3xl rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-transparent p-8 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_32px_80px_-32px_rgba(45,212,191,0.12)] backdrop-blur-xl sm:p-10"
+          className="card-shine relative max-w-3xl rounded-3xl border border-border bg-gradient-to-br from-frost-d via-frost-e to-transparent p-8 shadow-[0_0_0_1px_var(--tp-btn-ring),0_32px_80px_-32px_rgb(45_212_191_/_0.12)] backdrop-blur-xl theme-light:shadow-[0_0_0_1px_var(--tp-btn-ring),0_28px_72px_-30px_rgb(13_148_136_/_0.12)] sm:p-10"
         >
           <p className="font-mono text-[0.6rem] uppercase tracking-[0.2em] text-teal-400/80">
             Statement

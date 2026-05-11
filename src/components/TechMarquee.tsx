@@ -13,7 +13,7 @@ export function TechMarquee({ reduceMotion, liteViewport }: Props) {
 
   if (staticOnly) {
     return (
-      <div className="pointer-events-none relative mt-12 border-y border-white/[0.08] bg-black/30 py-4 sm:mt-16 lg:backdrop-blur-sm">
+      <div className="pointer-events-none relative mt-12 border-y border-border-muted bg-marquee-static py-4 sm:mt-16 lg:backdrop-blur-sm">
         <p className="px-4 text-center font-mono text-[0.65rem] font-medium uppercase tracking-[0.18em] text-mist/75">
           {stackMarquee.join(' · ')}
         </p>
@@ -21,7 +21,7 @@ export function TechMarquee({ reduceMotion, liteViewport }: Props) {
     )
   }
   return (
-    <div className="pointer-events-none relative mt-12 overflow-hidden border-y border-white/[0.08] bg-gradient-to-r from-void/80 via-black/50 to-void/80 py-4 backdrop-blur-sm sm:mt-16">
+    <div className="pointer-events-none relative mt-12 overflow-hidden border-y border-border-muted bg-gradient-to-r from-marquee-from via-marquee-via to-marquee-to py-4 backdrop-blur-sm sm:mt-16">
       <div
         className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-[var(--color-void)] to-transparent"
         aria-hidden

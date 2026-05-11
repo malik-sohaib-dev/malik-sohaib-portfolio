@@ -1,24 +1,238 @@
 @import 'tailwindcss';
 
+/*
+ * Theme palette: edit `--tp-*` values on `:root` (dark) and `[data-theme="light"]` only.
+ * Tailwind utilities map through `@theme` → same tokens — no component churn when tuning colors.
+ */
+:root {
+  color-scheme: dark;
+  --tp-void: #010409;
+  --tp-ink: #060b16;
+  --tp-surface: #0a101f;
+  --tp-surface-elevated: #0f172a;
+  --tp-mist: #94a3b8;
+  --tp-foam: #e2e8f0;
+  --tp-accent: #2dd4bf;
+  --tp-accent-dim: #14b8a6;
+  --tp-iris: #a78bfa;
+  --tp-glow: #38bdf8;
+  --tp-aurora-a: #2dd4bf;
+  --tp-aurora-b: #7c3aed;
+  --tp-aurora-c: #22d3ee;
+
+  --tp-border-subtle: rgb(255 255 255 / 0.06);
+  --tp-border-default: rgb(255 255 255 / 0.1);
+  --tp-border-strong: rgb(255 255 255 / 0.12);
+  --tp-border-muted: rgb(255 255 255 / 0.08);
+
+  --tp-frost-a: rgb(255 255 255 / 0.1);
+  --tp-frost-b: rgb(255 255 255 / 0.07);
+  --tp-frost-c: rgb(255 255 255 / 0.06);
+  --tp-frost-d: rgb(255 255 255 / 0.04);
+  --tp-frost-e: rgb(255 255 255 / 0.02);
+
+  --tp-glass-fill: rgb(255 255 255 / 0.06);
+  --tp-glass-fill-strong: rgb(255 255 255 / 0.1);
+
+  --tp-marquee-static: rgb(0 0 0 / 0.3);
+  --tp-marquee-from: rgb(1 4 9 / 0.8);
+  --tp-marquee-via: rgb(0 0 0 / 0.5);
+  --tp-marquee-to: rgb(1 4 9 / 0.8);
+
+  --tp-logo-dim: rgb(255 255 255 / 0.2);
+
+  --tp-nav-border: rgb(255 255 255 / 0.08);
+  --tp-nav-bg: rgb(1 4 9 / 0.4);
+  --tp-nav-bg-scroll: rgb(1 4 9 / 0.75);
+  --tp-nav-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.03), 0 8px 32px -8px rgb(0 0 0 / 0.5),
+    0 0 60px -20px rgb(45 212 191 / 0.12);
+  --tp-nav-shadow-scroll:
+    0 0 0 1px rgb(255 255 255 / 0.05), 0 12px 40px -10px rgb(0 0 0 / 0.55),
+    0 0 80px -24px rgb(45 212 191 / 0.18);
+
+  --tp-card-shine-line: rgb(255 255 255 / 0.04);
+
+  --tp-btn-ring: rgb(255 255 255 / 0.04);
+
+  --tp-hero-line-mid: rgb(255 255 255 / 0.2);
+
+  --tp-ring-mix: color-mix(in oklab, var(--tp-foam) 12%, transparent);
+
+  --tp-static-hero-bg:
+    radial-gradient(
+      ellipse 120% 100% at 20% 0%,
+      rgba(45, 212, 191, 0.2) 0%,
+      transparent 45%
+    ),
+    radial-gradient(
+      ellipse 90% 80% at 100% 20%,
+      rgba(99, 102, 241, 0.18) 0%,
+      transparent 40%
+    ),
+    radial-gradient(
+      ellipse 60% 50% at 50% 100%,
+      rgba(6, 182, 212, 0.1) 0%,
+      transparent 50%
+    ),
+    var(--tp-void);
+
+  --tp-hero-vignette:
+    linear-gradient(
+      120deg,
+      rgba(1, 4, 9, 0.15) 0%,
+      rgba(1, 4, 9, 0.45) 42%,
+      var(--tp-void) 100%
+    ),
+    linear-gradient(180deg, rgba(1, 4, 9, 0.05) 0%, rgba(1, 4, 9, 0.9) 68%, var(--tp-void) 100%);
+
+  --tp-selection-bg: rgb(20 184 166 / 0.35);
+  --tp-selection-fg: #ffffff;
+
+  --tp-grain-opacity: 0.038;
+
+  --tp-webgl-bg: #010409;
+  --tp-webgl-fog: #010409;
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+  --tp-void: #f4f7fb;
+  --tp-ink: #eef2f7;
+  --tp-surface: #ffffff;
+  --tp-surface-elevated: #f1f5f9;
+  --tp-mist: #475569;
+  --tp-foam: #0f172a;
+  --tp-accent: #0d9488;
+  --tp-accent-dim: #0f766e;
+  --tp-iris: #7c3aed;
+  --tp-glow: #0284c7;
+  --tp-aurora-a: #14b8a6;
+  --tp-aurora-b: #7c3aed;
+  --tp-aurora-c: #0891b2;
+
+  --tp-border-subtle: rgb(15 23 42 / 0.08);
+  --tp-border-default: rgb(15 23 42 / 0.11);
+  --tp-border-strong: rgb(15 23 42 / 0.14);
+  --tp-border-muted: rgb(15 23 42 / 0.09);
+
+  --tp-frost-a: rgb(15 23 42 / 0.06);
+  --tp-frost-b: rgb(15 23 42 / 0.05);
+  --tp-frost-c: rgb(15 23 42 / 0.045);
+  --tp-frost-d: rgb(15 23 42 / 0.035);
+  --tp-frost-e: rgb(15 23 42 / 0.02);
+
+  --tp-glass-fill: rgb(15 23 42 / 0.055);
+  --tp-glass-fill-strong: rgb(15 23 42 / 0.08);
+
+  --tp-marquee-static: rgb(255 255 255 / 0.92);
+  --tp-marquee-from: rgb(244 247 251 / 0.94);
+  --tp-marquee-via: rgb(226 232 240 / 0.98);
+  --tp-marquee-to: rgb(244 247 251 / 0.94);
+
+  --tp-logo-dim: rgb(15 23 42 / 0.22);
+
+  --tp-nav-border: rgb(15 23 42 / 0.1);
+  --tp-nav-bg: rgb(255 255 255 / 0.72);
+  --tp-nav-bg-scroll: rgb(255 255 255 / 0.94);
+  --tp-nav-shadow:
+    0 0 0 1px rgb(15 23 42 / 0.06), 0 10px 40px -14px rgb(15 23 42 / 0.14),
+    0 0 52px -20px rgb(13 148 136 / 0.16);
+  --tp-nav-shadow-scroll:
+    0 0 0 1px rgb(15 23 42 / 0.08), 0 14px 44px -12px rgb(15 23 42 / 0.16),
+    0 0 64px -22px rgb(13 148 136 / 0.2);
+
+  --tp-card-shine-line: rgb(15 23 42 / 0.06);
+
+  --tp-btn-ring: rgb(15 23 42 / 0.08);
+
+  --tp-hero-line-mid: rgb(15 23 42 / 0.18);
+
+  --tp-static-hero-bg:
+    radial-gradient(
+      ellipse 120% 100% at 18% 0%,
+      rgba(13, 148, 136, 0.14) 0%,
+      transparent 48%
+    ),
+    radial-gradient(
+      ellipse 95% 82% at 100% 18%,
+      rgba(124, 58, 237, 0.11) 0%,
+      transparent 44%
+    ),
+    radial-gradient(
+      ellipse 62% 52% at 50% 100%,
+      rgba(8, 145, 178, 0.09) 0%,
+      transparent 52%
+    ),
+    var(--tp-void);
+
+  --tp-hero-vignette:
+    linear-gradient(
+      120deg,
+      rgba(255, 255, 255, 0.65) 0%,
+      rgba(241, 245, 249, 0.92) 46%,
+      var(--tp-void) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.35) 0%,
+      rgba(241, 245, 249, 0.75) 58%,
+      var(--tp-void) 100%
+    );
+
+  --tp-selection-bg: rgb(13 148 136 / 0.22);
+  --tp-selection-fg: var(--tp-foam);
+
+  --tp-grain-opacity: 0.048;
+
+  --tp-webgl-bg: #e8edf4;
+  --tp-webgl-fog: #dce4ef;
+}
+
+@custom-variant theme-dark (&:where(html[data-theme='dark'] *));
+@custom-variant theme-light (&:where(html[data-theme='light'] *));
+
 @theme {
   --font-sans: 'Outfit', ui-sans-serif, system-ui, sans-serif;
   --font-display: 'Syne', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
-  --color-void: #010409;
-  --color-ink: #060b16;
-  --color-surface: #0a101f;
-  --color-surface-elevated: #0f172a;
-  --color-mist: #94a3b8;
-  --color-foam: #e2e8f0;
-  --color-accent: #2dd4bf;
-  --color-accent-dim: #14b8a6;
-  --color-iris: #a78bfa;
-  --color-glow: #38bdf8;
-  --color-aurora-a: #2dd4bf;
-  --color-aurora-b: #7c3aed;
-  --color-aurora-c: #22d3ee;
-  --color-ring: color-mix(in oklab, var(--color-foam) 12%, transparent);
+  --color-void: var(--tp-void);
+  --color-ink: var(--tp-ink);
+  --color-surface: var(--tp-surface);
+  --color-surface-elevated: var(--tp-surface-elevated);
+  --color-mist: var(--tp-mist);
+  --color-foam: var(--tp-foam);
+  --color-accent: var(--tp-accent);
+  --color-accent-dim: var(--tp-accent-dim);
+  --color-iris: var(--tp-iris);
+  --color-glow: var(--tp-glow);
+  --color-aurora-a: var(--tp-aurora-a);
+  --color-aurora-b: var(--tp-aurora-b);
+  --color-aurora-c: var(--tp-aurora-c);
+
+  --color-border: var(--tp-border-default);
+  --color-border-subtle: var(--tp-border-subtle);
+  --color-border-strong: var(--tp-border-strong);
+  --color-border-muted: var(--tp-border-muted);
+
+  --color-frost-a: var(--tp-frost-a);
+  --color-frost-b: var(--tp-frost-b);
+  --color-frost-c: var(--tp-frost-c);
+  --color-frost-d: var(--tp-frost-d);
+  --color-frost-e: var(--tp-frost-e);
+
+  --color-glass-fill: var(--tp-glass-fill);
+  --color-glass-fill-strong: var(--tp-glass-fill-strong);
+
+  --color-logo-dim: var(--tp-logo-dim);
+
+  --color-marquee-static: var(--tp-marquee-static);
+  --color-marquee-from: var(--tp-marquee-from);
+  --color-marquee-via: var(--tp-marquee-via);
+  --color-marquee-to: var(--tp-marquee-to);
+
+  --color-ring: var(--tp-ring-mix);
 }
 
 @keyframes marquee {
@@ -92,8 +306,17 @@
   }
 
   ::selection {
-    @apply bg-teal-500/35 text-white;
+    background: var(--tp-selection-bg);
+    color: var(--tp-selection-fg);
   }
+}
+
+.static-hero-backdrop {
+  background: var(--tp-static-hero-bg);
+}
+
+.hero-backdrop-vignette {
+  background: var(--tp-hero-vignette);
 }
 
 .site-aurora-1,
@@ -118,6 +341,11 @@
 }
 
 .hero-gradient-text {
+  /* Match box to glyphs — block-level spans stretch full column and some engines still paint the gradient layer across that width */
+  display: inline-block;
+  width: fit-content;
+  max-width: 100%;
+  vertical-align: baseline;
   background: linear-gradient(
     105deg,
     #a5f3fc 0%,
@@ -131,16 +359,44 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  filter: drop-shadow(0 0 50px color-mix(in oklab, var(--color-aurora-a) 35%, transparent));
+  -webkit-text-fill-color: transparent;
+  /* text-shadow follows glyphs; avoid filter drop-shadow here — it composites as a box with clip:text */
+  text-shadow:
+    0 0 42px color-mix(in oklab, var(--color-aurora-a) 38%, transparent),
+    0 0 88px color-mix(in oklab, var(--color-aurora-a) 16%, transparent);
   animation: gradient-drift 10s ease-in-out infinite;
 }
 
+[data-theme='light'] .hero-gradient-text {
+  /* Never use `background:` shorthand here — it resets background-clip to border-box and paints the full inline-block */
+  background-image: linear-gradient(
+    105deg,
+    #0f766e 0%,
+    #0d9488 18%,
+    #0891b2 38%,
+    #6366f1 58%,
+    #0369a1 78%,
+    #0f766e 100%
+  );
+  background-size: 100% 100%;
+  animation: none;
+  text-shadow: none;
+}
+
 .nav-glass {
-  @apply rounded-2xl border border-white/[0.08] bg-void/40 shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_8px_32px_-8px_rgba(0,0,0,0.5),0_0_60px_-20px_rgba(45,212,191,0.12)] backdrop-blur-2xl;
+  border-radius: 1rem;
+  border: 1px solid var(--tp-nav-border);
+  background: var(--tp-nav-bg);
+  box-shadow: var(--tp-nav-shadow);
+  @apply backdrop-blur-2xl;
 }
 
 .nav-glass-scrolled {
-  @apply rounded-2xl border border-white/12 bg-void/75 shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_12px_40px_-10px_rgba(0,0,0,0.55),0_0_80px_-24px_rgba(45,212,191,0.18)] backdrop-blur-2xl;
+  border-radius: 1rem;
+  border: 1px solid var(--tp-nav-border);
+  background: var(--tp-nav-bg-scroll);
+  box-shadow: var(--tp-nav-shadow-scroll);
+  @apply backdrop-blur-2xl;
 }
 
 /* backdrop-filter is very costly on mobile Safari while scrolling. */
@@ -149,7 +405,7 @@
   .nav-glass-scrolled {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
-    background: color-mix(in oklab, var(--color-void) 94%, white);
+    background: color-mix(in oklab, var(--tp-nav-bg) 92%, var(--tp-foam));
   }
 }
 
@@ -170,6 +426,10 @@
   opacity: 0.5;
 }
 
+[data-theme='light'] .section-ambient::before {
+  opacity: 0.35;
+}
+
 .card-shine {
   position: relative;
   overflow: hidden;
@@ -182,7 +442,7 @@
   background: linear-gradient(
     105deg,
     transparent 40%,
-    rgba(255, 255, 255, 0.04) 50%,
+    var(--tp-card-shine-line) 50%,
     transparent 60%
   );
   background-size: 200% 100%;
@@ -213,9 +473,13 @@
   inset: 0;
   pointer-events: none;
   z-index: 50;
-  opacity: 0.038;
+  opacity: var(--tp-grain-opacity);
   mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+[data-theme='light'] .grain {
+  mix-blend-mode: multiply;
 }
 
 /* SVG turbulence filter is expensive on low-power GPUs when scrolling. */
@@ -226,12 +490,19 @@
 }
 
 .btn-primary {
-  @apply relative inline-flex cursor-pointer items-center justify-center overflow-hidden rounded-full bg-gradient-to-r from-teal-400 via-cyan-400 to-teal-500 px-7 py-3.5 text-sm font-bold text-void;
+  @apply relative inline-flex cursor-pointer items-center justify-center overflow-hidden rounded-full bg-gradient-to-r from-teal-400 via-cyan-400 to-teal-500 px-7 py-3.5 text-sm font-bold text-slate-950;
   box-shadow:
     0 0 0 1px color-mix(in oklab, white 25%, transparent) inset,
     0 0 60px -10px color-mix(in oklab, var(--color-aurora-a) 60%, transparent),
     0 20px 50px -20px rgba(0, 0, 0, 0.5);
   transition: filter 0.2s ease, box-shadow 0.2s ease;
+}
+
+[data-theme='light'] .btn-primary {
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, white 55%, transparent) inset,
+    0 0 48px -12px color-mix(in oklab, var(--color-aurora-a) 45%, transparent),
+    0 16px 44px -22px rgb(15 23 42 / 0.12);
 }
 
 .btn-primary:hover {
@@ -242,23 +513,34 @@
     0 24px 56px -18px rgba(0, 0, 0, 0.55);
 }
 
+[data-theme='light'] .btn-primary:hover {
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, white 70%, transparent) inset,
+    0 0 56px -10px color-mix(in oklab, var(--color-aurora-a) 55%, transparent),
+    0 18px 48px -20px rgb(15 23 42 / 0.14);
+}
+
 .btn-ghost {
-  @apply cursor-pointer rounded-full border border-white/20 bg-white/[0.06] px-6 py-3.5 text-sm font-medium text-foam/95 backdrop-blur-sm transition;
+  @apply cursor-pointer rounded-full border px-6 py-3.5 text-sm font-medium text-foam/95 backdrop-blur-sm transition;
+  border-color: var(--tp-border-strong);
+  background: var(--tp-glass-fill);
 }
 
 .btn-ghost:hover {
-  @apply border-teal-400/45 shadow-[0_0_40px_-10px_rgba(45,212,191,0.35)] bg-white/[0.1];
+  border-color: color-mix(in oklab, var(--color-accent) 45%, var(--tp-border-strong));
+  box-shadow: 0 0 40px -10px color-mix(in oklab, var(--color-accent) 35%, transparent);
+  background: var(--tp-glass-fill-strong);
 }
 
 @media (max-width: 1023px) {
   :where(
-      .backdrop-blur-sm,
-      .backdrop-blur-md,
-      .backdrop-blur-lg,
-      .backdrop-blur-xl,
-      .backdrop-blur-2xl,
-      .backdrop-blur-3xl
-    ) {
+    .backdrop-blur-sm,
+    .backdrop-blur-md,
+    .backdrop-blur-lg,
+    .backdrop-blur-xl,
+    .backdrop-blur-2xl,
+    .backdrop-blur-3xl
+  ) {
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
   }
@@ -271,11 +553,21 @@
   .hero-gradient-text {
     animation: none;
     background-position: 50% 50%;
-    filter: drop-shadow(0 0 24px color-mix(in oklab, var(--color-aurora-a) 20%, transparent));
+    text-shadow:
+      0 0 22px color-mix(in oklab, var(--color-aurora-a) 22%, transparent),
+      0 0 44px color-mix(in oklab, var(--color-aurora-a) 10%, transparent);
+  }
+
+  [data-theme='light'] .hero-gradient-text {
+    text-shadow: none;
   }
 
   .section-ambient::before {
     opacity: 0.2;
+  }
+
+  [data-theme='light'] .section-ambient::before {
+    opacity: 0.15;
   }
 
   .card-shine::after {

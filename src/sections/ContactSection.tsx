@@ -24,7 +24,7 @@ export function ContactSection() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="grid gap-12 lg:grid-cols-2 lg:items-end lg:gap-16">
           <div>
-            <p className="font-mono text-[0.65rem] uppercase tracking-[0.24em] text-teal-400/90">
+            <p className="font-mono text-[0.65rem] uppercase tracking-[0.24em] text-accent">
               Contact
             </p>
             <h2
@@ -45,11 +45,11 @@ export function ContactSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-            className="card-shine flex flex-col gap-4 rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.08] to-white/[0.02] p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_32px_80px_-28px_rgba(45,212,191,0.12)] sm:p-7"
+            className="card-shine flex flex-col gap-4 rounded-3xl border border-border bg-gradient-to-br from-frost-a to-frost-e p-6 shadow-[0_0_0_1px_var(--tp-btn-ring),0_32px_80px_-28px_rgb(45_212_191_/_0.12)] theme-light:shadow-[0_0_0_1px_var(--tp-btn-ring),0_28px_72px_-26px_rgb(13_148_136_/_0.12)] sm:p-7"
           >
             <a
               href={`mailto:${site.email}`}
-              className="group cursor-pointer text-lg text-teal-300 transition duration-200 hover:text-teal-200 sm:text-xl"
+              className="group cursor-pointer text-lg text-accent transition duration-200 hover:text-accent-dim sm:text-xl"
             >
               {site.email}
               <span
@@ -70,7 +70,7 @@ export function ContactSection() {
                 href={site.linkedIn}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-white/16 bg-white/[0.06] px-3.5 py-2 text-xs font-medium text-foam transition hover:border-teal-400/35 hover:bg-white/[0.1]"
+                className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-border-strong bg-glass-fill px-3.5 py-2 text-xs font-medium text-foam transition hover:border-teal-400/35 hover:bg-glass-fill-strong"
               >
                 LinkedIn
                 <span aria-hidden>↗</span>
@@ -78,7 +78,7 @@ export function ContactSection() {
               <button
                 type="button"
                 onClick={() => copyToClipboard(site.email)}
-                className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-white/16 bg-white/[0.06] px-3.5 py-2 text-xs font-medium text-foam transition hover:border-teal-400/35 hover:bg-white/[0.1]"
+                className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-border-strong bg-glass-fill px-3.5 py-2 text-xs font-medium text-foam transition hover:border-teal-400/35 hover:bg-glass-fill-strong"
               >
                 Copy email
               </button>
