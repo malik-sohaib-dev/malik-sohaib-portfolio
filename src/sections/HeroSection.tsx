@@ -162,7 +162,7 @@ export function HeroSection() {
               variants={item}
               className="mt-10 flex flex-wrap items-center gap-3 sm:gap-4"
             >
-              <a href="#experience" className="btn-primary group">
+              <a href="/#experience" className="btn-primary group">
                 <span className="relative z-10 flex items-center gap-2">
                   Explore experience
                   <span
@@ -173,7 +173,7 @@ export function HeroSection() {
                   </span>
                 </span>
               </a>
-              <a href="#contact" className="btn-ghost">
+              <a href="/#contact" className="btn-ghost">
                 Start a conversation
               </a>
             </motion.div>

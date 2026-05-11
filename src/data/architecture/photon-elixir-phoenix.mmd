@@ -1,0 +1,20 @@
+flowchart TB
+  subgraph before["Before — datasync on Express"]
+    direction TB
+    B1["Clients — portal / rooms / room detail"]
+    E["Express (Node)<br/>Photon JS SDK + in-memory snapshots<br/>~20–30 MB JSON typical"]
+    B1 -->|"SSE: inactive vs active room lists<br/>+ SSE per room for files"| E
+    E <-->|Realtime SDK| PH1[("Photon")]
+  end
+
+  subgraph after["After — split + dedicated datasync"]
+    direction TB
+    B2["Clients — portal / rooms / room detail"]
+    DS["Elixir datasync<br/>Photon client · Channels · ETS (inactive / active / files)<br/>MongoDB"]
+    EX["Express<br/>non-sync HTTP APIs"]
+    B2 -->|"Phoenix Channels"| DS
+    B2 -->|"HTTP"| EX
+    DS <-->|Photon protocol| PH2[("Photon")]
+    DS --> DB[("MongoDB")]
+    DS --> AD["Adapter layer<br/>AWS · GCP (5 env) · Docker Compose"]
+  end

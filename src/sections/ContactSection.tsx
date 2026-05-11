@@ -9,7 +9,7 @@ export function ContactSection() {
   return (
     <section
       id="contact"
-      className="section-ambient relative overflow-hidden py-22 sm:py-32"
+      className="section-ambient relative scroll-mt-28 overflow-hidden py-22 sm:scroll-mt-32 sm:py-32"
       aria-labelledby="contact-heading"
     >
       <div

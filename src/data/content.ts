@@ -133,13 +133,13 @@ export const experience: readonly Job[] = [
     period: 'Nov 2023 – Present',
     highlights: [
       'Multi-cloud (AWS + GCP) via adapter pattern and monorepo; Express, Fastify, React, Lambdas, crons.',
-      'Re-implemented Photon client SDK in Elixir Phoenix: channels, ETS, real-time at huge scale.',
+      'Photon room & file datasync moved off Express (Photon JS SDK, SSE fan-out, large in-memory snapshots) into dedicated Elixir: custom Photon client using the JS SDK as reference, Phoenix Channels, ETS for inactive/active/file lists, MongoDB, Docker Compose, multi-env AWS & GCP.',
       'SOC compliance with security partners; ClamAV in the processing pipeline.',
       'Arthur Vibe – AI async collaboration: org/team access, STT/TTS, translation, RAG in Postgres Vector, multi-model (OpenAI, Gemini, Claude), self-hosted Whisper & Coqui on Cloud Run.',
       'Mentoring, Notion onboarding, and stronger team culture.',
     ],
     stack:
-      'JS, TS, React, Tailwind, Node, Go (Fiber), Elixir (Phoenix), Python, Redis, Postgres, SQLite, Prisma, MongoDB, Docker, AWS, GCP, AI/ML',
+      'JS, TS, React, Tailwind, Node, Go (Fiber), Elixir (Phoenix, ETS), Python, Redis, Postgres, SQLite, Prisma, MongoDB, Docker, AWS, GCP, AI/ML',
   },
   {
     company: 'BH Group',
@@ -166,22 +166,154 @@ export const experience: readonly Job[] = [
   },
 ] as const
 
-export const projects = [
+export type ProjectCaseStudy = {
+  context: readonly string[]
+  problem: readonly string[]
+  approach: readonly string[]
+  technical: readonly string[]
+  outcomes: readonly string[]
+  /** Shown when work is under NDA — no client identifiers. */
+  ndaNote?: string
+}
+
+export type Project = {
+  slug: string
+  name: string
+  blurb: string
+  tagline: string
+  stack: readonly string[]
+  caseStudy: ProjectCaseStudy
+}
+
+export const projects: readonly Project[] = [
   {
+    slug: 'photon-elixir-phoenix',
     name: 'Photon Client → Elixir Phoenix',
     blurb:
-      'Scalable real-time system replacing Photon Client SDK, massive concurrency with channels and ETS.',
+      'Datasync moved off Express: room and file metadata from Photon, pushed to browsers via Phoenix Channels instead of many long-lived SSE connections on Node.',
+    tagline:
+      'Replacing a Photon-driven, SSE-heavy data sync path on Express with a dedicated Elixir service — channels to clients, a custom Photon client on the BEAM, and multi-cloud deployment.',
+    stack: [
+      'Elixir · Phoenix',
+      'Phoenix Channels',
+      'ETS',
+      'Photon',
+      'MongoDB',
+      'AWS · GCP',
+      'Docker Compose',
+      'Express · Node (legacy path)',
+    ],
+    caseStudy: {
+      context: [
+        'The portal exposed a data sync surface backed by Photon: room list state (inactive rooms on one side, active rooms on the other) and, inside a room, live file metadata as uploads changed.',
+        'An Express server used the Photon JavaScript SDK, held the canonical snapshot in Node memory (on the order of 20–30 MB JSON for active + inactive room payloads), and pushed updates to browsers over SSE. Clients received room identity, password/metadata changes, and for active rooms participant lists (e.g. display name, avatar URL, and related fields). Opening room detail added another SSE stream for file listings kept in sync the same way.',
+        'At scale this was easy to reason about in the small — and expensive in the large: many concurrent portal users meant many simultaneous SSE connections anchored on the same Express process that also served unrelated APIs.',
+      ],
+      problem: [
+        'Connection fan-out amplified quickly: the rooms experience alone used two SSE connections per user (one stream for inactive rooms, one for active rooms), before counting the additional SSE opened per room for file sync. For example, on the order of a hundred concurrent portal users implies on the order of two hundred list SSEs—before any room-detail file streams.',
+        'That load sat on the same Express runtime as the rest of the product, so data sync work competed for CPU and event-loop time with ordinary HTTP traffic — hurting latency and stability for APIs that had nothing to do with realtime rooms.',
+      ],
+      approach: [
+        'We reviewed several directions and settled on Elixir / Phoenix, primarily for Channels as the long-lived, bidirectional primitive and for the BEAM’s strength under mass connection counts.',
+        'I built a custom Photon client in Elixir, using the Photon JS SDK as the behavioral reference, so we could speak Photon’s protocol without anchoring that work in Node.',
+        'We carved datasync — room metadata and file metadata — out of Express into a dedicated Elixir service. Clients subscribe via Channels instead of leaning on Express for SSE. Hot reads for inactive rooms, active rooms, and per-room file lists are backed by ETS so channel delivery does not lean on MongoDB for every push. Persistence and cloud differences sit behind an adapter-oriented layout so the same service can run on AWS and GCP.',
+      ],
+      technical: [
+        'The Elixir datasync service uses ETS for inactive, active, and file-list snapshots that mirror what Express previously kept in Node memory, connects to MongoDB for durable storage, ships with Docker Compose, and runs across five environments (three AWS, two GCP), with adapters isolating cloud-specific concerns from core sync logic.',
+        'Join and topic rules on Channels mirror the same trust boundaries we enforced when those streams lived on Express; payloads remain structured around room and file events the UI already understood.',
+        'Express keeps non-sync responsibilities; the heavy, connection-rich path migrates off the shared Node footprint.',
+      ],
+      outcomes: [
+        'Datasync is no longer a drag on the main Express server — realtime room and file lists scale on a process model built for concurrency, while the rest of the API surface stays predictable.',
+        'One codebase path for Photon integration on the BEAM, repeatable Docker-based rollouts, and multi-cloud operations without forking the service per vendor.',
+      ],
+      ndaNote:
+        'Product and company names, traffic figures, and internal diagrams are omitted. This summary reflects architecture and engineering tradeoffs only.',
+    },
   },
   {
+    slug: 'arthur-vibe',
     name: 'Arthur Vibe',
     blurb:
       'End-to-end async collaboration: multi-model AI, self-hosted services, advanced reporting.',
+    tagline:
+      'An async collaboration surface spanning org structure, AI-assisted workflows, and self-hosted speech and retrieval—without sacrificing security expectations.',
+    stack: [
+      'React',
+      'Node.js',
+      'Postgres',
+      'pgvector',
+      'OpenAI · Gemini · Claude',
+      'Cloud Run',
+      'RAG',
+    ],
+    caseStudy: {
+      context: [
+        'Enterprises wanted async collaboration with AI features—summaries, retrieval over internal knowledge, and voice interfaces—while keeping access control aligned with how teams and orgs are already structured.',
+        'The product had to work with multiple model providers and optional self-hosted components so regions and policies could differ without forking the app.',
+      ],
+      problem: [
+        'Classic challenges: grounding answers without leaking across tenants, shipping STT/TTS where cloud-only APIs are not acceptable, and keeping reporting honest when workflows span human and model steps.',
+        'Every feature touched authz—team vs org scopes, feature flags, and audit-friendly trails.',
+      ],
+      approach: [
+        'Model provider and embedding pipelines behind adapters so swapping vendors did not ripple through the UI.',
+        'RAG grounded in Postgres with vector search, with ingestion and query paths designed for revoke and refresh—not “embed once and hope.”',
+        'Self-hosted Whisper and TTS on Cloud Run for paths that needed dedicated capacity or data boundaries, alongside managed APIs elsewhere.',
+        'Security reviews drove file hygiene (e.g. scanning/sanitization in the processing path) rather than treating uploads as opaque blobs.',
+      ],
+      technical: [
+        'Org and team primitives drove access checks consistently across REST, realtime updates, and background jobs.',
+        'Evaluation and guardrails were built into the product loop—not only prompt text—so regressions were visible before users felt them.',
+        'Reporting surfaced usage and quality signals for admins without exposing content they were not entitled to see.',
+      ],
+      outcomes: [
+        'A single product surface that could flex across providers and hosting choices while keeping a coherent permissions story.',
+        'Faster iteration on AI features because retrieval, speech, and UI were decoupled along stable internal APIs.',
+      ],
+      ndaNote:
+        'Case study is anonymized: no customer data, metrics, or screenshots. Descriptions reflect how the system was engineered, not proprietary prompts or documents.',
+    },
   },
   {
+    slug: 'solar-design-pvx',
     name: 'Solar Design Tool (pvx.ai)',
     blurb: 'Web PV design with rich UI and real-time engineering calculations.',
+    tagline:
+      'A browser-based PV layout and engineering workflow where the UI stayed responsive while calculations streamed in.',
+    stack: ['React', 'Node.js', 'Firebase', 'GCP', 'MongoDB', 'Realtime calcs'],
+    caseStudy: {
+      context: [
+        'Solar designers needed a web tool that paired a polished layout experience with engineering-grade calculations—without the round-trips typical of desktop legacy tools.',
+        'The team was small; shipping quickly while hardening infra and auth mattered as much as feature breadth.',
+      ],
+      problem: [
+        'Heavy geometry and irradiance-style calculations had to feel instant. Blocking the main thread or spamming naive API calls would kill trust in the product.',
+        'Auth, saved projects, and sharing semantics had to stay simple for users but safe enough for production traffic.',
+      ],
+      approach: [
+        'Push computation to the edges that fit: incremental updates, debounced requests, and clear loading semantics so the canvas never felt frozen.',
+        'Structure the app so dashboards, landing, and the core designer shared a consistent design system and state patterns—fewer one-off bugs.',
+        'Iterate on infra and vulnerability fixes alongside features so security was not a freeze-the-world event later.',
+      ],
+      technical: [
+        'React state and derived layers kept the interactive model predictable; server APIs stayed coarse-grained to match user intent, not per-pixel chatter.',
+        'Firebase and GCP pieces were chosen for auth and hosting fit; MongoDB for document-shaped project data.',
+        'Hardening passes addressed real classes of issues found in review—not checkbox compliance.',
+      ],
+      outcomes: [
+        'A credible demo-to-production path: designers could run real workflows in the browser with feedback tight enough for day-to-day use.',
+        'The foundation supported training new contributors and interns because patterns were consistent across modules.',
+      ],
+      ndaNote:
+        'No proprietary engineering formulas or client project data are included below—only product and architecture-level lessons.',
+    },
   },
-] as const
+]
+
+export function getProjectBySlug(slug: string): Project | undefined {
+  return projects.find((p) => p.slug === slug)
+}
 
 export type Testimonial = {
   author: string

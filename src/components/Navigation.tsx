@@ -1,14 +1,15 @@
 import { useEffect, useId, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { site } from '../data/content'
 import { ThemeToggle } from './ThemeToggle'
 
 const links = [
-  { href: '#summary', label: 'Summary' },
-  { href: '#skills', label: 'Skills' },
-  { href: '#experience', label: 'Experience' },
-  { href: '#projects', label: 'Projects' },
-  { href: '#testimonials', label: 'Testimonials' },
-  { href: '#contact', label: 'Contact' },
+  { to: '/#summary', label: 'Summary' },
+  { to: '/#skills', label: 'Skills' },
+  { to: '/#experience', label: 'Experience' },
+  { to: '/#projects', label: 'Projects' },
+  { to: '/#testimonials', label: 'Testimonials' },
+  { to: '/#contact', label: 'Contact' },
 ] as const
 
 function LogoMark({ className = '' }: { className?: string }) {
@@ -107,24 +108,24 @@ export function Navigation() {
           className="flex items-center justify-between gap-3 px-3 py-2.5 sm:px-5 sm:py-3"
           aria-label="Primary"
         >
-          <a
-            href="#top"
+          <Link
+            to="/#top"
             className="group flex cursor-pointer items-center gap-2.5 font-display text-sm font-semibold tracking-tight text-foam/95 transition hover:text-accent"
           >
             <span className="text-accent transition group-hover:scale-105 theme-dark:text-teal-400/90 theme-light:text-accent-dim">
               <LogoMark />
             </span>
             <span>{site.name.split(' ')[0]}</span>
-          </a>
+          </Link>
           <ul className="hidden items-center gap-0.5 text-[0.8125rem] text-mist/90 md:flex">
             {links.map((l) => (
-              <li key={l.href}>
-                <a
-                  href={l.href}
+              <li key={l.to}>
+                <Link
+                  to={l.to}
                   className="cursor-pointer rounded-full px-3.5 py-2 font-medium text-mist/95 transition duration-200 hover:bg-frost-d hover:text-foam"
                 >
                   {l.label}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
@@ -138,12 +139,12 @@ export function Navigation() {
             >
               LinkedIn ↗
             </a>
-            <a
-              href="#contact"
+            <Link
+              to="/#contact"
               className="hidden cursor-pointer rounded-full border border-border-strong bg-frost-d px-3 py-1.5 text-xs font-medium text-foam/90 shadow-[0_0_20px_-8px_rgb(45_212_191_/_0.25)] transition duration-200 hover:border-teal-400/40 hover:bg-frost-c theme-light:shadow-[0_0_18px_-8px_rgb(13_148_136_/_0.2)] sm:inline"
             >
               Connect
-            </a>
+            </Link>
             <button
               type="button"
               className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-border-strong text-foam transition hover:border-border hover:bg-frost-e md:hidden"
@@ -163,14 +164,14 @@ export function Navigation() {
           >
             <ul className="flex flex-col gap-0.5 text-sm text-mist/95">
               {links.map((l) => (
-                <li key={l.href}>
-                  <a
-                    href={l.href}
+                <li key={l.to}>
+                  <Link
+                    to={l.to}
                     className="block cursor-pointer rounded-xl px-3 py-2.5 font-medium transition hover:bg-frost-e"
                     onClick={() => setOpen(false)}
                   >
                     {l.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
               <li>
