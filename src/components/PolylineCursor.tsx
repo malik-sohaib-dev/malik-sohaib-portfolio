@@ -192,13 +192,22 @@ export function PolylineCursor() {
     }
     document.addEventListener('visibilitychange', onVisibility)
 
+    // Cap at 60 fps so the spring physics and render cost are consistent
+    // regardless of the display refresh rate (144 Hz gaming laptops, 120 Hz
+    // ProMotion, etc.).  Without this, a 144 Hz panel runs 2.4× more work
+    // per second than a 60 Hz display and makes the trail noticeably laggy.
+    const FRAME_CAP_MS = 1000 / 60
+    let lastFrameTime = 0
+
     function tick() {
       cancelAnimationFrame(raf)
       raf = requestAnimationFrame(loop)
     }
 
-    function loop() {
+    function loop(now: number) {
       raf = requestAnimationFrame(loop)
+      if (now - lastFrameTime < FRAME_CAP_MS) return
+      lastFrameTime = now
       lines.forEach((line) => {
         for (let i = line.points.length - 1; i >= 0; i--) {
           if (i === 0) {
