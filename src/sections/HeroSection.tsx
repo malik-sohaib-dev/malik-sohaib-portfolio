@@ -3,6 +3,7 @@ import { lazy, Suspense, useState } from 'react'
 import { useLgDown } from '../hooks/useMediaQuery'
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion'
 import { heroStats, site } from '../data/content'
+import { ScrambleText } from '../components/ScrambleText'
 import { StaticHeroBackdrop } from '../components/StaticHeroBackdrop'
 import { TechMarquee } from '../components/TechMarquee'
 
@@ -116,8 +117,9 @@ export function HeroSection() {
             <motion.p
               variants={item}
               className="font-display text-lg font-medium tracking-wide text-accent sm:text-xl"
+              aria-label={site.title}
             >
-              {site.title}
+              {reduced ? site.title : <ScrambleText key={site.title} text={site.title} revealMs={100} scrambleRollIntervalMs={100} />}
             </motion.p>
             <motion.p
               variants={item}
