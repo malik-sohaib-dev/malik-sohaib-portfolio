@@ -2,7 +2,7 @@ flowchart TB
   subgraph portal["Portal — agent management — React"]
     direction TB
     OP["Operator — name · wake word · prompt"]
-    MODELS["LLM OpenAI · Grok · STT · TTS · avatar"]
+    MODELS["LLM OpenAI · Groq · STT · TTS · avatar"]
     AUTH["Email · password · sessions"]
     API["Node.js — persist agents · auth · bootstrap"]
     OP --> MODELS
@@ -16,7 +16,7 @@ flowchart TB
     ZM[("Zoom — meeting audio")]
     WAKE["Wake word gate — trigger phrase before reply"]
     RTC[("OpenAI Realtime — WebRTC peer")]
-    AI[("OpenAI · Grok — model + voice config")]
+    AI[("OpenAI · Groq — model + voice config")]
     PG <-->|"capture · playout"| ZM
     PG --> WAKE
     WAKE --> RTC

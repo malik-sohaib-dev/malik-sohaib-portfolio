@@ -28,7 +28,7 @@ const projectArchitectureDiagram: Partial<Record<string, ProjectArchitectureDiag
   'zoom-meeting-agent': {
     mermaidBody: zoomMeetingAgent.trim(),
     description:
-      'Operators configure agents in React with sessions on Node; the bridge page joins Zoom, moves audio, applies wake-word gating, and holds the WebRTC leg to OpenAI Realtime while models stay swappable (OpenAI, Grok). A Python MCP-style dispatcher drops the bot into a LiveKit room with the same prompt and avatar; HeyGen uses a parallel React surface that still shares the realtime brain.',
+      'Operators configure agents in React with sessions on Node; the bridge page joins Zoom, moves audio, applies wake-word gating, and holds the WebRTC leg to OpenAI Realtime while models stay swappable (OpenAI, Groq). A Python MCP-style dispatcher drops the bot into a LiveKit room with the same prompt and avatar; HeyGen uses a parallel React surface that still shares the realtime brain.',
     ariaLabel:
       'Zoom Meeting Agent — portal, Zoom bridge with WebRTC, LiveKit bot dispatch, and HeyGen path',
   },

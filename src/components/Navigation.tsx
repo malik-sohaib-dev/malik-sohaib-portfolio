@@ -135,6 +135,14 @@ export function Navigation() {
             >
               LinkedIn ↗
             </a>
+            <a
+              href={site.resume}
+              target="_blank"
+              rel="noreferrer"
+              className="hidden cursor-pointer text-xs font-medium text-accent transition duration-200 hover:text-accent-dim sm:inline"
+            >
+              Resume ↗
+            </a>
             <Link
               to="/#contact"
               className="hidden cursor-pointer rounded-full border border-border-strong bg-frost-d px-3 py-1.5 text-xs font-medium text-foam/90 shadow-[0_0_20px_-8px_rgb(45_212_191_/_0.25)] transition duration-200 hover:border-teal-400/40 hover:bg-frost-c theme-light:shadow-[0_0_18px_-8px_rgb(13_148_136_/_0.2)] sm:inline"
@@ -179,6 +187,17 @@ export function Navigation() {
                   onClick={() => setOpen(false)}
                 >
                   LinkedIn
+                </a>
+              </li>
+              <li>
+                <a
+                  href={site.resume}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block cursor-pointer rounded-xl px-3 py-2.5 text-accent"
+                  onClick={() => setOpen(false)}
+                >
+                  Resume
                 </a>
               </li>
             </ul>

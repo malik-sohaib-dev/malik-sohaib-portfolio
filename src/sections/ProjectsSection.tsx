@@ -21,7 +21,7 @@ export function ProjectsSection() {
             step="04"
             kicker="Highlights"
             title="Notable projects"
-            subtitle="Systems built for scale, real-time, and product velocity. Each card opens a written case study—suited for work that cannot be shown as a public demo."
+            subtitle="Systems built for scale, real-time, and product velocity. Each card opens a written case study."
           />
         </div>
         <ul className="grid gap-6 md:grid-cols-3">

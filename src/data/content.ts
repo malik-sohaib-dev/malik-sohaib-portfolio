@@ -16,7 +16,7 @@ export const stackMarquee = [
 ] as const
 
 export const heroStats = [
-  { label: 'Shipped in prod', value: '3+ yrs' },
+  { label: 'Shipped in prod', value: '4+ yrs' },
   { label: 'Cloud', value: 'AWS · GCP' },
   { label: 'Stack depth', value: 'FE → BE → AI' },
 ] as const
@@ -31,22 +31,22 @@ export const site = {
   phone: '+92-305-4990819',
   /** Replace with your public profile URL if different. */
   linkedIn: 'https://www.linkedin.com/in/malik-sohaib',
+  resume:
+    'https://docs.google.com/document/d/1Xuink9j5MOcRVhdgnSlA8IDMjlZOPqXcIbaOhKbGwKw/edit?usp=sharing',
 } as const
 
 export const summary =
-  'Full Stack & AI Engineer with over 3 years of professional experience building scalable, secure, and high-performance applications across multi-cloud environments (AWS & GCP). Strong expertise in backend systems, frontend applications, real-time communication, and AI/ML integration. Experienced in leading projects end-to-end, collaborating with cross-functional teams, and mentoring junior developers.'
+  'Full Stack & AI Engineer with around 4 years of professional experience building scalable, secure, and high-performance applications across multi-cloud environments (AWS & GCP). Strong expertise in backend systems, frontend applications, real-time communication, and AI/ML integration. Experienced in leading projects end-to-end, collaborating with cross-functional teams, and mentoring junior developers.'
 
 export const skillGroups = [
   {
     name: 'Frontend',
     items: [
       'React',
+      'TypeScript',
       'TailwindCSS',
       'Three.js',
-      'HTML',
-      'CSS',
-      'JavaScript',
-      'TypeScript',
+      'HTML · CSS · JavaScript',
     ],
   },
   {
@@ -55,29 +55,34 @@ export const skillGroups = [
       'Node.js',
       'Express',
       'Fastify',
+      'Python',
       'Golang (Fiber)',
       'Elixir (Phoenix)',
-      'Python',
+      'Phoenix Channels',
       'MERN stack',
+      'SSE (Server-Sent Events)',
+      'Photon',
     ],
   },
   {
     name: 'AI / ML',
     items: [
-      'OpenAI',
+      'OpenAI · Realtime API',
       'Gemini',
       'Claude',
+      'Groq',
       'RAG pipelines',
-      'Whisper / Faster-Whisper',
-      'Coqui TTS',
+      'STT / TTS',
+      'HeyGen',
       'Embeddings',
       'Vector DBs',
+      'MuseTalk Real-time Lip-sync'
     ],
   },
   {
     name: 'Databases',
     items: [
-      'PostgreSQL (PG Vector)',
+      'PostgreSQL · pgvector',
       'SQLite',
       'MongoDB',
       'Prisma',
@@ -92,11 +97,13 @@ export const skillGroups = [
       'AWS',
       'GCP',
       'Docker',
+      'Docker Compose',
       'ECS',
       'Cloud Run',
       'S3',
       'Lambda',
       'Step Functions',
+      'Cron / scheduled jobs',
       'CI/CD',
     ],
   },
@@ -107,9 +114,12 @@ export const skillGroups = [
       'ClamAV file sanitization',
       'Vulnerability resolution',
       'System design',
-      'WebSockets',
       'Microservices',
       'SaaS products',
+      'Stripe',
+      'ActiveCampaign',
+      'LiveKit',
+      'WebRTC',
     ],
   },
 ] as const
@@ -292,7 +302,7 @@ export const projects: readonly Project[] = [
     stack: [
       'React',
       'Node.js',
-      'OpenAI · Grok',
+      'OpenAI · Groq',
       'OpenAI Realtime · WebRTC',
       'LiveKit',
       'Python',
@@ -302,7 +312,7 @@ export const projects: readonly Project[] = [
     ],
     caseStudy: {
       context: [
-        'Operators configure meeting agents in a React app: display name, wake word, system prompt, LLM (OpenAI or Grok), speech-to-text and text-to-speech choices, and optional avatar imagery. Access to agent management is behind email-and-password authentication with proper session handling.',
+        'Operators configure meeting agents in a React app: display name, wake word, system prompt, LLM (OpenAI or Groq), speech-to-text and text-to-speech choices, and optional avatar imagery. Access to agent management is behind email-and-password authentication with proper session handling.',
         'Participants use a dedicated webpage that joins the Zoom meeting and shuttles meeting audio in both directions between Zoom and that page. After the Node.js backend initializes the realtime session, the page connects to OpenAI over WebRTC for low-latency dialogue.',
         'Separately, a worker path brings up a LiveKit room; a Python CLI—shaped like a small MCP-style server—dispatches the bot into that room and applies the same prompt, avatar, and runtime settings the operator saved. HeyGen avatars use another frontend flow that streams the avatar output while reusing the same OpenAI realtime / “brain” logic.',
       ],
@@ -318,7 +328,7 @@ export const projects: readonly Project[] = [
       technical: [
         'Admin React UI persists agent definitions (models, TTS/STT, prompts, assets) and enforces authenticated sessions.',
         'The bridge page: Zoom join + capture/playout, backend-initiated OpenAI Realtime session, WebRTC attach, and error recovery tuned for meeting-length runs.',
-        'Node coordinates tokens or session bootstrap for the realtime client; the stack wires STT/TTS through the supported OpenAI-family or Grok-facing paths the product exposes.',
+        'Node coordinates tokens or session bootstrap for the realtime client; the stack wires STT/TTS through the supported OpenAI-family or Groq-facing paths the product exposes.',
         'LiveKit hosts the bot media leg; the Python CLI/server dispatches the bot with the stored prompt and avatar metadata. HeyGen integration adds a streaming presentation path on the frontend without forking the core reasoning stack.',
       ],
       outcomes: [
