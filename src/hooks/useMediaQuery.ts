@@ -3,7 +3,7 @@ import { useSyncExternalStore } from 'react'
 const LG_DOWN = '(max-width: 1023px)'
 
 /**
- * One shared `matchMedia` subscription for the whole tree — used to strip heavy
+ * One shared `matchMedia` subscription for the whole tree. Used to strip heavy
  * effects (WebGL, continuous animations, blurs) on phones and small tablets.
  */
 function subscribeLgDown(onStoreChange: () => void) {

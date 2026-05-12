@@ -195,15 +195,15 @@ export function HeroSection() {
               </p>
               <ul className="mt-4 space-y-2 text-sm text-mist/88">
                 <li className="flex gap-2">
-                  <span className="text-teal-400/80">—</span>
+                  <span className="text-teal-400/80">·</span>
                   Multi-cloud & edge
                 </li>
                 <li className="flex gap-2">
-                  <span className="text-teal-400/80">—</span>
+                  <span className="text-teal-400/80">·</span>
                   RAG & data planes
                 </li>
                 <li className="flex gap-2">
-                  <span className="text-teal-400/80">—</span>
+                  <span className="text-teal-400/80">·</span>
                   Product velocity
                 </li>
               </ul>

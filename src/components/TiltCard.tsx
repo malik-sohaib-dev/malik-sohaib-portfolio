@@ -7,7 +7,7 @@ type Props = {
 }
 
 /**
- * 3D tilt on hover — disabled below `lg` to avoid extra compositing and pointer work on touch devices.
+ * 3D tilt on hover; disabled below `lg` to avoid extra compositing and pointer work on touch devices.
  */
 export function TiltCard({ children, className = '' }: Props) {
   const ref = useRef<HTMLDivElement>(null)

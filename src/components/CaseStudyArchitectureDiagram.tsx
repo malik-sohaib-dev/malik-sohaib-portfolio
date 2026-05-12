@@ -187,7 +187,7 @@ export function CaseStudyArchitectureDiagram({
             >
               <div className="flex items-center justify-between gap-3 border-b border-border-muted px-4 py-3 sm:px-5">
                 <p className="font-display text-sm font-semibold tracking-tight text-foam">
-                  Architecture — enlarged
+                  Architecture (full size)
                 </p>
                 <button
                   ref={closeButtonRef}

@@ -2,7 +2,7 @@
 
 /*
  * Theme palette: edit `--tp-*` values on `:root` (dark) and `[data-theme="light"]` only.
- * Tailwind utilities map through `@theme` → same tokens — no component churn when tuning colors.
+ * Tailwind utilities map through `@theme` → same tokens, so color tweaks do not force component churn.
  */
 :root {
   color-scheme: dark;
@@ -337,7 +337,7 @@
 }
 
 .hero-gradient-text {
-  /* Match box to glyphs — block-level spans stretch full column and some engines still paint the gradient layer across that width */
+  /* Match box to glyphs: block-level spans stretch full column; some engines still paint the gradient layer across that width */
   display: inline-block;
   width: fit-content;
   max-width: 100%;
@@ -356,7 +356,7 @@
   background-clip: text;
   color: transparent;
   -webkit-text-fill-color: transparent;
-  /* text-shadow follows glyphs; avoid filter drop-shadow here — it composites as a box with clip:text */
+  /* text-shadow follows glyphs; avoid filter drop-shadow here: it composites as a box with clip:text */
   text-shadow:
     0 0 42px color-mix(in oklab, var(--color-aurora-a) 38%, transparent),
     0 0 88px color-mix(in oklab, var(--color-aurora-a) 16%, transparent);
@@ -364,7 +364,7 @@
 }
 
 [data-theme='light'] .hero-gradient-text {
-  /* Never use `background:` shorthand here — it resets background-clip to border-box and paints the full inline-block */
+  /* Never use `background:` shorthand here: it resets background-clip to border-box and paints the full inline-block */
   background-image: linear-gradient(
     105deg,
     #0f766e 0%,

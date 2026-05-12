@@ -15,22 +15,22 @@ const projectArchitectureDiagram: Partial<Record<string, ProjectArchitectureDiag
   'photon-elixir-phoenix': {
     mermaidBody: photonElixirPhoenix.trim(),
     description:
-      'Before: Photon via the JS SDK on Express, large in-memory snapshots, and many SSE streams per browser. After: Elixir datasync with a custom Photon client, Phoenix Channels, ETS for inactive/active/file lists, MongoDB, and cloud adapters — Express handles non-sync HTTP only.',
+      'Before: Photon via the JS SDK on Express, large in-memory snapshots, and many SSE streams per browser. After: Elixir datasync with a custom Photon client, Phoenix Channels, ETS for inactive/active/file lists, MongoDB, and cloud adapters. Express keeps non-sync HTTP only.',
     ariaLabel:
-      'Photon Client to Elixir Phoenix — system architecture before and after migration',
+      'Photon Client to Elixir Phoenix: system architecture before and after migration',
   },
   'arthur-vibe': {
     mermaidBody: arthurVibe.trim(),
     description:
       'Flow from vibe creation (Go Fiber, Postgres, MongoDB) through Three.js meetings and Lambdas; all Fiber and Lambda AI traffic passes through shared Go adapters for dynamic provider choice (OpenAI, Gemini, Anthropic). Transcripts land in S3 and are chunked into pgvector; Step Functions orchestrates batched reports, translation, and embeddings; React renders structured reports and a RAG assistant.',
-    ariaLabel: 'Arthur Vibe — meeting, transcript processing, and report pipeline architecture',
+    ariaLabel: 'Arthur Vibe: meeting, transcript processing, and report pipeline architecture',
   },
   'zoom-meeting-agent': {
     mermaidBody: zoomMeetingAgent.trim(),
     description:
       'Operators configure agents in React with sessions on Node; the bridge page joins Zoom, moves audio, applies wake-word gating, and holds the WebRTC leg to OpenAI Realtime while models stay swappable (OpenAI, Groq). A Python MCP-style dispatcher drops the bot into a LiveKit room with the same prompt and avatar; HeyGen uses a parallel React surface that still shares the realtime brain.',
     ariaLabel:
-      'Zoom Meeting Agent — portal, Zoom bridge with WebRTC, LiveKit bot dispatch, and HeyGen path',
+      'Zoom Meeting Agent: portal, Zoom bridge with WebRTC, LiveKit bot dispatch, and HeyGen path',
   },
 }
 

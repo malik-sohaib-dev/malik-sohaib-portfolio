@@ -145,7 +145,7 @@ export const experience: readonly Job[] = [
       'Multi-cloud (AWS + GCP) via adapter pattern and monorepo; Express, Fastify, React, Lambdas, crons.',
       'Photon room & file datasync moved off Express (Photon JS SDK, SSE fan-out, large in-memory snapshots) into dedicated Elixir: custom Photon client using the JS SDK as reference, Phoenix Channels, ETS for inactive/active/file lists, MongoDB, Docker Compose, multi-env AWS & GCP.',
       'SOC compliance with security partners; ClamAV in the processing pipeline.',
-      'Arthur Vibe — AI-led async interviews: configurable bot-led meetings (Three.js), Go Fiber + Lambdas with a shared adapter layer for dynamic AI provider selection, Redis-resumable sessions, S3 transcripts, Step Functions report orchestration, Postgres pgvector RAG, anonymous participation option.',
+      'Arthur Vibe: AI-led async interviews with configurable bot-led meetings (Three.js), Go Fiber plus Lambdas behind one adapter layer for picking AI providers, Redis-backed resumable sessions, S3 transcripts, Step Functions for reports, Postgres pgvector for RAG, and optional anonymous participants.',
       'Mentoring, Notion onboarding, and stronger team culture.',
     ],
     stack:
@@ -182,7 +182,7 @@ export type ProjectCaseStudy = {
   approach: readonly string[]
   technical: readonly string[]
   outcomes: readonly string[]
-  /** Shown when work is under NDA — no client identifiers. */
+  /** Shown when work is under NDA (no client identifiers). */
   ndaNote?: string
 }
 
@@ -202,7 +202,7 @@ export const projects: readonly Project[] = [
     blurb:
       'Datasync moved off Express: room and file metadata from Photon, pushed to browsers via Phoenix Channels instead of many long-lived SSE connections on Node.',
     tagline:
-      'Replacing a Photon-driven, SSE-heavy data sync path on Express with a dedicated Elixir service — channels to clients, a custom Photon client on the BEAM, and multi-cloud deployment.',
+      'Replacing a Photon-driven, SSE-heavy data-sync path on Express with a dedicated Elixir service: Channels to browsers, a custom Photon client on the BEAM, and multi-cloud deployment.',
     stack: [
       'Elixir · Phoenix',
       'Phoenix Channels',
@@ -217,16 +217,16 @@ export const projects: readonly Project[] = [
       context: [
         'The portal exposed a data sync surface backed by Photon: room list state (inactive rooms on one side, active rooms on the other) and, inside a room, live file metadata as uploads changed.',
         'An Express server used the Photon JavaScript SDK, held the canonical snapshot in Node memory (on the order of 20–30 MB JSON for active + inactive room payloads), and pushed updates to browsers over SSE. Clients received room identity, password/metadata changes, and for active rooms participant lists (e.g. display name, avatar URL, and related fields). Opening room detail added another SSE stream for file listings kept in sync the same way.',
-        'At scale this was easy to reason about in the small — and expensive in the large: many concurrent portal users meant many simultaneous SSE connections anchored on the same Express process that also served unrelated APIs.',
+        'In one Node process it was easy to follow; at scale it got expensive: many concurrent portal users meant many SSE connections stuck on the same Express instance that still had to serve the rest of the APIs.',
       ],
       problem: [
-        'Connection fan-out amplified quickly: the rooms experience alone used two SSE connections per user (one stream for inactive rooms, one for active rooms), before counting the additional SSE opened per room for file sync. For example, on the order of a hundred concurrent portal users implies on the order of two hundred list SSEs—before any room-detail file streams.',
-        'That load sat on the same Express runtime as the rest of the product, so data sync work competed for CPU and event-loop time with ordinary HTTP traffic — hurting latency and stability for APIs that had nothing to do with realtime rooms.',
+        'Connection fan-out grew fast: the rooms UI alone used two SSE connections per user (inactive list and active list), and that was before per-room file sync streams. Roughly a hundred concurrent portal users meant on the order of two hundred list SSEs, still not counting room-detail file traffic.',
+        'That load shared the Express runtime with the rest of the product, so datasync fought ordinary HTTP for CPU and event-loop time and made unrelated APIs slower and less stable.',
       ],
       approach: [
         'We reviewed several directions and settled on Elixir / Phoenix, primarily for Channels as the long-lived, bidirectional primitive and for the BEAM’s strength under mass connection counts.',
         'I built a custom Photon client in Elixir, using the Photon JS SDK as the behavioral reference, so we could speak Photon’s protocol without anchoring that work in Node.',
-        'We carved datasync — room metadata and file metadata — out of Express into a dedicated Elixir service. Clients subscribe via Channels instead of leaning on Express for SSE. Hot reads for inactive rooms, active rooms, and per-room file lists are backed by ETS so channel delivery does not lean on MongoDB for every push. Persistence and cloud differences sit behind an adapter-oriented layout so the same service can run on AWS and GCP.',
+        'We pulled room and file metadata sync out of Express into a dedicated Elixir service. Clients subscribe over Channels instead of long-lived SSE on Node. Hot reads for inactive rooms, active rooms, and per-room file lists sit in ETS so every push does not hit MongoDB. Persistence and cloud quirks sit behind adapters so one codebase runs on AWS and GCP.',
       ],
       technical: [
         'The Elixir datasync service uses ETS for inactive, active, and file-list snapshots that mirror what Express previously kept in Node memory, connects to MongoDB for durable storage, ships with Docker Compose, and runs across five environments (three AWS, two GCP), with adapters isolating cloud-specific concerns from core sync logic.',
@@ -234,7 +234,7 @@ export const projects: readonly Project[] = [
         'Express keeps non-sync responsibilities; the heavy, connection-rich path migrates off the shared Node footprint.',
       ],
       outcomes: [
-        'Datasync is no longer a drag on the main Express server — realtime room and file lists scale on a process model built for concurrency, while the rest of the API surface stays predictable.',
+        'Datasync no longer drags on the main Express server: realtime room and file lists run on a runtime meant for concurrency, while the rest of the API stays predictable.',
         'One codebase path for Photon integration on the BEAM, repeatable Docker-based rollouts, and multi-cloud operations without forking the service per vendor.',
       ],
       ndaNote:
@@ -247,7 +247,7 @@ export const projects: readonly Project[] = [
     blurb:
       'AI assistant that schedules bot-led meetings with invited teammates: configurable behavior and tone, Three.js meeting room, Go Lambdas and Step Functions pipelines, and RAG-backed reports.',
     tagline:
-      'From vibe creation and email invitations through branded 3D interviews, S3-backed transcripts, Step Functions–orchestrated reports, and a retrieval-grounded report assistant—implemented primarily in Go with Postgres pgvector.',
+      'From creating a vibe and sending invites through branded 3D interviews, S3 transcripts, reports orchestrated with Step Functions, and a RAG report assistant, mostly implemented in Go with Postgres pgvector.',
     stack: [
       'React',
       'Three.js',
@@ -266,11 +266,11 @@ export const projects: readonly Project[] = [
     caseStudy: {
       context: [
         'Vibe is an AI assistant for scheduling meetings and inviting teammates. The creator configures a “vibe”: type (for example sync alignment, project management, or root cause analysis), bot details such as name, voice, and prompts, optional reference questions, and how strictly the bot follows that script versus investigating further.',
-        'Participants receive invitation email after creation; the creator can set a deadline. During interviews the bot conducts the conversation with each invitee. Participants may join anonymously so their names are omitted from final transcripts and reports. When interviews are complete—or when reporting is triggered—the creator can generate reports of different types; the report experience also includes an assistant for questions about individual interviews and the overall report.',
+        'Participants get an email after the vibe is created; the creator can set a deadline. During interviews the bot runs the conversation with each person. People can join anonymously so names stay out of transcripts and reports. When interviews finish or someone kicks off reporting, the creator can generate different report types, and the report UI includes an assistant for questions about single interviews or the whole run.',
         'The backend is Go (Fiber) with Postgres as the primary database, MongoDB for syncing with the broader ecosystem, and OpenAI, Gemini, and Anthropic reachable through one custom adapter implementation shared across the API and all Lambdas so the active provider is chosen dynamically per call.',
       ],
       problem: [
-        'The product combines realtime dialogue, resumable sessions, multilingual transcripts, large-batch report synthesis, and semantic Q&A over evolving corpora—each with different failure modes, cost profiles, and consistency expectations.',
+        'The product mixes realtime dialogue, resumable sessions, multilingual transcripts, big batch report jobs, and semantic Q&A on corpora that keep growing. Each piece fails, costs, and needs consistency in its own way.',
         'Privacy and sharing semantics had to hold end-to-end: anonymous participation, public versus private reports, and targeted shares must stay aligned from Redis conversation state through S3 objects and pgvector indexes.',
       ],
       approach: [
@@ -281,12 +281,12 @@ export const projects: readonly Project[] = [
       technical: [
         'Meeting UX: participants choose language and voice, then join a Three.js 3D environment with company branding and a bot with animation states (thinking, talking, listening, and similar). The Go meeting lambda fetches prompts dynamically, implements question-generation logic and strictness rules, and drives STT/TTS and dialogue completions through the shared adapter layer so the runtime provider stays configurable.',
         'Post-meeting path: transcript artifacts on S3 drive ingestion into pgvector; the Step Functions workflow isolates report generation, translation, and report embedding so stages can be observed, retried, or revised without entangling the Fiber API.',
-        'Across Fiber and every Go Lambda, AI calls use the same custom adapter pattern—batch report generation, translation, embeddings, and assistant completions all resolve OpenAI, Gemini, or Anthropic dynamically instead of scattering vendor branches through handlers.',
-        'Report and assistant layer: the UI downloads the appropriate report JSON from S3 for the selected language, renders a fixed component schema, and supports public, private, or targeted sharing—plus optional translation and assistant voice. Queries embed the question, retrieve chunks via semantic search in pgvector, and complete answers through the LLM (RAG), again behind the adapter-backed backend.',
+        'Across Fiber and every Go Lambda, AI calls share one adapter pattern: batch reports, translation, embeddings, and assistant completions all pick OpenAI, Gemini, or Anthropic at call time instead of branching vendor code through handlers.',
+        'Report and assistant layer: the UI pulls the right report JSON from S3 for the selected language, renders a fixed component schema, and supports public, private, or targeted sharing, with optional translation and assistant voice. Queries embed the question, pull chunks with pgvector search, and answer through the LLM (RAG) with the same adapter-backed backend.',
       ],
       outcomes: [
         'A coherent story from configurable bot-led interviews to durable, searchable reports without forcing one runtime to own realtime, batch LLM work, and heavy file IO.',
-        'Go Lambdas and Step Functions keep throughput-oriented AI and merge logic off the request path while Postgres pgvector remains a single retrieval backbone for both interview chunks and report-grounded Q&A—and provider swaps stay localized to adapters.',
+        'Go Lambdas and Step Functions keep heavy AI and merge work off the request path while Postgres pgvector stays one retrieval layer for interview chunks and report Q&A; swapping providers stays inside the adapters.',
       ],
       ndaNote:
         'Case study is anonymized: no customer data, metrics, or screenshots. Descriptions reflect how the system was engineered, not proprietary prompts or documents.',
@@ -296,7 +296,7 @@ export const projects: readonly Project[] = [
     slug: 'zoom-meeting-agent',
     name: 'Zoom Meeting Agent',
     blurb:
-      'Configurable voice agents that join Zoom meetings: admin console for prompts and models, a participant bridge page for audio and OpenAI WebRTC, and a LiveKit-backed bot worker—plus HeyGen avatars on a parallel path.',
+      'Configurable voice agents for Zoom: admin UI for prompts and models, a bridge page for audio and OpenAI WebRTC, a LiveKit bot worker, and a parallel HeyGen avatar flow.',
     tagline:
       'From authenticated agent configuration through Zoom audio bridging and session bootstrapping on Node, to a LiveKit room and an MCP-style Python dispatcher that launches the bot with the right prompt, voice, and avatar.',
     stack: [
@@ -314,7 +314,7 @@ export const projects: readonly Project[] = [
       context: [
         'Operators configure meeting agents in a React app: display name, wake word, system prompt, LLM (OpenAI or Groq), speech-to-text and text-to-speech choices, and optional avatar imagery. Access to agent management is behind email-and-password authentication with proper session handling.',
         'Participants use a dedicated webpage that joins the Zoom meeting and shuttles meeting audio in both directions between Zoom and that page. After the Node.js backend initializes the realtime session, the page connects to OpenAI over WebRTC for low-latency dialogue.',
-        'Separately, a worker path brings up a LiveKit room; a Python CLI—shaped like a small MCP-style server—dispatches the bot into that room and applies the same prompt, avatar, and runtime settings the operator saved. HeyGen avatars use another frontend flow that streams the avatar output while reusing the same OpenAI realtime / “brain” logic.',
+        'On a separate path a worker spins up a LiveKit room; a small Python CLI (MCP-style) drops the bot into that room with the same prompt, avatar, and runtime settings the operator saved. HeyGen uses another frontend that streams the avatar while reusing the same OpenAI realtime “brain” logic.',
       ],
       problem: [
         'In real meetings, several people talk at once. Without a gate, voice activity could wake the assistant constantly and produce wrong or rude interruptions.',
@@ -323,7 +323,7 @@ export const projects: readonly Project[] = [
       approach: [
         'Treat the wake word as an explicit activation step: the model only commits to a full reply after the trigger phrase (for example “Hey, engineering expert, …”), which keeps cross-talk from spoofing user intent.',
         'Keep session creation authoritative on the Node layer, then let the browser own the WebRTC peer to OpenAI while the bridge page handles Zoom audio I/O.',
-        'Use LiveKit as the media room for the bot worker and a thin Python dispatcher so “send this agent configuration to the room” stays a clear, automatable contract—similar in spirit to an MCP tool that runs one job with a fixed payload.',
+        'LiveKit hosts bot media; a thin Python dispatcher keeps “send this agent config to the room” a small, automatable contract, in the same spirit as an MCP tool that runs one job with a fixed payload.',
       ],
       technical: [
         'Admin React UI persists agent definitions (models, TTS/STT, prompts, assets) and enforces authenticated sessions.',
@@ -336,7 +336,7 @@ export const projects: readonly Project[] = [
         'Wake-word gating made multi-participant rooms usable: the assistant activates on intent, not on every background sentence.',
       ],
       ndaNote:
-        'No customer names, meeting content, or internal runbooks—architecture and product behavior only.',
+        'No customer names, meeting content, or internal runbooks; only architecture and how the product behaved.',
     },
   },
 ]

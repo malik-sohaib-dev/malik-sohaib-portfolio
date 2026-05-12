@@ -84,7 +84,7 @@ export function SkillsSection() {
             step="02"
             kicker="Stack"
             title="Core skills"
-            subtitle="From edge to data plane — product-grade delivery across the full stack and AI."
+            subtitle="From edge to data plane: shipping full-stack and AI work that holds up in production."
           />
         </div>
         <motion.div

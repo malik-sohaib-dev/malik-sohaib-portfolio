@@ -40,7 +40,7 @@ export function ExperienceSection() {
                 className="absolute left-0 top-6 z-[1] hidden h-2.5 w-2.5 -translate-x-1/2 rounded-full border-2 border-teal-300/90 bg-void shadow-[0_0_16px_4px_rgba(45,212,191,0.5)] sm:left-[11px] sm:top-7 sm:block"
                 aria-hidden
               />
-              <div className="card-shine group rounded-2xl border border-border-muted bg-gradient-to-br from-frost-d to-transparent p-5 shadow-[0_0_0_1px_var(--tp-btn-ring),0_20px_50px_-28px_rgb(0_0_0_/_0.28)] transition hover:border-border-strong theme-light:shadow-[0_0_0_1px_var(--tp-btn-ring),0_18px_44px_-26px_rgb(15_23_42_/_0.08)] sm:p-6">
+              <div className="card-shine group rounded-2xl border border-border-muted bg-gradient-to-br from-frost-b via-frost-d to-frost-e p-5 shadow-[0_0_0_1px_var(--tp-btn-ring),0_20px_50px_-28px_rgb(0_0_0_/_0.28)] backdrop-blur-lg transition hover:border-border-strong theme-light:shadow-[0_0_0_1px_var(--tp-btn-ring),0_18px_44px_-26px_rgb(15_23_42_/_0.08)] sm:p-6">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between">
                   <div>
                     <h3 className="font-display text-lg font-semibold text-foam sm:text-xl">

@@ -192,7 +192,7 @@ export function PolylineCursor() {
     }
     document.addEventListener('visibilitychange', onVisibility)
 
-    // Delta-time normalised physics — renders at the native display refresh
+    // Delta-time normalised physics; renders at the native display refresh
     // rate (smooth on 120 Hz ProMotion and 144 Hz gaming panels) while the
     // spring / friction / lerp strength stays identical regardless of FPS.
     //

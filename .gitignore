@@ -24,3 +24,5 @@ dist-ssr
 *.sw?
 
 .cursor
+.agents
+skills-lock.json
