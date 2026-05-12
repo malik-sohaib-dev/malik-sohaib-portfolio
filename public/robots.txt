@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://malik-sohaib.vercel.app/sitemap.xml
