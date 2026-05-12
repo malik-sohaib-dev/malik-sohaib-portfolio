@@ -45,7 +45,7 @@ export function ContactSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-            className="card-shine flex flex-col gap-4 rounded-3xl border border-border bg-gradient-to-br from-frost-a to-frost-e p-6 shadow-[0_0_0_1px_var(--tp-btn-ring),0_32px_80px_-28px_rgb(45_212_191_/_0.12)] theme-light:shadow-[0_0_0_1px_var(--tp-btn-ring),0_28px_72px_-26px_rgb(13_148_136_/_0.12)] sm:p-7"
+            className="card-shine flex flex-col gap-4 rounded-3xl border border-border bg-gradient-to-br from-frost-b via-frost-d to-frost-e p-6 shadow-[0_0_0_1px_var(--tp-btn-ring),0_32px_80px_-28px_rgb(45_212_191_/_0.12)] backdrop-blur-lg theme-light:shadow-[0_0_0_1px_var(--tp-btn-ring),0_28px_72px_-26px_rgb(13_148_136_/_0.12)] sm:p-7"
           >
             <a
               href={`mailto:${site.email}`}
