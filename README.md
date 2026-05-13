@@ -1,6 +1,6 @@
-# Sohaib Ahmad — Portfolio
+# Malik Sohaib Ahmad: Portfolio
 
-Personal portfolio site for **Sohaib Ahmad** (Full Stack & AI Engineer): multi-cloud systems, real-time products, and production AI / RAG—presented as a single-page experience with a cinematic hero, marquee, case-style sections, and optional Three.js depth.
+Personal portfolio site for **Malik Sohaib Ahmad** (Full Stack & AI Engineer): multi-cloud systems, real-time products, and production AI / RAG, presented as a single-page experience with a cinematic hero, marquee, case-style sections, and optional Three.js depth.
 
 **Stack:** React 19 · TypeScript · Vite 8 · Tailwind CSS v4 (`@import 'tailwindcss'`) · Framer Motion · Three.js (`@react-three/fiber`, `@react-three/drei`)
 
@@ -20,29 +20,29 @@ npm run lint
 
 Hero section from a **production build** at **1440×960** (dark is the default theme; light uses `localStorage` `portfolio-theme` after reload).
 
-![Hero section — dark theme](docs/readme/readme-hero-dark.png)
+![Hero section, dark theme](docs/readme/readme-hero-dark.png)
 
-![Hero section — light theme](docs/readme/readme-hero-light.png)
+![Hero section, light theme](docs/readme/readme-hero-light.png)
 
 ### Problem & brief
 
-Engineering portfolios often read as résumés in HTML: high contrast defaults, generic blues, and motion that fights readability. The brief here was the opposite: signal **senior craft**—calm surfaces, a disciplined accent story, and atmosphere that supports credibility without stealing focus from work and metrics.
+Engineering portfolios often read as résumés in HTML: high contrast defaults, generic blues, and motion that fights readability. The brief here was the opposite: signal **senior craft** with calm surfaces, a disciplined accent story, and atmosphere that supports credibility without stealing focus from work and metrics.
 
 ### Strategic direction
 
 The visual language follows three pillars:
 
 1. **Deep space, not “flat black.”** Backgrounds layer void → ink → surface so the UI feels dimensional and photographic rather than a single `#000` slab.
-2. **Bioluminescent accents.** Teal and cyan feel technical and optimistic; violet adds warmth and prevents the palette from reading as “mint startup cliché.” Together they echo aurora and terminal phosphor—appropriate for AI / infra storytelling.
+2. **Bioluminescent accents.** Teal and cyan feel technical and optimistic; violet adds warmth and prevents the palette from reading as “mint startup cliché.” Together they echo aurora and terminal phosphor, which fits AI / infra storytelling.
 3. **Glass and restraint.** Frosted navigation, hairline borders, and low-amplitude grain sell polish. Motion is slow and ambient by default; aggressive effects degrade or disable on mobile and under `prefers-reduced-motion`.
 
-Light mode is a **paper-and-glass** inversion: airy voids, slate typography, and the same accent DNA tuned for daylight contrast—not a simple color inversion.
+Light mode is a **paper-and-glass** inversion: airy voids, slate typography, and the same accent DNA tuned for daylight contrast, not a simple color inversion.
 
 ### Palette & tokens
 
 Semantic tokens live as `--tp-*` CSS variables on `:root` (dark) and `[data-theme='light']`, mapped into Tailwind via `@theme` in [`src/index.css`](src/index.css). Tune the system there; components consume `color-*` utilities without churn.
 
-**Dark theme — core paints**
+**Dark theme: core paints**
 
 | Token | Hex | Role |
 | --- | --- | --- |
@@ -57,9 +57,9 @@ Semantic tokens live as `--tp-*` CSS variables on `:root` (dark) and `[data-them
 | Iris | `#a78bfa` | Secondary highlight, gradient stops |
 | Glow | `#38bdf8` | Tertiary highlight, sky streaks |
 
-**Aurora gradient anchors** (hero meshes, ambient sections): `#2dd4bf` → `#7c3aed` → `#22d3ee` — implemented as `--tp-aurora-a/b/c` so Three.js, SVG, and CSS gradients stay aligned.
+**Aurora gradient anchors** (hero meshes, ambient sections): `#2dd4bf` → `#7c3aed` → `#22d3ee`, implemented as `--tp-aurora-a/b/c` so Three.js, SVG, and CSS gradients stay aligned.
 
-**Light theme — core paints**
+**Light theme: core paints**
 
 | Token | Hex | Role |
 | --- | --- | --- |
@@ -73,13 +73,13 @@ Semantic tokens live as `--tp-*` CSS variables on `:root` (dark) and `[data-them
 | Iris | `#7c3aed` | Accent companion |
 | Glow | `#0284c7` | Sky / link emphasis |
 
-Supporting rails—**borders**, **frost/glass fills**, **nav shadows**, and **selection** colors—use translucent overlays (`rgb` / `color-mix` / `oklab`) so elevation reads correctly in both themes.
+The supporting rails for **borders**, **frost/glass fills**, **nav shadows**, and **selection** colors use translucent overlays (`rgb` / `color-mix` / `oklab`) so elevation reads correctly in both themes.
 
 ### Typography
 
 | Role | Face | Intent |
 | --- | --- | --- |
-| Display | Syne | Bold, architectural headlines—few words, high impact |
+| Display | Syne | Bold, architectural headlines (few words, high impact) |
 | UI / body | Outfit | Geometric, readable at small sizes; pairs cleanly with Syne |
 | Code / proof | JetBrains Mono | Signals implementation depth in stats and technical labels |
 
@@ -87,10 +87,10 @@ Fonts load from Google Fonts in [`index.html`](index.html); Tailwind exposes `--
 
 ### Signature motifs
 
-- **Hero gradient type** — clipped multi-stop gradient on key headlines with soft aurora glow (dark); restrained static gradient in light mode (see `.hero-gradient-text` in [`src/index.css`](src/index.css)).
-- **Ambient sections** — radial washes using `color-mix` with `--color-aurora-a` for continuity between blocks.
-- **Primary button** — teal→cyan→teal ramp with inset highlight and accent-colored outer bloom; tuned separately per theme.
-- **Film grain** — fixed overlay at low opacity; disabled on small viewports where noise shaders cost frames.
+- **Hero gradient type:** clipped multi-stop gradient on key headlines with soft aurora glow (dark); restrained static gradient in light mode (see `.hero-gradient-text` in [`src/index.css`](src/index.css)).
+- **Ambient sections:** radial washes using `color-mix` with `--color-aurora-a` for continuity between blocks.
+- **Primary button:** teal→cyan→teal ramp with inset highlight and accent-colored outer bloom; tuned separately per theme.
+- **Film grain:** fixed overlay at low opacity; disabled on small viewports where noise shaders cost frames.
 
 ### Accessibility & performance guardrails
 
@@ -102,25 +102,25 @@ Fonts load from Google Fonts in [`index.html`](index.html); Tailwind exposes `--
 
 Dark palette poster (conceptual swatches + aurora thread):
 
-![Design palette poster — dark theme swatches and aurora accents](docs/readme/readme-design-palette-poster.jpg)
+![Design palette poster, dark theme swatches and aurora accents](docs/readme/readme-design-palette-poster.jpg)
 
 Light palette poster (paper-and-glass inversion, same accent story):
 
-![Design palette poster — light theme swatches and soft aurora accents](docs/readme/readme-design-palette-poster-light.jpg)
+![Design palette poster, light theme swatches and soft aurora accents](docs/readme/readme-design-palette-poster-light.jpg)
 
 Atmospheric mood reference aligned with hero aurora meshes:
 
-![Abstract aurora mood — teal, violet, cyan on deep void](docs/readme/readme-aurora-mood.jpg)
+![Abstract aurora mood: teal, violet, cyan on deep void](docs/readme/readme-aurora-mood.jpg)
 
 ---
 
 ## Project structure (high level)
 
-- [`src/index.css`](src/index.css) — design tokens, `@theme`, utilities, component classes (`btn-primary`, `nav-glass`, etc.)
-- [`src/theme/`](src/theme/) — React theme context / provider
-- [`src/data/content.ts`](src/data/content.ts) — copy, marquee strip, contact blocks
-- [`src/components/`](src/components/) — Hero background, cursor, cards, shared UI
-- [`src/sections/`](src/sections/) — Page sections composed into the main layout
+- [`src/index.css`](src/index.css): design tokens, `@theme`, utilities, component classes (`btn-primary`, `nav-glass`, etc.)
+- [`src/theme/`](src/theme/): React theme context / provider
+- [`src/data/content.ts`](src/data/content.ts): copy, marquee strip, contact blocks
+- [`src/components/`](src/components/): Hero background, cursor, cards, shared UI
+- [`src/sections/`](src/sections/): Page sections composed into the main layout
 
 ---
 
@@ -130,7 +130,7 @@ This project is released under the [MIT License](LICENSE).
 
 MIT fits well here: anyone may **use, change, and redistribute** the code for commercial or non-commercial purposes; legally they must **keep the copyright and license notice** (usually in a `LICENSE` or notices file in their fork).
 
-If you build on this template or reuse substantial parts, please **credit Sohaib Ahmad** — for example a short note in your README or site footer with a link to LinkedIn: [**Sohaib Ahmad**](https://www.linkedin.com/in/malik-sohaib). That attribution is a courtesy the MIT license does not spell out, but it helps others discover the original work.
+If you build on this template or reuse substantial parts, please **credit Malik Sohaib Ahmad** (for example, a short note in your README or site footer with a link to LinkedIn: [**Malik Sohaib Ahmad**](https://www.linkedin.com/in/malik-sohaib)). That attribution is a courtesy the MIT license does not spell out, but it helps others discover the original work.
 
 Third-party assets (fonts from Google Fonts, npm packages, etc.) remain under their respective licenses.
 
