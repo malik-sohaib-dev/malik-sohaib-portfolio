@@ -32,7 +32,7 @@ export const site = {
   /** Replace with your public profile URL if different. */
   linkedIn: 'https://www.linkedin.com/in/malik-sohaib',
   resume:
-    'https://docs.google.com/document/d/1Xuink9j5MOcRVhdgnSlA8IDMjlZOPqXcIbaOhKbGwKw/edit?usp=sharing',
+    'https://drive.google.com/file/d/1GkmXoQbUvw-G0CaTWXMAeeqX4GtFjBji/view?usp=sharing',
 } as const
 
 export const summary =
