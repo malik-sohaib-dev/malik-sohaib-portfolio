@@ -1,12 +1,14 @@
 import { Outlet } from 'react-router-dom'
 import { Navigation } from './components/Navigation'
 import { PolylineCursor } from './components/PolylineCursor'
+import { ScrollProgress } from './components/ScrollProgress'
 import { ScrollToHash } from './components/ScrollToHash'
 import { SiteAurora } from './components/SiteAurora'
 
 function App() {
   return (
     <>
+      <ScrollProgress />
       <ScrollToHash />
       {/* Base tint behind decorative layers; ribbons/site sit above this but below content (z-auto would cover −z overlays). */}
       <div className="pointer-events-none fixed inset-0 -z-30 bg-void" aria-hidden />

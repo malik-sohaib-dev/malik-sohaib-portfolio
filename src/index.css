@@ -379,6 +379,47 @@
   text-shadow: none;
 }
 
+.scroll-progress {
+  height: 2px;
+}
+
+.scroll-progress-track {
+  position: relative;
+  height: 100%;
+  background: var(--tp-border-muted);
+}
+
+.scroll-progress-fill {
+  position: absolute;
+  inset: 0;
+  transform: scaleX(0);
+  transform-origin: left center;
+  background: linear-gradient(
+    90deg,
+    var(--tp-accent-dim) 0%,
+    var(--tp-accent) 28%,
+    var(--tp-aurora-c) 62%,
+    var(--tp-iris) 100%
+  );
+  box-shadow:
+    0 0 10px color-mix(in oklab, var(--tp-accent) 70%, transparent),
+    0 0 22px color-mix(in oklab, var(--tp-accent) 32%, transparent),
+    0 1px 0 color-mix(in oklab, white 18%, transparent) inset;
+}
+
+[data-theme='light'] .scroll-progress-fill {
+  box-shadow:
+    0 0 8px color-mix(in oklab, var(--tp-accent) 55%, transparent),
+    0 0 18px color-mix(in oklab, var(--tp-accent) 22%, transparent),
+    0 1px 0 color-mix(in oklab, white 45%, transparent) inset;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-progress-fill {
+    box-shadow: none;
+  }
+}
+
 .nav-glass {
   border-radius: 1rem;
   border: 1px solid var(--tp-nav-border);
