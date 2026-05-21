@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { lazy, Suspense, useEffect, useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { useLgDown } from '../hooks/useMediaQuery'
 import { useLowPerformance } from '../hooks/useLowPerformance'
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion'
@@ -31,12 +31,6 @@ export function HeroSection() {
   const reduced = usePrefersReducedMotion()
   const lgDown = useLgDown()
   const lowPerf = useLowPerformance()
-
-  // Logging lowPerf
-  useEffect(() => {
-    console.log('lowPerf', lowPerf)
-  }, [lowPerf])
-  
 
   const [glow, setGlow] = useState<{ x: number; y: number } | null>(null)
   // Mobile (lgDown) and detected low-spec hardware both get the lite 3D scene.
