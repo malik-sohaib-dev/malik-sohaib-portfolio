@@ -5,7 +5,10 @@ import './index.css'
 import App from './App.tsx'
 import { HomePage } from './pages/HomePage.tsx'
 import { ProjectCaseStudyPage } from './pages/ProjectCaseStudyPage.tsx'
+import { logConsoleWelcome } from './lib/consoleWelcome.ts'
 import { ThemeProvider } from './theme'
+
+logConsoleWelcome()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

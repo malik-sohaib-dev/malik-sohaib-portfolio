@@ -22,7 +22,7 @@ export const heroStats = [
 ] as const
 
 export const site = {
-  name: 'Sohaib Ahmad',
+  name: 'Sohaib Ahmad Malik',
   title: 'Full Stack & AI Engineer',
   tagline: 'I architect multi-cloud platforms, real-time systems, and RAG / AI products end-to-end.',
   location: 'Pakistan',
