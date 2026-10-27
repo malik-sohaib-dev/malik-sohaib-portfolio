@@ -1,5 +1,11 @@
 ---
+import Poster from './Poster.astro';
 import { companies } from '../data/site';
+import { posters } from '../data/posters';
+
+// Which posters sit under each company: its case studies, or the product it was hired for.
+const postersFor = (name: string, cases?: { slug: string }[]) =>
+  cases?.map((k) => posters[k.slug]).filter(Boolean) ?? (name === 'BH Group' ? [posters['bh-group']] : []);
 ---
 
 <section class="cos" id="companies" data-field="paper" aria-labelledby="cos-title">
@@ -35,15 +41,11 @@ import { companies } from '../data/site';
             <ul class="co__points">
               {c.points.map((p) => <li>{p}</li>)}
             </ul>
-            {c.cases && (
-              <ul class="co__cases">
-                {c.cases.map((k) => (
+            {postersFor(c.name, c.cases).length > 0 && (
+              <ul class="co__posters">
+                {postersFor(c.name, c.cases).map((p) => (
                   <li>
-                    <a class="case" href={`/work/${k.slug}`}>
-                      <span class="case__title">{k.title}</span>
-                      <span class="case__summary">{k.summary}</span>
-                      <span class="case__arrow" aria-hidden="true">→</span>
-                    </a>
+                    <Poster poster={p} sizes="(min-width: 900px) 22vw, 46vw" />
                   </li>
                 ))}
               </ul>
@@ -115,45 +117,11 @@ import { companies } from '../data/site';
     text-indent: 0;
     color: var(--muted);
   }
-  .co__cases {
+  .co__posters {
     display: grid;
-    margin-top: 0.5rem;
-  }
-  /* Case rows: the text slides and the arrow travels. */
-  .case {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 0.15rem 1rem;
-    padding: 0.9rem 0;
-    border-top: 1px solid var(--line);
-    text-decoration: none;
-  }
-  .case__title {
-    font-weight: 600;
-    transition: translate var(--d-m) var(--ease);
-  }
-  .case__summary {
-    grid-column: 1;
-    font-size: var(--t-s);
-    color: var(--muted);
-    transition: translate var(--d-m) var(--ease);
-  }
-  .case__arrow {
-    grid-column: 2;
-    grid-row: 1 / span 2;
-    align-self: center;
-    font-size: 1.25rem;
-    transition: translate var(--d-m) var(--ease);
-  }
-  @media (hover: hover) {
-    .case:hover .case__title,
-    .case:hover .case__summary {
-      translate: 0.5rem 0;
-    }
-    .case:hover .case__arrow {
-      translate: 0.4rem 0;
-      color: var(--signal);
-    }
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--gutter);
+    margin-top: 0.75rem;
   }
   @media (min-width: 900px) {
     .cos__head {
@@ -183,7 +151,7 @@ import { companies } from '../data/site';
       grid-column: 7 / -1;
       padding-top: 0.6rem;
     }
-    .co__cases {
+    .co__posters {
       grid-column: 7 / -1;
     }
   }

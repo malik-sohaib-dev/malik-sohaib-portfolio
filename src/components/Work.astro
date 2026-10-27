@@ -1,21 +1,13 @@
 ---
-import { Image } from 'astro:assets';
+import Poster from './Poster.astro';
 import { products } from '../data/site';
-import ezHome from '../assets/work/ezvenda-home.webp';
-import ezProduct from '../assets/work/ezvenda-product.webp';
-import ezCheckout from '../assets/work/ezvenda-checkout.webp';
-import mhSumo from '../assets/work/mini-havoc-sumo.jpg';
-import mhHush from '../assets/work/mini-havoc-hush.jpg';
-import mhFloor from '../assets/work/mini-havoc-floor.jpg';
-import mhHex from '../assets/work/mini-havoc-hexdrop.jpg';
-import gpCard from '../assets/work/gympaid-card.png';
+import { posters } from '../data/posters';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const fmt = (iso: string) => {
   const d = new Date(`${iso}T00:00:00Z`);
   return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
 };
-const phoneSizes = '(min-width: 900px) 18vw, 30vw';
 ---
 
 <section class="work" id="work" data-field="ink" aria-labelledby="work-title">
@@ -63,37 +55,8 @@ const phoneSizes = '(min-width: 900px) 18vw, 30vw';
               </a>
             </div>
 
-            <div class:list={['band__media', `band__media--${p.slug}`]}>
-              {p.slug === 'ezvenda' && (
-                <div class="phones">
-                  <Image src={ezHome} alt="An EzVenda shop's home page on a phone." widths={[240, 360, 480]} sizes={phoneSizes} loading="lazy" />
-                  <Image src={ezProduct} alt="A product page with price, discount and photos." widths={[240, 360, 480]} sizes={phoneSizes} loading="lazy" />
-                  <Image src={ezCheckout} alt="The guest checkout form, asking for a phone number for cash on delivery." widths={[240, 360, 480]} sizes={phoneSizes} loading="lazy" />
-                </div>
-              )}
-              {p.slug === 'mini-havoc' && (
-                <div class="arena">
-                  <figure class="clip" data-video>
-                    <video data-autoplay muted loop playsinline preload="none" poster={mhSumo.src} width="960" height="540" aria-label={p.media.alt}>
-                      <source src="/media/mini-havoc-sumo.webm" type='video/webm; codecs="av01.0.05M.08"' />
-                      <source src="/media/mini-havoc-sumo.mp4" type="video/mp4" />
-                    </video>
-                    <button class="clip__toggle" type="button" data-video-toggle aria-pressed="false">
-                      <span data-video-label>Play</span>
-                      <span class="sr-only"> the Sumo Out! clip</span>
-                    </button>
-                    <figcaption class="clip__cap">Sumo Out!, recorded from a real game</figcaption>
-                  </figure>
-                  <ul class="arena__stills" aria-label="Three more arenas">
-                    <li><Image src={mhHush} alt="Hush: first-person view down a haunted house corridor." widths={[320, 480]} sizes="(min-width: 900px) 18vw, 30vw" loading="lazy" /><span>Hush</span></li>
-                    <li><Image src={mhFloor} alt="Colour Floor: beans racing across a grid of coloured tiles." widths={[320, 480]} sizes="(min-width: 900px) 18vw, 30vw" loading="lazy" /><span>Colour Floor</span></li>
-                    <li><Image src={mhHex} alt="Hex Drop: beans on a honeycomb floor that falls away." widths={[320, 480]} sizes="(min-width: 900px) 18vw, 30vw" loading="lazy" /><span>Hex Drop</span></li>
-                  </ul>
-                </div>
-              )}
-              {p.slug === 'gympaid' && (
-                <Image class="card" src={gpCard} alt="GymPaid's card: who owes you money today, with Rs 26,000 owed by seven members and a WhatsApp Remind button." widths={[480, 720, 1080]} sizes="(min-width: 900px) 55vw, 100vw" loading="lazy" />
-              )}
+            <div class="band__media">
+              <Poster poster={posters[p.slug]} sizes="(min-width: 900px) 42vw, 92vw" />
             </div>
           </div>
         </div>
@@ -219,97 +182,9 @@ const phoneSizes = '(min-width: 900px) 18vw, 30vw';
     margin-top: 0.5rem;
   }
 
-  /* Media. Phones show it first: the work is the hook, the text explains it. */
+  /* Phones show the poster first: the work is the hook, the text explains it. */
   .band__media {
     order: -1;
-  }
-  .band__media :global(img) {
-    width: 100%;
-    height: auto;
-  }
-  .phones {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: clamp(8px, 1.5vw, 20px);
-    align-items: start;
-  }
-  .phones :global(img) {
-    aspect-ratio: 780 / 1688;
-    object-fit: cover;
-    object-position: top;
-    max-height: 72vh;
-    border: 1px solid var(--line);
-    transition: translate var(--d-m) var(--ease);
-  }
-  /* Hung at different heights, like screens pinned to a wall. */
-  .phones :global(img:nth-child(2)) {
-    margin-top: 12%;
-  }
-  .phones :global(img:nth-child(3)) {
-    margin-top: 5%;
-  }
-  .arena {
-    display: grid;
-    gap: clamp(8px, 1.5vw, 20px);
-  }
-  .clip {
-    position: relative;
-    background: var(--ink);
-  }
-  .clip video {
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    object-fit: cover;
-  }
-  .clip__toggle {
-    position: absolute;
-    left: 12px;
-    bottom: 12px;
-    min-height: 32px;
-    padding: 0 0.85rem;
-    border: 0;
-    border-radius: 999px;
-    background: var(--ground);
-    color: var(--ink);
-    font-size: var(--t-xs);
-    font-weight: 600;
-    cursor: pointer;
-  }
-  .clip__cap {
-    position: absolute;
-    right: 12px;
-    bottom: 12px;
-    padding: 0.25rem 0.55rem;
-    background: rgb(17 17 16 / 0.72);
-    color: var(--ground);
-    font-size: var(--t-xs);
-  }
-  .arena__stills {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: clamp(8px, 1.5vw, 20px);
-  }
-  .arena__stills li {
-    display: grid;
-    gap: 0.4rem;
-    font-size: var(--t-xs);
-    color: var(--muted);
-  }
-  .arena__stills :global(img) {
-    aspect-ratio: 16 / 10;
-    object-fit: cover;
-  }
-  .band__media--gympaid :global(img) {
-    border: 1px solid var(--line);
-    transition: translate var(--d-m) var(--ease);
-  }
-
-  /* Hovering a band lifts its media. */
-  @media (hover: hover) {
-    .band:hover .phones :global(img),
-    .band:hover .band__media--gympaid :global(img) {
-      translate: 0 -6px;
-    }
   }
 
   @media (min-width: 900px) {
@@ -321,7 +196,7 @@ const phoneSizes = '(min-width: 900px) 18vw, 30vw';
       grid-column: 1 / 6;
     }
     .band__media {
-      grid-column: 7 / -1;
+      grid-column: 7 / 12;
       order: 0;
     }
     .band--flip .band__text {
@@ -329,7 +204,7 @@ const phoneSizes = '(min-width: 900px) 18vw, 30vw';
       grid-row: 1;
     }
     .band--flip .band__media {
-      grid-column: 1 / 7;
+      grid-column: 2 / 7;
       grid-row: 1;
     }
   }
