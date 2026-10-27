@@ -208,3 +208,43 @@ html.motion [data-reveal].is-in {
   opacity: 1;
   translate: 0 0;
 }
+
+/* The contextual cursor (src/motion/cursor.ts). It sits on top of everything and never takes clicks. */
+.cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 200;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+}
+.cursor__label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: grid;
+  place-items: center;
+  width: 5.25rem;
+  height: 5.25rem;
+  margin: -2.625rem 0 0 -2.625rem;
+  border-radius: 50%;
+  background: #111110;
+  color: #f0f0ec;
+  font-family: var(--f-text);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  scale: 0;
+  transition: scale 420ms var(--ease);
+}
+.cursor.is-on .cursor__label {
+  scale: 1;
+}
+.cursor.is-on.is-down .cursor__label {
+  scale: 0.86;
+}
+/* On the orange menu the disc turns paper, so it stays visible. */
+html.menu-open .cursor__label {
+  background: #f0f0ec;
+  color: #111110;
+}

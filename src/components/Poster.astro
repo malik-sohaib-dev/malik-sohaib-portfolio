@@ -20,7 +20,7 @@ const loading = eager ? 'eager' : 'lazy';
   href={p.href}
   {...external ? { rel: 'noopener' } : {}}
   data-poster
-  data-cursor={p.reveal.kind === 'video' ? 'Play' : external ? 'Visit' : 'View'}
+  data-cursor={external ? 'Visit' : 'View'}
   aria-label={`${p.title}: ${p.caption}`}
 >
   <span class="poster__bg" aria-hidden="true">
