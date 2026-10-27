@@ -45,7 +45,7 @@ const postersFor = (name: string, cases?: { slug: string }[]) =>
               <ul class="co__posters">
                 {postersFor(c.name, c.cases).map((p) => (
                   <li>
-                    <Poster poster={p} sizes="(min-width: 900px) 22vw, 46vw" />
+                    <Poster poster={p} sizes="(min-width: 900px) 22vw, 46vw" morph />
                   </li>
                 ))}
               </ul>

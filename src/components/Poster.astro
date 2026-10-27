@@ -9,8 +9,10 @@ interface Props {
   /** Rendered width in the layout, for responsive image sizes. */
   sizes?: string;
   eager?: boolean;
+  /** Morph into the same poster on the next page (view transitions). One per page. */
+  morph?: boolean;
 }
-const { poster: p, sizes = '(min-width: 900px) 40vw, 92vw', eager = false } = Astro.props;
+const { poster: p, sizes = '(min-width: 900px) 40vw, 92vw', eager = false, morph = false } = Astro.props;
 const external = /^https?:/.test(p.href);
 const loading = eager ? 'eager' : 'lazy';
 ---
@@ -22,6 +24,7 @@ const loading = eager ? 'eager' : 'lazy';
   data-poster
   data-cursor={external ? 'Visit' : 'View'}
   aria-label={`${p.title}: ${p.caption}`}
+  style={morph ? `view-transition-name: poster-${p.slug}` : undefined}
 >
   <span class="poster__bg" aria-hidden="true">
     {p.bg && <Image src={p.bg} alt="" widths={[480, 720, 1200]} sizes={sizes} loading={loading} />}
