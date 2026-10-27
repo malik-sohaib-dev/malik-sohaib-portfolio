@@ -1,0 +1,209 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-padding-top: 5rem;
+}
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--f-text);
+  font-size: var(--t-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  font-synthesis: none;
+  overflow-x: clip;
+}
+img,
+video,
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+h1,
+h2,
+h3,
+h4,
+p,
+ul,
+ol,
+figure,
+dl,
+dd {
+  margin: 0;
+}
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+a {
+  color: inherit;
+}
+button {
+  font: inherit;
+  color: inherit;
+}
+::selection {
+  background: var(--signal);
+  color: var(--ink);
+}
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px var(--signal);
+  border-radius: 2px;
+}
+
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 100;
+  padding: 10px 16px;
+  background: var(--ink);
+  color: var(--ground);
+  font-weight: 600;
+  text-decoration: none;
+  translate: 0 -200%;
+}
+.skip-link:focus-visible {
+  translate: 0 0;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.wrap {
+  width: 100%;
+  max-width: var(--max);
+  margin-inline: auto;
+  padding-inline: var(--margin);
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: var(--gutter);
+}
+@media (min-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+}
+
+.display {
+  font-family: var(--f-display);
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 0.84;
+  letter-spacing: -0.005em;
+  font-variant-numeric: tabular-nums;
+}
+.muted {
+  color: var(--muted);
+}
+.num {
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 0.9;
+}
+
+/* Primary action: signal floods up from the baseline, the arrow travels. */
+.btn {
+  --h: 3rem;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  height: var(--h);
+  padding: 0 1.4em;
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--ground);
+  font-weight: 600;
+  font-size: var(--t-s);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  isolation: isolate;
+  transition: color var(--d-s) var(--ease);
+}
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--signal);
+  translate: 0 101%;
+  transition: translate var(--d-m) var(--ease);
+}
+.btn--ghost {
+  background: transparent;
+  color: var(--ink);
+}
+.btn__arrow {
+  display: inline-block;
+  transition: translate var(--d-m) var(--ease);
+}
+@media (hover: hover) {
+  .btn:hover {
+    color: var(--ink);
+  }
+  .btn:hover::before {
+    translate: 0 0;
+  }
+  .btn:hover .btn__arrow {
+    translate: 0.25em -0.25em;
+  }
+}
+.btn:active {
+  scale: 0.97;
+}
+
+/* Nav: the underline draws. */
+.ul {
+  text-decoration: none;
+  background: linear-gradient(currentColor, currentColor) no-repeat 0 100% / 0 1.5px;
+  transition: background-size var(--d-m) var(--ease);
+  padding-bottom: 2px;
+}
+@media (hover: hover) {
+  .ul:hover {
+    background-size: 100% 1.5px;
+  }
+}
+.ul[aria-current='page'] {
+  background-size: 100% 1.5px;
+}
+
+/* Reveals. Hidden only once JS has flagged motion; without JS or with reduced motion, all visible. */
+html.motion [data-reveal] {
+  opacity: 0;
+  translate: 0 24px;
+  transition:
+    opacity var(--d-m) var(--ease),
+    translate var(--d-l) var(--ease);
+  transition-delay: calc(var(--i, 0) * 60ms);
+}
+html.motion [data-reveal].is-in {
+  opacity: 1;
+  translate: 0 0;
+}

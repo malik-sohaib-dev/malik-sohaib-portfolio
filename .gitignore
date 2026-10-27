@@ -26,3 +26,6 @@ dist-ssr
 .cursor
 .agents
 skills-lock.json
+# Astro
+.astro
+.shots
