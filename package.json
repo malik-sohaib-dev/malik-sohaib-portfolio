@@ -10,7 +10,7 @@
     "dev": "astro dev",
     "build": "astro check && astro build",
     "preview": "astro preview",
-    "commits": "node scripts/commits.mjs",
+    "activity": "node scripts/activity.mjs",
     "astro": "astro"
   },
   "dependencies": {
