@@ -17,15 +17,14 @@ interface Props {
 const { poster: p, sizes = '(min-width: 900px) 40vw, 92vw', eager = false, morph = false, decorative = false } = Astro.props;
 const external = /^https?:/.test(p.href);
 const loading = eager ? 'eager' : 'lazy';
+// A decorative preview is not a link: the real link to the same page is elsewhere.
+const Tag = decorative ? 'div' : 'a';
 ---
 
-<a
+<Tag
   class:list={['poster', `poster--${p.ground}`]}
-  href={p.href}
-  {...external ? { rel: 'noopener' } : {}}
+  {...decorative ? { 'aria-hidden': 'true' } : { href: p.href, 'data-cursor': external ? 'Visit' : 'View', ...(external ? { rel: 'noopener' } : {}) }}
   data-poster
-  data-cursor={external ? 'Visit' : 'View'}
-  {...decorative ? { tabindex: -1, 'aria-hidden': 'true' } : {}}
   style={morph ? `view-transition-name: poster-${p.slug}` : undefined}
 >
   <span class="poster__bg" aria-hidden="true">
@@ -58,7 +57,7 @@ const loading = eager ? 'eager' : 'lazy';
     {p.live && <span class="poster__dot" />}{p.status}{external && ' ↗'}
   </span>
   <span class="poster__frame" aria-hidden="true"></span>
-</a>
+</Tag>
 
 <style>
   .poster {
@@ -121,8 +120,8 @@ const loading = eager ? 'eager' : 'lazy';
     position: absolute;
     left: var(--pad);
     right: var(--pad);
-    top: 46%;
-    font-size: clamp(1.6rem, 11cqi, 4rem);
+    top: 18%;
+    font-size: clamp(1.25rem, 9cqi, 3.25rem);
     line-height: 0.9;
     color: #111110;
   }
@@ -189,9 +188,18 @@ const loading = eager ? 'eager' : 'lazy';
     left: calc(var(--pad) - 0.04em);
     right: var(--pad);
     bottom: calc(var(--pad) + 13cqi);
-    font-size: clamp(2.5rem, 19cqi, 8.5rem);
+    font-size: min(19cqi, 8.5rem);
     line-height: 0.82;
     transition: translate var(--d-l) var(--ease);
+  }
+  /* Small posters (two up on a phone) keep the title and drop the long caption. */
+  @container (max-width: 280px) {
+    .poster__bl {
+      display: none;
+    }
+    .poster__title {
+      bottom: calc(var(--pad) + 9cqi);
+    }
   }
   .poster__frame {
     z-index: 4;
@@ -213,7 +221,7 @@ const loading = eager ? 'eager' : 'lazy';
     }
     .poster--light:hover .poster__chrome,
     .poster--light:focus-visible .poster__chrome {
-      translate: 0 -6%;
+      opacity: 0;
       scale: 0.9;
     }
     /* Over the product the type turns light, so it reads on any reveal. */

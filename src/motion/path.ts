@@ -22,6 +22,10 @@ export function initPath(): (() => void) | void {
     mark: el.classList.contains('tl__item--mark'),
   }));
   const lane = tl.querySelector<HTMLElement>('.tl__lane')!;
+  const tracks = [...tl.querySelectorAll<HTMLElement>('.tl__track')].map((el) => ({
+    el,
+    spans: [...el.querySelectorAll<HTMLElement>('.tl__item')].map((i) => [+i.dataset.t0!, +i.dataset.t1!]),
+  }));
   const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const monthName = (m: number) => `${MONTHS[Math.floor(m) % 12]} ${2022 + Math.floor(m / 12)}`;
 
@@ -56,6 +60,8 @@ export function initPath(): (() => void) | void {
         it.text.classList.toggle('is-tight', room * lane.clientWidth < 260);
       }
     }
+    // A lane with nothing in the window steps back instead of sitting there blank.
+    for (const t of tracks) t.el.classList.toggle('is-empty', !t.spans.some(([t0, t1]) => t1 > a && t0 < cfg.end));
     range.textContent = z < 0.02 ? `${monthName(cfg.start)} to now` : `${monthName(a)} to now`;
     if (ghost) {
       const year = String(2022 + Math.floor(a / 12));

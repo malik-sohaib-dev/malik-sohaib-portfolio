@@ -5,7 +5,7 @@ import { about, site } from '../data/site';
 import { posters } from '../data/posters';
 ---
 
-<Base title="About" description="Sohaib Malik: a full-stack and AI engineer from Pakistan who takes products from an idea to production. How he works, his stack, and what people say.">
+<Base footer="links" title="About" description="Sohaib Malik: a full-stack and AI engineer from Pakistan who takes products from an idea to production. How he works, his stack, and what people say.">
   <section class="ab-hero" data-field="paper" aria-labelledby="ab-title">
     <div class="wrap ab-hero__in">
       <h1 class="ab-hero__title display" id="ab-title">{about.greeting}</h1>
@@ -96,7 +96,7 @@ import { posters } from '../data/posters';
       <span class="sr-only">{site.email}</span>
     </a>
     <div class="wrap mail__actions">
-      <button class="btn" type="button" data-copy={site.email} data-cursor="Copy"><span data-copy-label>Copy email</span></button>
+      <button class="btn" type="button" data-copy={site.email}><span data-copy-label>Copy email</span></button>
       <a class="btn btn--ghost" href={site.whatsapp.href} rel="noopener">WhatsApp <span class="btn__arrow" aria-hidden="true">↗</span></a>
     </div>
   </section>
@@ -113,7 +113,7 @@ import { posters } from '../data/posters';
   .ab-hero__title {
     grid-column: 1 / -1;
     font-size: clamp(4.5rem, 19vw, 16rem);
-    line-height: 0.8;
+    line-height: 0.94;
     margin-left: -0.04em;
     text-transform: none;
   }

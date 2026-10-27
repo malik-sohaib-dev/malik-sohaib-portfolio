@@ -23,10 +23,9 @@ import chrome from '../assets/posters/not-found-chrome.webp';
 <style>
   .nf__in {
     display: grid;
-    gap: 2rem var(--gutter);
+    gap: 1rem var(--gutter);
     align-items: center;
-    min-height: calc(100svh - 4rem);
-    padding-block: 2rem 4rem;
+    padding-block: 1rem 4rem;
   }
   .nf__chrome {
     width: min(100%, 34rem);
@@ -52,6 +51,7 @@ import chrome from '../assets/posters/not-found-chrome.webp';
   @media (min-width: 900px) {
     .nf__in {
       grid-template-columns: 1fr 1fr;
+      min-height: calc(100svh - 4rem);
     }
   }
 </style>

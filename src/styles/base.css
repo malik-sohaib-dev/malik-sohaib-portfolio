@@ -8,11 +8,6 @@ html {
   text-size-adjust: 100%;
   scroll-padding-top: 5rem;
 }
-@media (prefers-reduced-motion: no-preference) {
-  html {
-    scroll-behavior: smooth;
-  }
-}
 body {
   margin: 0;
   background: var(--ground);
@@ -227,7 +222,7 @@ html.motion [data-reveal].is-in {
   place-items: center;
   width: 5.25rem;
   height: 5.25rem;
-  margin: -2.625rem 0 0 -2.625rem;
+  margin: 0.75rem 0 0 0.75rem;
   border-radius: 50%;
   background: #111110;
   color: #f0f0ec;

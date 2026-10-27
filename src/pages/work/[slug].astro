@@ -79,8 +79,11 @@ const nextPoster = posters[next.slug];
             <ol class="cs-log__list">
               {c.decisions.map((d, i) => (
                 <li class="dec">
-                  <p class="dec__id num">{d.id ?? `0${i + 1}`}</p>
-                  <h3 class="dec__title display">{d.title}</h3>
+                  <p class="dec__id num">{`0${i + 1}`}</p>
+                  <h3 class="dec__title display">
+                    {d.title}
+                    {d.id && <span class="dec__src">Decision {d.id}</span>}
+                  </h3>
                   <dl class="dec__body">
                     <div>
                       <dt>Chose</dt>
@@ -171,6 +174,8 @@ const nextPoster = posters[next.slug];
     padding-block: clamp(1.5rem, 4vw, 3rem) clamp(3rem, 8vw, 6rem);
   }
   .cs-back {
+    position: relative;
+    z-index: 1;
     display: inline-flex;
     min-height: 32px;
     align-items: center;
@@ -287,6 +292,15 @@ const nextPoster = posters[next.slug];
   }
   .dec__title {
     font-size: var(--t-l);
+  }
+  .dec__src {
+    display: block;
+    margin-top: 0.6rem;
+    font-family: var(--f-text);
+    font-size: var(--t-xs);
+    font-weight: 500;
+    text-transform: none;
+    color: var(--muted);
   }
   .dec__body {
     display: grid;
@@ -425,15 +439,19 @@ const nextPoster = posters[next.slug];
     color: var(--muted);
   }
   .cs-next__title {
+    justify-self: start;
     font-size: var(--t-xl);
     text-decoration: none;
     margin-left: -0.04em;
-    transition: translate var(--d-m) var(--ease);
+    background: linear-gradient(var(--signal), var(--signal)) no-repeat 0 92% / 0 0.08em;
+    transition:
+      translate var(--d-m) var(--ease),
+      background-size var(--d-m) var(--ease);
   }
-  @media (hover: hover) {
-    .cs-next__title:hover {
-      translate: 0.15em 0;
-    }
+  .cs-next__title:hover,
+  .cs-next__title:focus-visible {
+    translate: 0.15em 0;
+    background-size: 100% 0.08em;
   }
   .cs-next__poster {
     max-width: 22rem;

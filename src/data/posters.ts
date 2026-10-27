@@ -9,7 +9,7 @@ import gpChrome from '../assets/posters/gympaid-chrome.webp';
 import phChrome from '../assets/posters/photon-elixir-phoenix-chrome.webp';
 import viChrome from '../assets/posters/arthur-vibe-chrome.webp';
 import bhChrome from '../assets/posters/bh-group-chrome.webp';
-import ezDesktop from '../assets/work/ezvenda-desktop.webp';
+import ezProduct from '../assets/work/ezvenda-product.webp';
 import mhSumo from '../assets/work/mini-havoc-sumo.jpg';
 
 export type Reveal =
@@ -51,7 +51,7 @@ export const posters: Record<string, Poster> = {
     chrome: ezChrome,
     bg: ezBg,
     ground: 'dark',
-    reveal: { kind: 'image', src: ezDesktop, alt: 'The home page of a shop built on EzVenda.' },
+    reveal: { kind: 'image', src: ezProduct, alt: 'A product page in a shop built on EzVenda.' },
   },
   'mini-havoc': {
     slug: 'mini-havoc',

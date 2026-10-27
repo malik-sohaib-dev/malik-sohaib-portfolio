@@ -11,7 +11,7 @@ const previews = [...new Set(nav.map((n) => n.preview))];
       <span class="hdr__mark" aria-hidden="true"></span>{site.name}
     </a>
     <a class="btn hdr__cta" href={`mailto:${site.email}`}>Email me <span class="btn__arrow" aria-hidden="true">↗</span></a>
-    <button class="hdr__menu" type="button" aria-expanded="false" aria-controls="menu" data-menu-toggle data-cursor="Open">
+    <button class="hdr__menu" type="button" aria-expanded="false" aria-controls="menu" data-menu-toggle>
       <span class="hdr__burger" aria-hidden="true"><i></i><i></i></span>
       <span data-menu-label>Menu</span>
     </button>
@@ -46,7 +46,7 @@ const previews = [...new Set(nav.map((n) => n.preview))];
         }
       </div>
       <div class="menu__foot">
-        <button class="menu__copy" type="button" data-copy={site.email} data-cursor="Copy">
+        <button class="menu__copy" type="button" data-copy={site.email}>
           <span data-copy-label>{site.email}</span>
           <span class="menu__copy-hint" aria-hidden="true">Copy</span>
         </button>
@@ -63,9 +63,9 @@ const previews = [...new Set(nav.map((n) => n.preview))];
     position: sticky;
     top: 0;
     z-index: 50;
-    background: color-mix(in srgb, var(--ground) 88%, transparent);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: color-mix(in srgb, var(--ground) 96%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid transparent;
     transition: border-color var(--d-s) var(--ease);
   }

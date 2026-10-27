@@ -1,16 +1,34 @@
 ---
 import { site } from '../data/site';
+interface Props {
+  links?: boolean;
+}
+const { links = false } = Astro.props;
 const year = new Date().getFullYear();
 ---
 
-<footer class="ftr" id="contact" data-field="ink">
+<footer class:list={['ftr', { 'ftr--links': links }]} id="contact" data-field="ink">
   <div class="wrap">
-    <h2 class="ftr__title display">Next commit:<br />yours.</h2>
-    <p class="ftr__lede">Tell me what you want to build and when you need it. A few lines is enough to start.</p>
-    <div class="ftr__actions">
-      <a class="btn" href={`mailto:${site.email}`}>Email me <span class="btn__arrow" aria-hidden="true">↗</span></a>
-      <a class="btn btn--ghost" href={site.whatsapp.href} rel="noopener">WhatsApp <span class="btn__arrow" aria-hidden="true">↗</span></a>
-    </div>
+    {
+      !links && (
+        <>
+          <h2 class="ftr__title display">
+            Next commit:
+            <br />
+            yours.
+          </h2>
+          <p class="ftr__lede">Tell me what you want to build and when you need it. A few lines is enough to start.</p>
+          <div class="ftr__actions">
+            <a class="btn" href={`mailto:${site.email}`}>
+              Email me <span class="btn__arrow" aria-hidden="true">↗</span>
+            </a>
+            <a class="btn btn--ghost" href={site.whatsapp.href} rel="noopener">
+              WhatsApp <span class="btn__arrow" aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </>
+      )
+    }
     <div class="ftr__meta">
       <a href={`mailto:${site.email}`}>{site.email}</a>
       <a href={site.resume} rel="noopener">Résumé</a>
@@ -23,6 +41,12 @@ const year = new Date().getFullYear();
 <style>
   .ftr {
     padding-block: clamp(5rem, 14vw, 11rem) 2rem;
+  }
+  .ftr--links {
+    padding-block: 1rem 2rem;
+  }
+  .ftr--links .ftr__meta {
+    margin-top: 0;
   }
   .ftr__title {
     font-size: var(--t-mega);

@@ -170,7 +170,8 @@ const config = JSON.stringify({ start, end, zoomFrom, now });
   }
   @media (hover: hover) {
     .path__btn:hover {
-      background: color-mix(in srgb, var(--ink) 10%, transparent);
+      background: var(--ink);
+      color: var(--ground);
     }
   }
   .path__btn[aria-pressed='true'] {
@@ -261,6 +262,9 @@ const config = JSON.stringify({ start, end, zoomFrom, now });
     gap: 0.2rem;
     padding-block: 0.45rem;
     border-bottom: 1px solid var(--line);
+  }
+  .tl__track.is-empty .tl__label {
+    opacity: 0.4;
   }
   .tl__label {
     font-size: var(--t-xs);

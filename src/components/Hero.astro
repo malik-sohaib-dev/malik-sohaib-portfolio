@@ -24,6 +24,7 @@ const [first, last] = site.name.split(' ');
       <div class="hero__actions">
         <a class="btn" href={`mailto:${site.email}`}>Email me <span class="btn__arrow" aria-hidden="true">↗</span></a>
         <a class="btn btn--ghost" href={site.whatsapp.href} rel="noopener">WhatsApp <span class="btn__arrow" aria-hidden="true">↗</span></a>
+        <a class="hero__more ul" href="/about">More about me</a>
       </div>
     </div>
 
@@ -54,7 +55,7 @@ const [first, last] = site.name.split(' ');
   .hero__name {
     grid-column: 1 / -1;
     font-size: clamp(4rem, 31cqi, 18rem);
-    line-height: 0.8;
+    line-height: 0.84;
     margin-left: -0.05em;
   }
   .hero__line {
@@ -93,7 +94,15 @@ const [first, last] = site.name.split(' ');
   .hero__actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
+    align-items: center;
+    gap: 0.75rem 1.25rem;
+  }
+  .hero__more {
+    font-weight: 600;
+    font-size: var(--t-s);
+    min-height: 32px;
+    display: inline-flex;
+    align-items: center;
   }
   .hero__facts {
     grid-column: 1 / -1;
@@ -199,12 +208,12 @@ const [first, last] = site.name.split(' ');
     animation: fade var(--d-m) var(--ease) both;
   }
   :global(html.motion) .hero__portrait {
-    animation-delay: 200ms;
+    animation-delay: 120ms;
   }
   :global(html.motion) .hero__pitch {
-    animation-delay: 320ms;
+    animation-delay: 180ms;
   }
   :global(html.motion) .hero__facts {
-    animation-delay: 420ms;
+    animation-delay: 240ms;
   }
 </style>
