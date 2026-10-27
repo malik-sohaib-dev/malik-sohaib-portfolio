@@ -1,0 +1,190 @@
+---
+import { companies } from '../data/site';
+---
+
+<section class="cos" id="companies" data-field="paper" aria-labelledby="cos-title">
+  <div class="wrap">
+    <div class="cos__head">
+      <h2 class="cos__title display" id="cos-title">With teams</h2>
+      <p class="cos__intro">Four years inside product teams, from a part-time remote role to senior engineer. The work is under NDA, so it is told as engineering, not as client stories.</p>
+    </div>
+    <ol class="cos__list">
+      {
+        companies.map((c) => (
+          <li class="co">
+            <div class="co__when num">
+              {c.from}
+              <span aria-hidden="true">to</span>
+              <span class="sr-only">to</span>
+              {c.to}
+            </div>
+            <div class="co__main">
+              <h3 class="co__name display">
+                {c.url ? (
+                  <a href={c.url} rel="noopener" class="co__link">
+                    {c.name} <span aria-hidden="true">↗</span>
+                  </a>
+                ) : (
+                  c.name
+                )}
+              </h3>
+              <p class="co__role">
+                {c.role}, {c.where}
+              </p>
+            </div>
+            <ul class="co__points">
+              {c.points.map((p) => <li>{p}</li>)}
+            </ul>
+            {c.cases && (
+              <ul class="co__cases">
+                {c.cases.map((k) => (
+                  <li>
+                    <a class="case" href={`/work/${k.slug}`}>
+                      <span class="case__title">{k.title}</span>
+                      <span class="case__summary">{k.summary}</span>
+                      <span class="case__arrow" aria-hidden="true">→</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .cos {
+    padding-block: clamp(5rem, 12vw, 9rem);
+  }
+  .cos__head {
+    display: grid;
+    gap: 1.25rem;
+    margin-bottom: clamp(2.5rem, 6vw, 4rem);
+  }
+  .cos__title {
+    font-size: var(--t-xl);
+    margin-left: -0.04em;
+  }
+  .cos__intro {
+    max-width: 34rem;
+    color: var(--muted);
+  }
+  .co {
+    display: grid;
+    gap: 0.75rem 1.5rem;
+    padding-block: 1.75rem;
+    border-top: 1.5px solid var(--ink);
+  }
+  .co:last-child {
+    border-bottom: 1.5px solid var(--ink);
+  }
+  .co__when {
+    display: flex;
+    gap: 0.4rem;
+    font-size: 1.25rem;
+    color: var(--muted);
+  }
+  .co__name {
+    font-size: var(--t-l);
+  }
+  .co__link {
+    text-decoration: none;
+  }
+  .co__role {
+    margin-top: 0.4rem;
+    font-size: var(--t-s);
+    color: var(--muted);
+  }
+  .co__points {
+    display: grid;
+    gap: 0.5rem;
+    max-width: 40rem;
+    font-size: var(--t-s);
+  }
+  .co__points li {
+    padding-left: 1rem;
+    text-indent: -1rem;
+  }
+  .co__points li::before {
+    content: '–';
+    display: inline-block;
+    width: 1rem;
+    text-indent: 0;
+    color: var(--muted);
+  }
+  .co__cases {
+    display: grid;
+    margin-top: 0.5rem;
+  }
+  /* Case rows: the text slides and the arrow travels. */
+  .case {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.15rem 1rem;
+    padding: 0.9rem 0;
+    border-top: 1px solid var(--line);
+    text-decoration: none;
+  }
+  .case__title {
+    font-weight: 600;
+    transition: translate var(--d-m) var(--ease);
+  }
+  .case__summary {
+    grid-column: 1;
+    font-size: var(--t-s);
+    color: var(--muted);
+    transition: translate var(--d-m) var(--ease);
+  }
+  .case__arrow {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
+    font-size: 1.25rem;
+    transition: translate var(--d-m) var(--ease);
+  }
+  @media (hover: hover) {
+    .case:hover .case__title,
+    .case:hover .case__summary {
+      translate: 0.5rem 0;
+    }
+    .case:hover .case__arrow {
+      translate: 0.4rem 0;
+      color: var(--signal);
+    }
+  }
+  @media (min-width: 900px) {
+    .cos__head {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--gutter);
+      align-items: end;
+    }
+    .cos__title {
+      grid-column: 1 / 7;
+    }
+    .cos__intro {
+      grid-column: 8 / -1;
+      padding-bottom: 0.4rem;
+    }
+    .co {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--gutter);
+    }
+    .co__when {
+      grid-column: 1 / 3;
+      padding-top: 0.6rem;
+    }
+    .co__main {
+      grid-column: 3 / 7;
+    }
+    .co__points {
+      grid-column: 7 / -1;
+      padding-top: 0.6rem;
+    }
+    .co__cases {
+      grid-column: 7 / -1;
+    }
+  }
+</style>

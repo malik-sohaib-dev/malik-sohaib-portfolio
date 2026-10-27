@@ -1,7 +1,6 @@
 ---
 import { Image } from 'astro:assets';
-import Strip from './Strip.astro';
-import { commitData, products } from '../data/site';
+import { products } from '../data/site';
 import ezHome from '../assets/work/ezvenda-home.webp';
 import ezProduct from '../assets/work/ezvenda-product.webp';
 import ezCheckout from '../assets/work/ezvenda-checkout.webp';
@@ -16,16 +15,15 @@ const fmt = (iso: string) => {
   const d = new Date(`${iso}T00:00:00Z`);
   return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
 };
-const commitsFor = (slug: string) => ((commitData.series as Record<string, number[]>)[slug] ?? []).reduce((a, b) => a + b, 0);
 const phoneSizes = '(min-width: 900px) 18vw, 30vw';
 ---
 
-<section class="work" id="work" aria-labelledby="work-title">
+<section class="work" id="work" data-field="ink" aria-labelledby="work-title">
   <div class="wrap work__head">
-    <h2 class="work__title display" id="work-title">Work</h2>
+    <h2 class="work__title display" id="work-title">Owned end to end</h2>
     <p class="work__intro">
-      Three products of my own, each built end to end: design, frontend, backend, AI and launch. Every one keeps a written log of
-      the decisions behind it, so the case studies show what I chose and why.
+      In 2026 I took three ideas of my own to production, alone: the product thinking, the design, every layer of code, and the
+      launch. They show how I work for clients too. I write every decision down, so each case study shows what I chose and why.
     </p>
   </div>
 
@@ -33,16 +31,11 @@ const phoneSizes = '(min-width: 900px) 18vw, 30vw';
     products.map((p, k) => (
       <article class:list={['band', { 'band--flip': k % 2 === 1 }]} id={p.slug} aria-labelledby={`${p.slug}-name`}>
         <div class="wrap">
-          <div class="band__time">
-            <Strip variant="mini" highlight={p.slug} />
-            <p class="band__time-cap">
-              <span class="num">{commitsFor(p.slug).toLocaleString('en-US')}</span> commits since {fmt(p.started)}
-            </p>
-          </div>
           <div class="band__grid">
             <div class="band__text">
               <p class="band__meta">
                 <span class:list={['chip', { 'chip--live': p.status === 'Live' }]}>{p.status}</span>
+                <span class="band__since">Since {fmt(p.started)}</span>
                 {p.url && (
                   <a class="band__url ul" href={p.url} rel="noopener">
                     {p.urlLabel} <span aria-hidden="true">↗</span>
@@ -111,7 +104,7 @@ const phoneSizes = '(min-width: 900px) 18vw, 30vw';
 
 <style>
   .work {
-    padding-block: clamp(5rem, 12vw, 10rem) 0;
+    padding-block: clamp(2rem, 6vw, 4rem) clamp(4rem, 10vw, 8rem);
   }
   .work__head {
     display: grid;
@@ -134,7 +127,7 @@ const phoneSizes = '(min-width: 900px) 18vw, 30vw';
       align-items: end;
     }
     .work__title {
-      grid-column: 1 / 6;
+      grid-column: 1 / 7;
     }
     .work__intro {
       grid-column: 7 / -1;
@@ -144,20 +137,10 @@ const phoneSizes = '(min-width: 900px) 18vw, 30vw';
 
   .band {
     padding-block: clamp(3rem, 7vw, 6rem);
-    border-top: 1.5px solid var(--ink);
+    border-top: 1px solid var(--line);
   }
-  .band__time {
-    display: grid;
-    gap: 0.5rem;
-    margin-bottom: clamp(2rem, 5vw, 3.5rem);
-  }
-  .band__time-cap {
-    font-size: var(--t-xs);
+  .band__since {
     color: var(--muted);
-  }
-  .band__time-cap .num {
-    font-size: 1.1rem;
-    color: var(--ink);
   }
   .band__grid {
     display: grid;
@@ -321,16 +304,8 @@ const phoneSizes = '(min-width: 900px) 18vw, 30vw';
     transition: translate var(--d-m) var(--ease);
   }
 
-  /* Hovering a band lights its days on its strip and lifts its media. */
+  /* Hovering a band lifts its media. */
   @media (hover: hover) {
-    .band:hover :global(.strip--mini i[data-p]) {
-      transition-duration: var(--d-m);
-    }
-    #ezvenda:hover :global(i[data-p='ezvenda']),
-    #mini-havoc:hover :global(i[data-p='mini-havoc']),
-    #gympaid:hover :global(i[data-p='gympaid']) {
-      background: var(--signal);
-    }
     .band:hover .phones :global(img),
     .band:hover .band__media--gympaid :global(img) {
       translate: 0 -6px;

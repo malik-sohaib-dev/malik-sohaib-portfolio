@@ -30,6 +30,28 @@
   size-adjust: 101%;
 }
 
+/* Registered so the chapter colours can cross-fade. */
+@property --ground {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #f0f0ec;
+}
+@property --ink {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #111110;
+}
+@property --muted {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #5c5c57;
+}
+@property --line {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: rgb(17 17 16 / 0.14);
+}
+
 :root {
   --ground: #f0f0ec;
   --ink: #111110;
@@ -37,6 +59,9 @@
   --line: rgb(17 17 16 / 0.14);
   --signal: #ff5a1f;
   --faint: rgb(17 17 16 / 0.18);
+  /* What a primary button floods with on hover, and the text on top of it. */
+  --flood: var(--signal);
+  --on-flood: #111110;
 
   --f-display: 'Display', 'Display Fallback', 'Arial Narrow', sans-serif;
   --f-text: 'Text', 'Text Fallback', system-ui, sans-serif;
@@ -57,4 +82,40 @@
   --d-s: 240ms;
   --d-m: 600ms;
   --d-l: 900ms;
+}
+
+/* Chapter fields. With JS the whole page takes the field of the chapter in view (set on <html>);
+   without JS each chapter paints its own. */
+html {
+  transition:
+    --ground 700ms var(--ease),
+    --ink 700ms var(--ease),
+    --muted 700ms var(--ease),
+    --line 700ms var(--ease);
+}
+html[data-field='ink'],
+html:not(.js) [data-field='ink'] {
+  --ground: #111110;
+  --ink: #f0f0ec;
+  --muted: #a9a9a2;
+  --line: rgb(240 240 236 / 0.16);
+  --faint: rgb(240 240 236 / 0.16);
+}
+html[data-field='signal'],
+html:not(.js) [data-field='signal'] {
+  --ground: #ff5a1f;
+  --ink: #111110;
+  --muted: #3d1a0c;
+  --line: rgb(17 17 16 / 0.22);
+  --faint: rgb(17 17 16 / 0.2);
+  --flood: #f0f0ec;
+}
+html:not(.js) [data-field] {
+  background: var(--ground);
+  color: var(--ink);
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    transition: none;
+  }
 }

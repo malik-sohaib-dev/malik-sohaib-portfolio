@@ -3,13 +3,13 @@ import { site } from '../data/site';
 const year = new Date().getFullYear();
 ---
 
-<footer class="ftr" id="contact">
+<footer class="ftr" id="contact" data-field="ink">
   <div class="wrap">
     <h2 class="ftr__title display">Next commit:<br />yours.</h2>
     <p class="ftr__lede">Tell me what you want to build and when you need it. A few lines is enough to start.</p>
     <div class="ftr__actions">
-      <a class="btn btn--invert" href={`mailto:${site.email}`}>Email me <span class="btn__arrow" aria-hidden="true">↗</span></a>
-      <a class="btn btn--invert btn--ghost" href={site.whatsapp.href} rel="noopener">WhatsApp <span class="btn__arrow" aria-hidden="true">↗</span></a>
+      <a class="btn" href={`mailto:${site.email}`}>Email me <span class="btn__arrow" aria-hidden="true">↗</span></a>
+      <a class="btn btn--ghost" href={site.whatsapp.href} rel="noopener">WhatsApp <span class="btn__arrow" aria-hidden="true">↗</span></a>
     </div>
     <div class="ftr__meta">
       <a href={`mailto:${site.email}`}>{site.email}</a>
@@ -22,8 +22,6 @@ const year = new Date().getFullYear();
 
 <style>
   .ftr {
-    background: var(--ink);
-    color: var(--ground);
     padding-block: clamp(5rem, 14vw, 11rem) 2rem;
   }
   .ftr__title {
@@ -33,7 +31,7 @@ const year = new Date().getFullYear();
   .ftr__lede {
     max-width: 30rem;
     margin-top: 2rem;
-    color: rgb(240 240 236 / 0.72);
+    color: var(--muted);
   }
   .ftr__actions {
     display: flex;
@@ -41,30 +39,15 @@ const year = new Date().getFullYear();
     gap: 0.75rem;
     margin-top: 2rem;
   }
-  .btn--invert {
-    background: var(--ground);
-    color: var(--ink);
-    border-color: var(--ground);
-  }
-  .btn--invert.btn--ghost {
-    background: transparent;
-    color: var(--ground);
-  }
-  @media (hover: hover) {
-    .btn--invert:hover {
-      color: var(--ink);
-      border-color: var(--signal);
-    }
-  }
   .ftr__meta {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem 1.75rem;
     margin-top: clamp(4rem, 10vw, 8rem);
     padding-top: 1.25rem;
-    border-top: 1px solid rgb(240 240 236 / 0.18);
+    border-top: 1px solid var(--line);
     font-size: var(--t-xs);
-    color: rgb(240 240 236 / 0.72);
+    color: var(--muted);
   }
   .ftr__meta a {
     text-decoration: none;
@@ -73,13 +56,10 @@ const year = new Date().getFullYear();
   }
   @media (hover: hover) {
     .ftr__meta a:hover {
-      color: var(--ground);
+      color: var(--ink);
     }
   }
   .ftr__meta span {
     margin-left: auto;
-  }
-  :global(.ftr :focus-visible) {
-    outline-color: var(--ground);
   }
 </style>

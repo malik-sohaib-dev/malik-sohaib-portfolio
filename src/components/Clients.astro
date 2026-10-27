@@ -1,0 +1,142 @@
+---
+import { gigs } from '../data/site';
+---
+
+<section class="gigs" id="clients" data-field="signal" aria-labelledby="gigs-title">
+  <div class="wrap">
+    <h2 class="gigs__title display" id="gigs-title">For clients<br />and for fun</h2>
+    <ul class="gigs__list">
+      {
+        gigs.map((g) => {
+          const Tag = g.url ? 'a' : 'div';
+          return (
+            <li>
+              <Tag class:list={['gig', { 'gig--todo': g.placeholder }]} {...(g.url ? { href: g.url, rel: 'noopener' } : {})} data-placeholder={g.placeholder || undefined}>
+                <span class="gig__year num">{g.year}</span>
+                <span class="gig__name display">{g.name}</span>
+                <span class="gig__kind">{g.kind}</span>
+                <span class="gig__summary">{g.summary}</span>
+                {g.url && <span class="gig__arrow" aria-hidden="true">↗</span>}
+              </Tag>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .gigs {
+    padding-block: clamp(5rem, 12vw, 9rem);
+  }
+  .gigs__title {
+    font-size: var(--t-mega);
+    margin: 0 0 clamp(2.5rem, 6vw, 4rem) -0.04em;
+  }
+  .gigs__list {
+    border-top: 1.5px solid var(--ink);
+  }
+  .gig {
+    position: relative;
+    display: grid;
+    grid-template-columns: 3.5rem 1fr auto;
+    gap: 0.25rem 1rem;
+    padding-block: 1.1rem;
+    border-bottom: 1.5px solid var(--ink);
+    text-decoration: none;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  /* The row floods with ink, like the buttons, and the text inverts. */
+  a.gig::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--ink);
+    translate: 0 101%;
+    transition: translate var(--d-m) var(--ease);
+  }
+  .gig__year {
+    grid-row: 1 / span 2;
+    font-size: 1.25rem;
+    padding-top: 0.35rem;
+  }
+  .gig__name {
+    font-size: var(--t-l);
+    transition: translate var(--d-m) var(--ease);
+  }
+  .gig__kind {
+    align-self: center;
+    font-size: var(--t-xs);
+    font-weight: 600;
+  }
+  .gig__summary {
+    grid-column: 2 / -1;
+    max-width: 40rem;
+    font-size: var(--t-s);
+    color: var(--muted);
+  }
+  .gig__arrow {
+    position: absolute;
+    right: 0;
+    bottom: 1.1rem;
+    font-size: 1.25rem;
+    transition: translate var(--d-m) var(--ease);
+  }
+  .gig--todo {
+    border-bottom-style: dashed;
+  }
+  .gig--todo .gig__name {
+    opacity: 0.55;
+  }
+  @media (hover: hover) {
+    a.gig {
+      transition: color var(--d-s) var(--ease);
+    }
+    a.gig:hover {
+      color: var(--ground);
+    }
+    a.gig:hover .gig__summary {
+      color: inherit;
+    }
+    a.gig:hover::before {
+      translate: 0 0;
+    }
+    a.gig:hover .gig__name {
+      translate: 0.6rem 0;
+    }
+    a.gig:hover .gig__arrow {
+      translate: -0.6rem -0.3rem;
+    }
+  }
+  @media (min-width: 900px) {
+    .gig {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--gutter);
+      align-items: baseline;
+      padding-inline: 0.5rem;
+    }
+    .gig__year {
+      grid-column: 1 / 2;
+      grid-row: 1;
+      padding-top: 0;
+    }
+    .gig__name {
+      grid-column: 2 / 7;
+    }
+    .gig__kind {
+      grid-column: 7 / 9;
+    }
+    .gig__summary {
+      grid-column: 9 / 12;
+    }
+    .gig__arrow {
+      bottom: auto;
+      top: 50%;
+      right: 0.75rem;
+      margin-top: -0.7em;
+    }
+  }
+</style>

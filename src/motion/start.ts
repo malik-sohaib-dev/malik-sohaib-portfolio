@@ -1,9 +1,12 @@
 // Boots the page behaviour and re-runs it after every client-side navigation.
-import { initStrip } from './strip';
-
 type Cleanup = (() => void) | void;
-const inits: (() => Cleanup)[] = [initStrip, initReveals, initVideos, initMenu, initScrolled];
+const inits: (() => Cleanup)[] = [initFields, initReveals, initVideos, initMenu, initScrolled];
 let cleanups: Cleanup[] = [];
+
+/** Components register their page behaviour here; it runs on every page and is cleaned up on leave. */
+export function onPage(init: () => Cleanup) {
+  inits.push(init);
+}
 
 function flags() {
   const html = document.documentElement;
@@ -20,6 +23,23 @@ export function start() {
   document.addEventListener('astro:after-swap', flags);
   // Fires on the first load too.
   document.addEventListener('astro:page-load', page);
+}
+
+// Chapters: the section crossing the middle of the screen sets the page's colour field.
+// Every colour on the page reads the field's variables, so text and ground always change together.
+function initFields(): Cleanup {
+  const sections = [...document.querySelectorAll<HTMLElement>('[data-field]')];
+  const html = document.documentElement;
+  if (!sections.length) return void delete html.dataset.field;
+  html.dataset.field = sections[0].dataset.field;
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) if (e.isIntersecting) html.dataset.field = (e.target as HTMLElement).dataset.field;
+    },
+    { rootMargin: '-50% 0px -50% 0px' },
+  );
+  sections.forEach((s) => io.observe(s));
+  return () => io.disconnect();
 }
 
 function initReveals(): Cleanup {

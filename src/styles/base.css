@@ -57,7 +57,7 @@ button {
 }
 ::selection {
   background: var(--signal);
-  color: var(--ink);
+  color: #111110;
 }
 :focus-visible {
   outline: 2px solid var(--ink);
@@ -151,7 +151,7 @@ button {
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: var(--signal);
+  background: var(--flood);
   translate: 0 101%;
   transition: translate var(--d-m) var(--ease);
 }
@@ -165,7 +165,8 @@ button {
 }
 @media (hover: hover) {
   .btn:hover {
-    color: var(--ink);
+    color: var(--on-flood);
+    border-color: var(--on-flood);
   }
   .btn:hover::before {
     translate: 0 0;

@@ -1,0 +1,350 @@
+---
+// The career timeline. Scrolling through the section zooms it from the whole career into the
+// last months. Every item is placed by one value (the visible window), in src/motion/path.ts.
+import { activityData, path } from '../data/site';
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const toM = (ym: string) => {
+  const [y, m] = ym.split('-').map(Number);
+  return (y - 2022) * 12 + (m - 1);
+};
+const now = (() => {
+  const d = new Date(`${activityData.to}T00:00:00Z`);
+  return (d.getUTCFullYear() - 2022) * 12 + d.getUTCMonth() + d.getUTCDate() / 31;
+})();
+const start = toM(path.from);
+const end = now + 1.2;
+const zoomFrom = toM(path.zoomTo);
+const label = (m: number) => `${MONTHS[Math.floor(m) % 12]} ${2022 + Math.floor(m / 12)}`;
+
+// Rows inside a track: an item goes on the first row whose last item ended before it starts.
+function rows<T extends { t0: number; t1: number }>(items: T[]) {
+  const ends: number[] = [];
+  return items.map((it) => {
+    let r = ends.findIndex((e) => e <= it.t0);
+    if (r === -1) r = ends.length;
+    ends[r] = it.t1;
+    return { ...it, row: r };
+  });
+}
+const tracks = path.tracks.map((t) => {
+  const spans = path.spans
+    .filter((s) => s.track === t.id)
+    .map((s) => ({ ...s, kind: 'span' as const, t0: toM(s.from), t1: s.to ? toM(s.to) + 1 : now }));
+  const marks = path.marks
+    .filter((m) => m.track === t.id)
+    .map((m) => ({ ...m, kind: 'mark' as const, t0: toM(m.at) + 0.5, t1: toM(m.at) + (m.track === 'life' ? 12 : 4) }));
+  const items = rows([...spans, ...marks].sort((a, b) => a.t0 - b.t0));
+  return { ...t, items, height: Math.max(1, ...items.map((i) => i.row + 1)) };
+});
+const years = Array.from({ length: Math.ceil(end / 12) }, (_, k) => ({ y: 2022 + k, t: k * 12 })).filter((y) => y.t >= start);
+const months = Array.from({ length: Math.ceil(end) }, (_, t) => ({ t, label: MONTHS[t % 12] })).filter((m) => m.t % 12 !== 0);
+// Initial (no JS) placement: the whole career.
+const x = (t: number) => (t - start) / (end - start);
+const config = JSON.stringify({ start, end, zoomFrom, now });
+---
+
+<section class="path" id="path" data-field="paper" aria-labelledby="path-title" data-path>
+  <header class="wrap path__head">
+    <h2 class="path__title display" id="path-title">{path.title}</h2>
+    <p class="path__intro">{path.intro}</p>
+  </header>
+  <div class="path__stage">
+    <span class="path__ghost display" data-ghost aria-hidden="true">{2022 + Math.floor(start / 12)}</span>
+    <div class="wrap path__in">
+      <div class="path__controls" role="group" aria-label="Timeline range">
+        <span class="path__range num" data-range aria-live="polite">{label(start)} to now</span>
+        <button type="button" class="path__btn" data-zoom="0" aria-pressed="true">All years</button>
+        <button type="button" class="path__btn" data-zoom="1" aria-pressed="false">Last 6 months</button>
+      </div>
+
+      <div class="tl" data-tl data-config={config}>
+        <div class="tl__axis" aria-hidden="true">
+          {years.map((y) => <span class="tl__year num" data-t={y.t} style={`translate:${x(y.t) * 100}cqi 0`}>{y.y}</span>)}
+          {months.map((m) => <span class="tl__month" data-t={m.t} data-month style={`translate:${x(m.t) * 100}cqi 0`}>{m.label}</span>)}
+          <span class="tl__now" data-t={now} style={`translate:${x(now) * 100}cqi 0`}><span>Now</span></span>
+        </div>
+        {
+          tracks.map((t) => (
+            <div class="tl__track" style={`--rows:${t.height}`}>
+              <h3 class="tl__label">{t.label}</h3>
+              <ul class="tl__lane">
+                {t.items.map((it) => (
+                  <li
+                    class:list={['tl__item', `tl__item--${it.kind}`, `tl__item--${t.id}`]}
+                    style={`--row:${it.row}`}
+                    data-t0={it.t0}
+                    data-t1={it.t1}
+                  >
+                    <span class="tl__bar" aria-hidden="true" style={`translate:${x(it.t0) * 100}cqi 0;scale:${(it.t1 - it.t0) / (end - start)} 1`} />
+                    <span class="tl__text" style={`translate:${Math.max(0, x(it.t0)) * 100}cqi 0`}>
+                      {'href' in it && it.href ? <a href={it.href}>{it.label}</a> : <span>{it.label}</span>}
+                      {'detail' in it && it.detail && <span class="tl__detail">{it.detail}</span>}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .path {
+    position: relative;
+    padding-top: clamp(4rem, 10vw, 8rem);
+  }
+  /* Scroll distance for the zoom: the stage (controls and timeline) stays put while it plays. */
+  .path__stage {
+    position: relative;
+    padding-block: 1.5rem 3rem;
+  }
+  :global(html.motion) .path__stage {
+    position: sticky;
+    top: 4rem;
+    min-height: calc(100svh - 4rem);
+    display: grid;
+    align-content: center;
+    overflow: clip;
+  }
+  /* A sticky box can't travel into its parent's padding, so the scroll room is a spacer. */
+  :global(html.motion) .path::after {
+    content: '';
+    display: block;
+    height: 130svh;
+  }
+  .path__head {
+    display: grid;
+    gap: 1rem;
+  }
+  /* The year the window starts at, huge behind the timeline: it counts up and grows as you zoom. */
+  .path__ghost {
+    position: absolute;
+    right: var(--margin);
+    bottom: -0.12em;
+    font-size: clamp(10rem, 34vw, 34rem);
+    line-height: 0.8;
+    color: color-mix(in srgb, var(--ink) 6%, transparent);
+    transform-origin: 100% 100%;
+    pointer-events: none;
+    user-select: none;
+  }
+  .path__in {
+    position: relative;
+  }
+  .path__title {
+    font-size: var(--t-xl);
+    margin-left: -0.04em;
+  }
+  .path__intro {
+    max-width: 32ch;
+    font-size: var(--t-m);
+    line-height: 1.35;
+  }
+  .path__controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .path__range {
+    font-size: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+    margin-right: auto;
+  }
+  .path__btn {
+    min-height: 36px;
+    padding: 0 0.9rem;
+    border: 1.5px solid var(--ink);
+    border-radius: 999px;
+    background: transparent;
+    font-size: var(--t-xs);
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      background-color var(--d-s) var(--ease),
+      color var(--d-s) var(--ease);
+  }
+  .path__btn[aria-pressed='true'] {
+    background: var(--ink);
+    color: var(--ground);
+  }
+  @media (min-width: 900px) {
+    .path__head {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--gutter);
+      align-items: end;
+    }
+    .path__title {
+      grid-column: 1 / 4;
+    }
+    .path__intro {
+      grid-column: 4 / 9;
+      padding-bottom: 0.4rem;
+    }
+  }
+
+  /* The timeline. Items are placed in cqi of the lane, so 100cqi is the full window. */
+  .tl {
+    --label-w: 0px;
+    display: grid;
+    gap: 0.25rem;
+  }
+  .tl__axis,
+  .tl__lane {
+    position: relative;
+    container-type: inline-size;
+    overflow: clip;
+  }
+  .tl__axis {
+    height: 2.4rem;
+    margin-left: var(--label-w);
+    border-bottom: 1.5px solid var(--ink);
+  }
+  .tl__axis > span {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    white-space: nowrap;
+  }
+  .tl__year {
+    font-size: clamp(1.1rem, 0.9rem + 0.8vw, 1.6rem);
+    padding: 0 0 0.3rem 0.35rem;
+    border-left: 1.5px solid var(--ink);
+    line-height: 1;
+  }
+  .tl__month {
+    padding: 0 0 0.35rem 0.3rem;
+    border-left: 1px solid var(--line);
+    font-size: var(--t-xs);
+    color: var(--muted);
+    opacity: 0;
+    transition: opacity var(--d-s) var(--ease);
+  }
+  .tl__month.is-shown {
+    opacity: 1;
+  }
+  .tl__now {
+    top: 0;
+    font-size: var(--t-xs);
+  }
+  .tl__now > span {
+    position: absolute;
+    top: 0;
+    right: 8px;
+    white-space: nowrap;
+    font-weight: 600;
+  }
+  .tl__now::before {
+    content: '';
+    position: absolute;
+    top: 0.2rem;
+    left: -5px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--signal);
+    box-shadow: 0 0 0 1.5px var(--ink);
+  }
+
+  .tl__track {
+    --row-h: 2rem;
+    display: grid;
+    gap: 0.2rem;
+    padding-block: 0.45rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .tl__label {
+    font-size: var(--t-xs);
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .tl__lane {
+    height: calc(var(--rows) * var(--row-h));
+  }
+  .tl__item {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(var(--row) * var(--row-h));
+    height: calc(var(--row-h) - 0.3rem);
+  }
+  /* A rule for the span, the name under it in ink. */
+  .tl__bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100cqi;
+    height: 6px;
+    transform-origin: 0 0;
+    background: var(--ink);
+  }
+  .tl__item--own .tl__bar {
+    background: var(--signal);
+  }
+  .tl__item--mark .tl__bar {
+    width: 0;
+  }
+  .tl__item--mark .tl__bar::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -5px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--ink);
+  }
+  .tl__text {
+    position: absolute;
+    top: 11px;
+    left: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    max-width: 100cqi;
+    overflow: hidden;
+    font-size: var(--t-xs);
+    line-height: 1.3;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .tl__item--mark .tl__text {
+    left: -4px;
+  }
+  .tl__text a {
+    text-decoration: none;
+  }
+  .tl__detail {
+    font-weight: 400;
+    color: var(--muted);
+  }
+  .tl__text.is-tight .tl__detail {
+    display: none;
+  }
+
+  @media (min-width: 900px) {
+    .tl {
+      --label-w: calc((100% - 11 * var(--gutter)) / 12 * 2 + var(--gutter) * 2);
+    }
+    .tl__track {
+      --row-h: 2.4rem;
+      grid-template-columns: var(--label-w) 1fr;
+      gap: 0;
+      align-items: start;
+      padding-block: 0.6rem;
+    }
+    .tl__label {
+      padding-top: 0.55rem;
+    }
+  }
+</style>
+
+<script>
+  import { initPath } from '../motion/path';
+  import { onPage } from '../motion/start';
+  onPage(initPath);
+</script>
