@@ -15,4 +15,6 @@ render gympaid text '31'
 render photon-elixir-phoenix merge 9
 render arthur-vibe text '?'
 render bh-group text 'kW'
+render not-found text '404'
+render monogram text 'SM'
 rm -rf "$TMP"

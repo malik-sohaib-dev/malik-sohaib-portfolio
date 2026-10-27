@@ -1,0 +1,57 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import chrome from '../assets/posters/not-found-chrome.webp';
+---
+
+<Base title="Not found" description="This page does not exist. The rest of Sohaib Malik’s site does.">
+  <section class="nf" data-field="paper" aria-labelledby="nf-title">
+    <div class="wrap nf__in">
+      <Image class="nf__chrome" src={chrome} alt="" widths={[480, 900]} sizes="(min-width: 900px) 40vw, 80vw" loading="eager" />
+      <div class="nf__text">
+        <h1 class="nf__title display" id="nf-title">Melted.</h1>
+        <p class="nf__line">This page doesn’t exist, or it ran off somewhere. The rest of the site is solid.</p>
+        <div class="nf__actions">
+          <a class="btn" href="/">Back home <span class="btn__arrow" aria-hidden="true">→</span></a>
+          <a class="btn btn--ghost" href="/#work">See the work</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .nf__in {
+    display: grid;
+    gap: 2rem var(--gutter);
+    align-items: center;
+    min-height: calc(100svh - 4rem);
+    padding-block: 2rem 4rem;
+  }
+  .nf__chrome {
+    width: min(100%, 34rem);
+    height: auto;
+    margin-inline: auto;
+  }
+  .nf__title {
+    font-size: var(--t-mega);
+    margin-left: -0.04em;
+  }
+  .nf__line {
+    max-width: 30ch;
+    margin-top: 1.25rem;
+    font-size: var(--t-m);
+    line-height: 1.35;
+  }
+  .nf__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+  @media (min-width: 900px) {
+    .nf__in {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>
