@@ -139,16 +139,16 @@ const previews = [...new Set(nav.map((n) => n.preview))];
     translate: 0 -3.5px;
     rotate: -45deg;
   }
-  /* While open, the header sits on the orange panel. */
+  /* While open, the header sits on the black glass. */
   :global(html.menu-open) .hdr {
     background: transparent;
     backdrop-filter: none;
     border-bottom-color: transparent;
-    color: #111110;
+    color: #ededE7;
   }
   :global(html.menu-open) .hdr__mark {
-    background: #111110;
-    box-shadow: inset 0 -7px 0 #f0f0ec;
+    background: #ededE7;
+    box-shadow: inset 0 -7px 0 #8f8f89;
   }
   :global(html.menu-open) .hdr__cta {
     visibility: hidden;
@@ -160,19 +160,24 @@ const previews = [...new Set(nav.map((n) => n.preview))];
     }
   }
 
+  /* Black glass in either palette: the page blurs behind it. */
   .menu {
     position: fixed;
     inset: 0;
     z-index: 1;
     padding-top: 4rem;
-    background: var(--signal);
-    color: #111110;
+    background: rgb(8 8 8 / 0.86);
+    backdrop-filter: blur(24px) saturate(1.1);
+    -webkit-backdrop-filter: blur(24px) saturate(1.1);
+    color: #ededE7;
     overflow-y: auto;
     overscroll-behavior: contain;
-    --ink: #111110;
-    --muted: #3d1a0c;
-    --line: rgb(17 17 16 / 0.22);
-    --flood: #f0f0ec;
+    --ground: #0b0b0b;
+    --ink: #ededE7;
+    --muted: #8f8f89;
+    --line: rgb(237 237 231 / 0.16);
+    --flood: linear-gradient(180deg, #ffffff 0%, #c9c9c3 45%, #7d7d78 100%);
+    --on-flood: #0b0b0b;
   }
   .menu__in {
     display: grid;
@@ -234,7 +239,7 @@ const previews = [...new Set(nav.map((n) => n.preview))];
     align-items: center;
     gap: 0.75rem 1.75rem;
     padding-top: 1rem;
-    border-top: 1.5px solid #111110;
+    border-top: 1px solid var(--line);
     font-size: var(--t-s);
   }
   .menu__foot a {
@@ -249,9 +254,10 @@ const previews = [...new Set(nav.map((n) => n.preview))];
     min-height: 40px;
     margin-right: auto;
     padding: 0 0.9rem;
-    border: 1.5px solid #111110;
+    border: 1px solid var(--line);
     border-radius: 999px;
     background: transparent;
+    color: #ededE7;
     font-weight: 600;
     cursor: pointer;
     transition:
@@ -264,8 +270,8 @@ const previews = [...new Set(nav.map((n) => n.preview))];
   }
   @media (hover: hover) {
     .menu__copy:hover {
-      background: #111110;
-      color: var(--signal);
+      background: #ededE7;
+      color: #0b0b0b;
     }
   }
 
@@ -309,12 +315,13 @@ const previews = [...new Set(nav.map((n) => n.preview))];
   }
 
   /* Open and close: the panel wipes down from the header, the words rise one after another. */
+  /* Open: an ellipse wipes down from the header. */
   :global(html.motion) .menu {
-    clip-path: inset(0 0 100% 0);
-    transition: clip-path 700ms var(--ease);
+    clip-path: ellipse(140% 0% at 50% 0%);
+    transition: clip-path 900ms var(--ease);
   }
   :global(html.motion) .menu.is-open {
-    clip-path: inset(0 0 0 0);
+    clip-path: ellipse(150% 160% at 50% 0%);
   }
   :global(html.motion) .menu .menu__word {
     translate: 0 105%;

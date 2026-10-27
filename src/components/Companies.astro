@@ -8,7 +8,7 @@ const postersFor = (name: string, cases?: { slug: string }[]) =>
   cases?.map((k) => posters[k.slug]).filter(Boolean) ?? (name === 'BH Group' ? [posters['bh-group']] : []);
 ---
 
-<section class="cos" id="companies" data-field="paper" aria-labelledby="cos-title">
+<section class="cos" id="companies" data-field="base" aria-labelledby="cos-title">
   <div class="wrap">
     <div class="cos__head">
       <h2 class="cos__title display" id="cos-title">With teams</h2>

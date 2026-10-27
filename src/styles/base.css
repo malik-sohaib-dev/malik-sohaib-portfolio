@@ -51,13 +51,13 @@ button {
   color: inherit;
 }
 ::selection {
-  background: var(--signal);
-  color: #111110;
+  background: var(--ink);
+  color: var(--ground);
 }
 :focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 3px;
-  box-shadow: 0 0 0 5px var(--signal);
+  box-shadow: 0 0 0 5px var(--ring, var(--signal));
   border-radius: 2px;
 }
 

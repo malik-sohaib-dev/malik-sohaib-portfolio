@@ -84,7 +84,8 @@
   --d-l: 900ms;
 }
 
-/* Chapter fields. With JS the whole page takes the field of the chapter in view (set on <html>);
+/* Palettes and chapter fields. Sections declare a role (base, contrast, accent); the palette on
+   <html> maps roles to colours. With JS the whole page takes the field of the chapter in view;
    without JS each chapter paints its own. */
 html {
   transition:
@@ -93,23 +94,78 @@ html {
     --muted 700ms var(--ease),
     --line 700ms var(--ease);
 }
-html[data-field='ink'],
-html:not(.js) [data-field='ink'] {
-  --ground: #111110;
-  --ink: #f0f0ec;
-  --muted: #a9a9a2;
-  --line: rgb(240 240 236 / 0.16);
-  --faint: rgb(240 240 236 / 0.16);
+
+/* Studio black: the site lives in the posters' black studio. No colour accent: chrome does it. */
+html[data-palette='studio'],
+html[data-palette='studio'][data-field='base'],
+html[data-palette='studio']:not(.js) [data-field='base'] {
+  --ground: #0b0b0b;
+  --ink: #ededE7;
+  --muted: #8f8f89;
+  --line: rgb(237 237 231 / 0.14);
+  --faint: rgb(237 237 231 / 0.12);
+  --signal: #ffffff;
 }
-html[data-field='signal'],
-html:not(.js) [data-field='signal'] {
-  --ground: #ff5a1f;
-  --ink: #111110;
-  --muted: #3d1a0c;
-  --line: rgb(17 17 16 / 0.22);
-  --faint: rgb(17 17 16 / 0.2);
-  --flood: #f0f0ec;
+html[data-palette='studio'][data-field='contrast'],
+html[data-palette='studio']:not(.js) [data-field='contrast'] {
+  --ground: #ededE7;
+  --ink: #0e0e0e;
+  --muted: #5c5c57;
+  --line: rgb(14 14 14 / 0.14);
+  --faint: rgb(14 14 14 / 0.12);
+  --signal: #0e0e0e;
 }
+html[data-palette='studio'][data-field='accent'],
+html[data-palette='studio']:not(.js) [data-field='accent'] {
+  --ground: #1a1a19;
+  --ink: #ededE7;
+  --muted: #9b9b95;
+  --line: rgb(237 237 231 / 0.16);
+  --faint: rgb(237 237 231 / 0.12);
+  --signal: #ffffff;
+}
+html[data-palette='studio'] {
+  /* Buttons flood with chrome. */
+  --flood: linear-gradient(180deg, #ffffff 0%, #c9c9c3 45%, #7d7d78 100%);
+  --on-flood: #0b0b0b;
+  --ring: #ffffff;
+}
+
+/* Gallery white: a pale wall with the posters hung as dark prints, and one cobalt accent. */
+html[data-palette='gallery'],
+html[data-palette='gallery'][data-field='base'],
+html[data-palette='gallery']:not(.js) [data-field='base'] {
+  --ground: #eeeeea;
+  --ink: #0e0e0e;
+  --muted: #5c5c57;
+  --line: rgb(14 14 14 / 0.14);
+  --faint: rgb(14 14 14 / 0.12);
+  --signal: #2b46ff;
+}
+html[data-palette='gallery'][data-field='contrast'],
+html[data-palette='gallery']:not(.js) [data-field='contrast'] {
+  --ground: #0b0b0b;
+  --ink: #ededE7;
+  --muted: #8f8f89;
+  --line: rgb(237 237 231 / 0.14);
+  --faint: rgb(237 237 231 / 0.12);
+  --signal: #8ea0ff;
+}
+html[data-palette='gallery'][data-field='accent'],
+html[data-palette='gallery']:not(.js) [data-field='accent'] {
+  --ground: #2b46ff;
+  --ink: #ffffff;
+  --muted: #dfe4ff;
+  --line: rgb(255 255 255 / 0.24);
+  --faint: rgb(255 255 255 / 0.18);
+  --signal: #ffffff;
+}
+html[data-palette='gallery'] {
+  --flood: #2b46ff;
+  --on-flood: #ffffff;
+  --ring: #2b46ff;
+}
+
 html:not(.js) [data-field] {
   background: var(--ground);
   color: var(--ink);

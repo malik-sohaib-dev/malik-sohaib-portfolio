@@ -19,7 +19,7 @@ const nextPoster = posters[next.slug];
 
 <Base title={c.title} description={c.description}>
   <article>
-    <header class="cs-hero" data-field="paper">
+    <header class="cs-hero" data-field="base">
       <div class="wrap cs-hero__in">
         <div class="cs-hero__text">
           <a class="cs-back" href="/#work">← All work</a>
@@ -59,7 +59,7 @@ const nextPoster = posters[next.slug];
 
     {
       c.context.length > 0 && (
-        <section class="cs-context" data-field="paper" aria-label="Context">
+        <section class="cs-context" data-field="base" aria-label="Context">
           <div class="wrap cs-context__in">
             {c.context.map((p) => (
               <p>{p}</p>
@@ -71,7 +71,7 @@ const nextPoster = posters[next.slug];
 
     {
       c.decisions.length > 0 && (
-        <section class="cs-log" data-field="ink" aria-labelledby="log-title">
+        <section class="cs-log" data-field="contrast" aria-labelledby="log-title">
           <div class="wrap">
             <h2 class="cs-log__title display" id="log-title">
               Decisions
@@ -108,7 +108,7 @@ const nextPoster = posters[next.slug];
 
     {
       (c.video || c.shots?.length) && (
-        <section class="cs-shots" data-field="ink" aria-label="The product">
+        <section class="cs-shots" data-field="contrast" aria-label="The product">
           <div class="wrap cs-shots__grid">
             {c.video && (
               <figure class="shot shot--wide" data-video>
@@ -133,7 +133,7 @@ const nextPoster = posters[next.slug];
       )
     }
 
-    <section class="cs-out" data-field="paper" aria-labelledby="out-title">
+    <section class="cs-out" data-field="base" aria-labelledby="out-title">
       <div class="wrap cs-out__in">
         {
           c.outcomes.length > 0 && (
@@ -157,7 +157,7 @@ const nextPoster = posters[next.slug];
       </div>
     </section>
 
-    <nav class="cs-next" data-field="paper" aria-label="Next case study">
+    <nav class="cs-next" data-field="base" aria-label="Next case study">
       <div class="wrap cs-next__in">
         <p class="cs-next__label">Next</p>
         <a class="cs-next__title display" href={`/work/${next.slug}`}>{next.title}&nbsp;→</a>

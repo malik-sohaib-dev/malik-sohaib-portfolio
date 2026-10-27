@@ -1,25 +1,42 @@
 ---
+// The hero: the name poured in liquid chrome (art/blender/poster.py, hero-wide / hero-tall), with
+// liquid glass drifting through it and following the pointer (src/motion/liquid.ts). The name is
+// real text in the h1; the render is its picture.
+import { getImage } from 'astro:assets';
 import { hero, site } from '../data/site';
-const [first, last] = site.name.split(' ');
+import wideDark from '../assets/posters/hero-wide-dark.webp';
+import tallDark from '../assets/posters/hero-tall-dark.webp';
+import wideLight from '../assets/posters/hero-wide-light.webp';
+import tallLight from '../assets/posters/hero-tall-light.webp';
+
+// One art-directed picture per palette: wide on desktop, tall on phones.
+const art = async (wide: ImageMetadata, tall: ImageMetadata) => {
+  const w = await Promise.all([1280, 1920, 2400].map((width) => getImage({ src: wide, width, format: 'webp' })));
+  const t = await Promise.all([720, 1080].map((width) => getImage({ src: tall, width, format: 'webp' })));
+  return {
+    wide: w.map((i, k) => `${i.src} ${[1280, 1920, 2400][k]}w`).join(', '),
+    tall: t.map((i, k) => `${i.src} ${[720, 1080][k]}w`).join(', '),
+    src: w[1].src,
+  };
+};
+const pictures = { studio: await art(wideDark, tallDark), gallery: await art(wideLight, tallLight) };
 ---
 
-<section class="hero" data-field="paper" aria-labelledby="hero-name">
-  <div class="wrap hero__in">
-    <h1 class="hero__name display" id="hero-name">
-      <span class="hero__line"><span>{first}</span></span>
-      <span class="hero__line"><span>{last}</span></span>
-      <span class="sr-only">, {hero.role}</span>
-    </h1>
-
-    <!-- placeholder: the owner's portrait goes here (4:5). -->
-    <figure class="hero__portrait" data-placeholder>
-      <div class="hero__portrait-slot" role="img" aria-label="Portrait of Sohaib Malik, coming soon">
-        <span>Portrait</span>
+<section class="hero" data-field="base" aria-labelledby="hero-name">
+  {
+    (['studio', 'gallery'] as const).map((p) => (
+      <div class:list={['hero__art', `hero__art--${p}`]} data-liquid="auto" aria-hidden="true">
+        <picture>
+          <source media="(max-width: 899px)" srcset={pictures[p].tall} sizes="100vw" />
+          <img src={pictures[p].src} srcset={pictures[p].wide} sizes="100vw" alt="" fetchpriority={p === site.palette ? 'high' : 'low'} decoding="async" />
+        </picture>
       </div>
-    </figure>
-
+    ))
+  }
+  <div class="wrap hero__in">
+    <h1 class="sr-only" id="hero-name">{site.name}, {hero.role.toLowerCase()}</h1>
     <div class="hero__pitch">
-      <p class="hero__role display" aria-hidden="true">{hero.role}</p>
+      <p class="hero__role display">{hero.role}</p>
       <p class="hero__lede">{hero.lede}</p>
       <div class="hero__actions">
         <a class="btn" href={`mailto:${site.email}`}>Email me <span class="btn__arrow" aria-hidden="true">↗</span></a>
@@ -27,7 +44,6 @@ const [first, last] = site.name.split(' ');
         <a class="hero__more ul" href="/about">More about me</a>
       </div>
     </div>
-
     <dl class="hero__facts">
       {
         hero.facts.map((f) => (
@@ -42,60 +58,74 @@ const [first, last] = site.name.split(' ');
 </section>
 
 <style>
+  /* Two rows: the chrome name on top, filling what the copy leaves; the copy beneath. */
   .hero {
-    container-type: inline-size;
+    position: relative;
+    min-height: calc(100svh - 4rem);
+    display: grid;
+    grid-template-rows: minmax(46svh, 1fr) auto;
+    overflow: clip;
+  }
+  .hero__art {
+    position: relative;
+    grid-row: 1;
+    grid-column: 1;
+  }
+  .hero__art :global(img),
+  .hero__art :global(canvas) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 38%;
+  }
+  .hero__art :global(canvas) {
+    opacity: 0;
+    transition: opacity 300ms linear;
+  }
+  /* Only the active palette's picture is shown (and so observed by the glass). */
+  :global(html[data-palette='studio']) .hero__art--gallery,
+  :global(html[data-palette='gallery']) .hero__art--studio {
+    display: none;
+  }
+  /* The mirror floor fades into the ground, so the picture has no bottom edge. */
+  .hero__art::after {
+    content: '';
+    position: absolute;
+    inset: 62% 0 0;
+    background: linear-gradient(to top, var(--ground), transparent);
+    pointer-events: none;
   }
   .hero__in {
+    position: relative;
+    z-index: 1;
+    /* Empty space passes the pointer through to the glass; the copy itself catches it. */
+    pointer-events: none;
+    grid-row: 2;
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    column-gap: var(--gutter);
-    row-gap: 1.75rem;
-    padding-block: 1.25rem 3.5rem;
+    gap: 2rem var(--gutter);
+    margin-top: -3rem;
+    padding-block: 0 2rem;
   }
-  .hero__name {
-    grid-column: 1 / -1;
-    font-size: clamp(4rem, 31cqi, 18rem);
-    line-height: 0.84;
-    margin-left: -0.05em;
-  }
-  .hero__line {
-    display: block;
-    clip-path: inset(-0.1em -0.1em 0 -0.1em);
-  }
-  .hero__line > span {
-    display: block;
-  }
-  .hero__portrait {
-    grid-column: 1 / 3;
-    grid-row: 2 / span 2;
-  }
-  .hero__portrait-slot {
-    aspect-ratio: 4 / 5;
-    display: grid;
-    place-items: end start;
-    padding: 0.75rem;
-    background:
-      repeating-linear-gradient(135deg, transparent 0 10px, var(--line) 10px 11px),
-      color-mix(in srgb, var(--ink) 6%, transparent);
-    border: 1px solid var(--line);
-    font-size: var(--t-xs);
-    color: var(--muted);
-  }
-  .hero__pitch {
-    grid-column: 3 / -1;
-    display: grid;
-    gap: 1rem;
-    align-content: start;
+  .hero__in > * {
+    pointer-events: auto;
   }
   .hero__role {
-    font-size: clamp(1.6rem, 7cqi, 3.25rem);
+    font-size: clamp(2rem, 1.2rem + 3.6vw, 4.25rem);
     line-height: 0.9;
+  }
+  .hero__lede {
+    max-width: 36rem;
+    margin-top: 1rem;
+    line-height: 1.45;
   }
   .hero__actions {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 0.75rem 1.25rem;
+    margin-top: 1.5rem;
   }
   .hero__more {
     font-weight: 600;
@@ -105,115 +135,69 @@ const [first, last] = site.name.split(' ');
     align-items: center;
   }
   .hero__facts {
-    grid-column: 1 / -1;
     display: grid;
-    border-top: 1.5px solid var(--ink);
+    border-top: 1px solid var(--line);
   }
   .fact {
     display: grid;
     grid-template-columns: 7.5rem 1fr;
     align-items: baseline;
     gap: 1rem;
-    padding-block: 0.75rem;
+    padding-block: 0.7rem;
     border-bottom: 1px solid var(--line);
   }
   .fact__value {
     order: -1;
-    font-size: 2rem;
+    font-size: 1.75rem;
     text-transform: none;
   }
   .fact__label {
     font-size: var(--t-s);
     color: var(--muted);
   }
-
-  /* Phones: the role sits beside the portrait; the lede and actions run under both. */
-  @media (max-width: 899px) {
-    .hero__pitch {
-      display: contents;
-    }
-    .hero__role {
-      grid-column: 3 / -1;
-      grid-row: 2;
-      align-self: end;
-    }
-    .hero__lede,
-    .hero__actions {
-      grid-column: 1 / -1;
-    }
-    .hero__portrait {
-      grid-row: 2;
-    }
-  }
-
   @media (min-width: 900px) {
     .hero__in {
       grid-template-columns: repeat(12, minmax(0, 1fr));
-      grid-template-rows: auto auto;
-      min-height: calc(100svh - 4rem);
-      align-content: space-between;
-      padding-block: clamp(1rem, 3vh, 2rem) clamp(1.5rem, 4vh, 2.5rem);
-    }
-    .hero__name {
-      grid-column: 1 / 9;
-      grid-row: 1;
-      font-size: min(23cqi, 30svh);
-    }
-    .hero__portrait {
-      grid-column: 9 / -1;
-      grid-row: 1;
-      align-self: start;
-    }
-    .hero__portrait-slot {
-      max-height: 50svh;
-      margin-left: auto;
+      align-items: end;
+      padding-block: 0 2.5rem;
     }
     .hero__pitch {
       grid-column: 1 / 7;
-      grid-row: 2;
-      align-self: end;
-    }
-    .hero__lede {
-      max-width: 36rem;
-      font-size: 1.25rem;
-      line-height: 1.45;
     }
     .hero__facts {
       grid-column: 8 / -1;
-      grid-row: 2;
-      align-self: end;
+    }
+    .hero__lede {
+      font-size: 1.2rem;
     }
   }
 
-  @keyframes rise {
-    from {
-      translate: 0 100%;
-    }
-  }
-  @keyframes fade {
+  /* Intro, after the loader: the picture settles from a soft blur, then the copy rises. */
+  @keyframes settle {
     from {
       opacity: 0;
-      translate: 0 14px;
+      scale: 1.06;
+      filter: blur(14px);
     }
   }
-  :global(html.motion) .hero__line > span {
-    animation: rise var(--d-l) var(--ease) both;
+  @keyframes rise {
+    from {
+      opacity: 0;
+      translate: 0 18px;
+    }
   }
-  :global(html.motion) .hero__line + .hero__line > span {
-    animation-delay: 80ms;
+  :global(html.motion:not(.is-ready)) .hero__art,
+  :global(html.motion:not(.is-ready)) .hero__pitch,
+  :global(html.motion:not(.is-ready)) .hero__facts {
+    opacity: 0;
   }
-  :global(html.motion) .hero__portrait,
-  :global(html.motion) .hero__pitch,
-  :global(html.motion) .hero__facts {
-    animation: fade var(--d-m) var(--ease) both;
+  :global(html.motion.is-ready) .hero__art {
+    animation: settle 1400ms var(--ease) both;
   }
-  :global(html.motion) .hero__portrait {
-    animation-delay: 120ms;
+  :global(html.motion.is-ready) .hero__pitch {
+    animation: rise var(--d-l) var(--ease) 350ms both;
   }
-  :global(html.motion) .hero__pitch {
-    animation-delay: 180ms;
-  }
-  :global(html.motion) .hero__facts {
-    animation-delay: 240ms;
+  :global(html.motion.is-ready) .hero__facts {
+    animation: rise var(--d-l) var(--ease) 450ms both;
   }
 </style>

@@ -1,6 +1,7 @@
 // Boots the page behaviour and re-runs it after every client-side navigation.
 import { startCursor } from './cursor';
 import { startLiquid } from './liquid';
+import { runLoader } from './loader';
 
 type Cleanup = (() => void) | void;
 const inits: (() => Cleanup)[] = [initFields, initReveals, initVideos, initMenu, initScrolled];
@@ -13,7 +14,14 @@ export function onPage(init: () => Cleanup) {
 
 function flags() {
   const html = document.documentElement;
+  // Astro replaces <html> attributes on navigation: restore the palette being previewed.
+  try {
+    const p = sessionStorage.getItem('palette');
+    if (p) html.dataset.palette = p;
+  } catch {}
   html.classList.add('js');
+  // The loader only plays on the first load; every later page is ready at once.
+  if (!html.classList.contains('is-loading')) html.classList.add('is-ready');
   html.classList.toggle('motion', !matchMedia('(prefers-reduced-motion: reduce)').matches);
 }
 
@@ -25,6 +33,7 @@ function page() {
 export function start() {
   startCursor();
   startLiquid();
+  runLoader();
   document.addEventListener('astro:after-swap', flags);
   // Fires on the first load too.
   document.addEventListener('astro:page-load', page);
@@ -124,7 +133,16 @@ function initMenu(): Cleanup {
     const url = new URL(a.href);
     if (url.pathname === location.pathname && (!url.hash || url.pathname !== '/')) a.setAttribute('aria-current', 'page');
   }
-  const preview = (slug?: string) => previews.forEach((p) => p.classList.toggle('is-on', p.dataset.previewFor === slug));
+  // Show the hovered link's poster, and hand it the liquid glass while the menu is open.
+  const preview = (slug?: string) => {
+    let on: HTMLElement | null = null;
+    previews.forEach((p) => {
+      const hit = p.dataset.previewFor === slug;
+      p.classList.toggle('is-on', hit);
+      if (hit) on = p.querySelector<HTMLElement>('[data-liquid]');
+    });
+    if (!menu.hidden) document.dispatchEvent(new CustomEvent('liquid:prefer', { detail: on }));
+  };
 
   const set = (open: boolean) => {
     clearTimeout(closing);
@@ -134,10 +152,11 @@ function initMenu(): Cleanup {
     html.style.overflow = open ? 'hidden' : '';
     if (open) {
       menu.hidden = false;
-      preview(links[0]?.dataset.preview);
+      requestAnimationFrame(() => preview(links[0]?.dataset.preview));
       requestAnimationFrame(() => requestAnimationFrame(() => menu.classList.add('is-open')));
       links[0]?.focus({ preventScroll: true });
     } else {
+      document.dispatchEvent(new CustomEvent('liquid:prefer', { detail: null }));
       menu.classList.remove('is-open');
       // Hide once the wipe has played (at once under reduced motion).
       closing = window.setTimeout(() => (menu.hidden = true), html.classList.contains('motion') ? 700 : 0);

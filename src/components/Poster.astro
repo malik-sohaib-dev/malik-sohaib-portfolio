@@ -25,7 +25,7 @@ const Tag = decorative ? 'div' : 'a';
   data-poster
   style={morph ? `view-transition-name: poster-${p.slug}` : undefined}
 >
-  <span class="poster__bg" aria-hidden="true">
+  <span class="poster__bg" aria-hidden="true" data-liquid>
     <Image src={p.art} alt="" widths={[480, 720, 1200]} sizes={sizes} loading={eager ? 'eager' : 'lazy'} />
   </span>
   <span class="poster__meta poster__tl" aria-hidden="true"><span class="poster__num num">{p.index}</span>{p.kind}</span>

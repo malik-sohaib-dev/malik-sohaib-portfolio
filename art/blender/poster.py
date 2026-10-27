@@ -60,7 +60,7 @@ def melt(obj, voxel=0.008, strength=0.04, scale=0.4, smooth=12):
     s.factor = 0.8
 
 
-def text(body, size=1.0, loc=(0, 0, 0), rot_z=0.0, extrude=0.18):
+def text(body, size=1.0, loc=(0, 0, 0), rot_z=0.0, extrude=0.18, line=0.86):
     c = bpy.data.curves.new('t', 'FONT')
     c.body = body
     c.font = bpy.data.fonts.load(FONT)
@@ -70,6 +70,7 @@ def text(body, size=1.0, loc=(0, 0, 0), rot_z=0.0, extrude=0.18):
     c.bevel_resolution = 4
     c.align_x = 'CENTER'
     c.space_character = 1.1
+    c.space_line = line
     o = bpy.data.objects.new('t', c)
     col.objects.link(o)
     bpy.context.view_layer.objects.active = o
@@ -154,7 +155,7 @@ def drops(n, x0, top, bottom, pool_r):
 
 
 # The studio ----------------------------------------------------------------------------------------
-def studio(floor_grey=0.004, wall_top=0.0, wall_horizon=0.03):
+def studio(floor_grey=0.004, wall_top=0.0, wall_horizon=0.03, light=False):
     # A glossy floor that fades into the backdrop, so there is no visible horizon line.
     bpy.ops.mesh.primitive_plane_add(size=60, location=(0, 8, 0))
     floor = bpy.context.active_object
@@ -189,8 +190,12 @@ def studio(floor_grey=0.004, wall_top=0.0, wall_horizon=0.03):
     band.color_ramp.elements[0].color = (0, 0, 0, 1)
     band.color_ramp.elements[1].position = 0.9
     band.color_ramp.elements[1].color = (1.6, 1.6, 1.6, 1)
+    if light:
+        # On a pale sweep the chrome needs dark things to reflect: bands of near-black.
+        band.color_ramp.elements[0].color = (1, 1, 1, 1)
+        band.color_ramp.elements[1].color = (0.02, 0.02, 0.02, 1)
     add = n.nodes.new('ShaderNodeMixRGB')
-    add.blend_type = 'ADD'
+    add.blend_type = 'MULTIPLY' if light else 'ADD'
     add.inputs['Fac'].default_value = 1.0
     n.links.new(tc.outputs['Generated'], sep.inputs['Vector'])
     n.links.new(sep.outputs['Z'], ramp.inputs['Fac'])
@@ -206,6 +211,12 @@ def studio(floor_grey=0.004, wall_top=0.0, wall_horizon=0.03):
     gate.inputs['Fac'].default_value = 1.0
     n.links.new(band.outputs['Color'], gate.inputs['Color1'])
     n.links.new(sky.outputs['Result'], gate.inputs['Color2'])
+    if light:
+        # Light mode multiplies, so outside the sky the bands must be white, not black.
+        gate.blend_type = 'MIX'
+        gate.inputs['Color1'].default_value = (1, 1, 1, 1)
+        n.links.new(sky.outputs['Result'], gate.inputs['Fac'])
+        n.links.new(band.outputs['Color'], gate.inputs['Color2'])
     n.links.new(ramp.outputs['Color'], add.inputs['Color1'])
     n.links.new(gate.outputs['Color'], add.inputs['Color2'])
     # The camera sees only the dark backdrop; reflections see the bright bands too.
@@ -228,6 +239,9 @@ def studio(floor_grey=0.004, wall_top=0.0, wall_horizon=0.03):
         lo.location = loc
         lo.rotation_euler = rot
         col.objects.link(lo)
+        # The rim strips light the subject but stay out of the mirror floor's reflection.
+        if size < 2:
+            lo.visible_glossy = False
 
 
 def camera(target=(0, 0, 1.0), dist=7.5, height=1.6, lens=60):
@@ -247,8 +261,20 @@ def camera(target=(0, 0, 1.0), dist=7.5, height=1.6, lens=60):
 
 
 # Scenes ------------------------------------------------------------------------------------------
-studio()
-if scene_name == 'mini-havoc':
+LIGHT = scene_name.endswith('-light')
+base = scene_name[:-6] if LIGHT else scene_name
+if LIGHT:
+    # A pale studio: a grey mirror floor and a bright sweep, for the gallery palette.
+    studio(floor_grey=0.45, wall_top=0.62, wall_horizon=0.92, light=True)
+else:
+    studio()
+scene_name = base
+if scene_name in ('hero-wide', 'hero-tall'):
+    # The name, poured in chrome. Wide: one line per word, side by side in frame; tall: stacked big.
+    name = text('SOHAIB\nMALIK', 2.4, (0, 0.6, 1.0), line=0.82)
+    ground(name)
+    camera(target=(0, 0.6, 2.0), dist=12.5 if scene_name == 'hero-tall' else 7.9, height=1.7, lens=58)
+elif scene_name == 'mini-havoc':
     bean((0, 0.2, 0), 1.0, math.radians(-10))
     bean((-1.25, 1.0, 0), 0.75, math.radians(18))
     jumper = bean((1.15, 0.6, 1.1), 0.8, math.radians(-30), math.radians(12))

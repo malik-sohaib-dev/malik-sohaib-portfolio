@@ -4,6 +4,8 @@
 import activity from './activity.json';
 
 export const site = {
+  /** 'studio' or 'gallery'. A ?palette= query overrides it while the two are being compared. */
+  palette: 'studio' as 'studio' | 'gallery',
   name: 'Sohaib Malik',
   fullName: 'Malik Sohaib Ahmad',
   role: 'Full-stack and AI engineer',
