@@ -1,37 +1,55 @@
-// Liquid glass over an image: the same picture, refracted by a lens under the pointer, rippling out
-// from it, and drifting like liquid when the pointer moves fast. One small WebGL canvas moves into
-// whichever host is active.
-//   [data-liquid]        follows the pointer while hovered (posters)
-//   [data-liquid="auto"] also runs on its own, with a drifting ghost pointer, while it is on screen
+// Mercury over an image: a small stable-fluids simulation (splat, vorticity, pressure, advection)
+// stirred by the pointer, and the picture warped by the flow, with a metallic sheen where it moves
+// fastest. One WebGL2 canvas moves into whichever host is active.
+//   [data-liquid]        stirs while hovered (posters)
+//   [data-liquid="auto"] also stirs on its own with a drifting ghost pointer while it is on screen
 //                        and nothing else is hovered (the hero, the menu preview)
-// A host holds an <img>; the canvas sits over it and is removed when the glass has settled.
+// A host holds an <img>; the canvas sits over it and is removed once the fluid has come to rest.
 import { onFrame } from './clock';
 
-const VERT = `attribute vec2 p;varying vec2 v;void main(){v=p*.5+.5;gl_Position=vec4(p,0.,1.);}`;
-const FRAG = `precision highp float;
-uniform sampler2D uTex;uniform vec2 uMouse,uCover;uniform float uTime,uAmt,uVel,uAspect,uLens;varying vec2 v;
-float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
-float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
-  return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+1.),f.x),f.y);}
-void main(){
-  vec2 d=v-uMouse;d.x*=uAspect;float r=length(d)/uLens;vec2 dir=r>0.?d/(r*uLens):vec2(0.);
-  float lens=smoothstep(.34,0.,r);
-  vec2 o=-dir*lens*lens*.07*uLens;                              // the glass bulge
-  o+=dir*sin(r*36.-uTime*5.)*.006*exp(-r*5.);                  // ripples from the pointer
-  vec2 q=v*2.6+vec2(uTime*.11,-uTime*.07);
-  o+=(vec2(n(q),n(q+7.3))-.5)*(.014+uVel*.05);                  // liquid drift, faster when moving
-  o*=uAmt;o.x/=uAspect;
-  vec2 t=(v+o-.5)*uCover+.5;
-  vec3 c=texture2D(uTex,t).rgb;
-  float rim=smoothstep(.335,.3,r)*smoothstep(.24,.33,r);        // a thin highlight on the lens edge
-  c+=rim*.16*uAmt;
-  c+=lens*lens*.05*uAmt;
-  gl_FragColor=vec4(c,1.);
-}`;
+const VERT = `#version 300 es
+in vec2 aPos;uniform vec2 texel;out vec2 vUv,vL,vR,vT,vB;
+void main(){vUv=aPos*.5+.5;vL=vUv-vec2(texel.x,0.);vR=vUv+vec2(texel.x,0.);vT=vUv+vec2(0.,texel.y);vB=vUv-vec2(0.,texel.y);gl_Position=vec4(aPos,0.,1.);}`;
+const H = `#version 300 es
+precision highp float;in vec2 vUv,vL,vR,vT,vB;out vec4 o;`;
+const FS = {
+  splat: `${H}uniform sampler2D uTarget;uniform float aspect,radius;uniform vec2 point;uniform vec3 color;
+void main(){vec2 p=vUv-point;p.x*=aspect;o=vec4(texture(uTarget,vUv).xyz+exp(-dot(p,p)/radius)*color,1.);}`,
+  advect: `${H}uniform sampler2D uVelocity,uSource;uniform vec2 texel;uniform float dt,dissipation;
+void main(){vec2 c=vUv-dt*texture(uVelocity,vUv).xy*texel;o=vec4(dissipation*texture(uSource,c).xyz,1.);}`,
+  curl: `${H}uniform sampler2D uVelocity;
+void main(){float L=texture(uVelocity,vL).y,R=texture(uVelocity,vR).y,T=texture(uVelocity,vT).x,B=texture(uVelocity,vB).x;o=vec4(.5*(R-L-T+B),0.,0.,1.);}`,
+  vorticity: `${H}uniform sampler2D uVelocity,uCurl;uniform float curl,dt;
+void main(){float L=texture(uCurl,vL).x,R=texture(uCurl,vR).x,T=texture(uCurl,vT).x,B=texture(uCurl,vB).x,C=texture(uCurl,vUv).x;
+vec2 f=.5*vec2(abs(T)-abs(B),abs(R)-abs(L));f/=length(f)+1e-4;f*=curl*C;f.y*=-1.;
+o=vec4(texture(uVelocity,vUv).xy+f*dt,0.,1.);}`,
+  divergence: `${H}uniform sampler2D uVelocity;
+void main(){float L=texture(uVelocity,vL).x,R=texture(uVelocity,vR).x,T=texture(uVelocity,vT).y,B=texture(uVelocity,vB).y;
+vec2 C=texture(uVelocity,vUv).xy;if(vL.x<0.)L=-C.x;if(vR.x>1.)R=-C.x;if(vT.y>1.)T=-C.y;if(vB.y<0.)B=-C.y;o=vec4(.5*(R-L+T-B),0.,0.,1.);}`,
+  pressure: `${H}uniform sampler2D uPressure,uDivergence;
+void main(){float L=texture(uPressure,vL).x,R=texture(uPressure,vR).x,T=texture(uPressure,vT).x,B=texture(uPressure,vB).x;
+o=vec4((L+R+B+T-texture(uDivergence,vUv).x)*.25,0.,0.,1.);}`,
+  gradient: `${H}uniform sampler2D uPressure,uVelocity;
+void main(){float L=texture(uPressure,vL).x,R=texture(uPressure,vR).x,T=texture(uPressure,vT).x,B=texture(uPressure,vB).x;
+o=vec4(texture(uVelocity,vUv).xy-vec2(R-L,T-B),0.,1.);}`,
+  // The picture, pushed along the flow; where the flow is fast it catches light like mercury.
+  display: `${H}uniform sampler2D uImage,uVelocity;uniform vec2 uCover,texel;uniform float uAmt;
+void main(){vec2 v=texture(uVelocity,vUv).xy;
+vec2 g=vec2(length(texture(uVelocity,vR).xy)-length(texture(uVelocity,vL).xy),length(texture(uVelocity,vT).xy)-length(texture(uVelocity,vB).xy));
+vec2 t=(vUv-v*.0006*uAmt-.5)*uCover+.5;
+vec3 c=texture(uImage,t).rgb;
+float sheen=clamp(dot(normalize(g+1e-5),normalize(vec2(-.6,.8)))*length(g)*.004,-1.,1.)*uAmt;
+c+=sheen*.35;c*=1.-clamp(length(v)*.0006,0.,.25)*uAmt;
+o=vec4(c,1.);}`,
+};
 
 let started = false;
 const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 const finePointer = () => matchMedia('(hover: hover) and (pointer: fine)').matches;
+const SIM = 128; // simulation cells on the long side: the fluid is smooth, so it can be coarse
+
+type Target = { tex: WebGLTexture; fbo: WebGLFramebuffer };
+type Double = { read: Target; write: Target; swap(): void };
 
 export function startLiquid() {
   if (started) return;
@@ -39,77 +57,212 @@ export function startLiquid() {
   const canvas = document.createElement('canvas');
   canvas.className = 'liquid';
   canvas.setAttribute('aria-hidden', 'true');
-  const ctx = canvas.getContext('webgl', { alpha: false, antialias: false }) as WebGLRenderingContext | null;
-  if (!ctx) return;
+  const ctx = canvas.getContext('webgl2', { alpha: false, antialias: false, depth: false, stencil: false });
+  if (!ctx || !ctx.getExtension('EXT_color_buffer_float')) return;
   const gl = ctx;
 
-  const compile = (type: number, src: string) => {
-    const s = gl.createShader(type)!;
-    gl.shaderSource(s, src);
-    gl.compileShader(s);
-    return s;
-  };
-  const prog = gl.createProgram()!;
-  gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT));
-  gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAG));
-  gl.linkProgram(prog);
-  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return;
-  gl.useProgram(prog);
+  const programs: Record<string, { p: WebGLProgram; u: Record<string, WebGLUniformLocation | null> }> = {};
+  const vs = gl.createShader(gl.VERTEX_SHADER)!;
+  gl.shaderSource(vs, VERT);
+  gl.compileShader(vs);
+  for (const [name, src] of Object.entries(FS)) {
+    const fs = gl.createShader(gl.FRAGMENT_SHADER)!;
+    gl.shaderSource(fs, src);
+    gl.compileShader(fs);
+    const p = gl.createProgram()!;
+    gl.attachShader(p, vs);
+    gl.attachShader(p, fs);
+    gl.bindAttribLocation(p, 0, 'aPos');
+    gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) return;
+    const u: Record<string, WebGLUniformLocation | null> = {};
+    const n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
+    for (let i = 0; i < n; i++) {
+      const info = gl.getActiveUniform(p, i)!;
+      u[info.name] = gl.getUniformLocation(p, info.name);
+    }
+    programs[name] = { p, u };
+  }
   gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
-  const loc = gl.getAttribLocation(prog, 'p');
-  gl.enableVertexAttribArray(loc);
-  gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  gl.enableVertexAttribArray(0);
+  gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-  const u = (name: string) => gl.getUniformLocation(prog, name);
-  const U = { mouse: u('uMouse'), cover: u('uCover'), time: u('uTime'), amt: u('uAmt'), vel: u('uVel'), aspect: u('uAspect'), lens: u('uLens') };
 
   // Posters fall back to a CSS push-in without this class.
   const flag = () => document.documentElement.classList.toggle('liquid-on', !reduce());
   flag();
   document.addEventListener('astro:after-swap', flag);
 
-  const textures = new WeakMap<HTMLImageElement, WebGLTexture>();
-  const textureFor = (img: HTMLImageElement) => {
-    let t = textures.get(img);
+  // Simulation targets, sized to the host's aspect.
+  let simW = 0;
+  let simH = 0;
+  const target = (w: number, h: number, internal: number, format: number): Target => {
+    const tex = gl.createTexture()!;
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, internal, w, h, 0, format, gl.HALF_FLOAT, null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    const fbo = gl.createFramebuffer()!;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+    gl.viewport(0, 0, w, h);
+    gl.clearColor(0, 0, 0, 1);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    return { tex, fbo };
+  };
+  const double = (w: number, h: number, i: number, f: number): Double => {
+    const d = { read: target(w, h, i, f), write: target(w, h, i, f), swap: () => ([d.read, d.write] = [d.write, d.read]) };
+    return d;
+  };
+  let velocity: Double, pressure: Double, divergence: Target, curl: Target;
+  const resizeSim = (aspect: number) => {
+    const w = aspect >= 1 ? SIM : Math.round(SIM * aspect);
+    const h = aspect >= 1 ? Math.round(SIM / aspect) : SIM;
+    if (w === simW && h === simH) return clearSim();
+    simW = w;
+    simH = h;
+    velocity = double(w, h, gl.RG16F, gl.RG);
+    pressure = double(w, h, gl.R16F, gl.RED);
+    divergence = target(w, h, gl.R16F, gl.RED);
+    curl = target(w, h, gl.R16F, gl.RED);
+  };
+  const clearSim = () => {
+    for (const t of [velocity.read, velocity.write, pressure.read, pressure.write, divergence, curl]) {
+      gl.bindFramebuffer(gl.FRAMEBUFFER, t.fbo);
+      gl.viewport(0, 0, simW, simH);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+    }
+  };
+
+  const use = (name: keyof typeof FS) => {
+    const prog = programs[name];
+    gl.useProgram(prog.p);
+    return prog.u;
+  };
+  let unit = 0;
+  const bind = (loc: WebGLUniformLocation | null | undefined, tex: WebGLTexture) => {
+    gl.activeTexture(gl.TEXTURE0 + unit);
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.uniform1i(loc ?? null, unit++);
+  };
+  const blit = (to: Target | null, w: number, h: number) => {
+    gl.bindFramebuffer(gl.FRAMEBUFFER, to ? to.fbo : null);
+    gl.viewport(0, 0, w, h);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    unit = 0;
+  };
+
+  const images = new WeakMap<HTMLImageElement, WebGLTexture>();
+  const imageFor = (img: HTMLImageElement) => {
+    let t = images.get(img);
     if (!t) {
       t = gl.createTexture()!;
       gl.bindTexture(gl.TEXTURE_2D, t);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, img);
-      for (const [k, v] of [
-        [gl.TEXTURE_MIN_FILTER, gl.LINEAR],
-        [gl.TEXTURE_MAG_FILTER, gl.LINEAR],
-        [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE],
-        [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE],
-      ])
-        gl.texParameteri(gl.TEXTURE_2D, k, v);
-      textures.set(img, t);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      images.set(img, t);
     }
     return t;
   };
 
   type Mode = 'pointer' | 'auto';
   let host: HTMLElement | null = null;
+  let image: WebGLTexture | null = null;
   let mode: Mode = 'pointer';
   let stop: (() => void) | null = null;
-  const st = { amt: 0, target: 0, mx: 0.5, my: 0.5, ax: 0.5, ay: 0.5, vel: 0, t0: 0 };
-  const visible = new Set<HTMLElement>(); // auto hosts on screen
-  let preferred: HTMLElement | null = null; // an auto host something asked for (the menu preview)
+  let aspect = 1;
+  let cover = [1, 1];
+  const st = { amt: 0, target: 0, x: 0.5, y: 0.5, px: 0.5, py: 0.5, moved: false, last: 0, t0: 0, quiet: 0 };
+  const visible = new Set<HTMLElement>();
+  let preferred: HTMLElement | null = null;
 
   const size = () => {
     if (!host) return;
     const img = host.querySelector('img')!;
     const r = host.getBoundingClientRect();
-    const dpr = Math.min(devicePixelRatio, finePointer() ? 1.75 : 1);
+    const dpr = Math.min(devicePixelRatio, finePointer() ? 1.5 : 1);
     canvas.width = Math.max(1, Math.round(r.width * dpr));
     canvas.height = Math.max(1, Math.round(r.height * dpr));
-    gl.viewport(0, 0, canvas.width, canvas.height);
-    const boxA = r.width / r.height;
+    aspect = r.width / r.height;
     const imgA = img.naturalWidth / img.naturalHeight;
-    gl.uniform2f(U.cover, boxA > imgA ? 1 : boxA / imgA, boxA > imgA ? imgA / boxA : 1);
-    gl.uniform1f(U.aspect, boxA);
-    // A big host (the hero) gets a proportionally smaller lens.
-    gl.uniform1f(U.lens, Math.min(1, 560 / Math.max(r.width, 1)));
+    cover = [aspect > imgA ? 1 : aspect / imgA, aspect > imgA ? imgA / aspect : 1];
+    resizeSim(aspect);
+  };
+
+  // Push the fluid: a force along the pointer's motion, in a small soft disc.
+  const splat = (x: number, y: number, dx: number, dy: number, radius = 0.0018) => {
+    const u = use('splat');
+    bind(u.uTarget, velocity.read.tex);
+    gl.uniform1f(u.aspect, aspect);
+    gl.uniform2f(u.point, x, y);
+    gl.uniform3f(u.color, dx, dy, 0);
+    gl.uniform1f(u.radius, radius);
+    blit(velocity.write, simW, simH);
+    velocity.swap();
+  };
+
+  const step = (dt: number) => {
+    gl.disable(gl.BLEND);
+    const tx = 1 / simW;
+    const ty = 1 / simH;
+    let u = use('curl');
+    gl.uniform2f(u.texel, tx, ty);
+    bind(u.uVelocity, velocity.read.tex);
+    blit(curl, simW, simH);
+
+    u = use('vorticity');
+    gl.uniform2f(u.texel, tx, ty);
+    bind(u.uVelocity, velocity.read.tex);
+    bind(u.uCurl, curl.tex);
+    gl.uniform1f(u.curl, 28); // the swirl that makes it read as liquid metal, not a lens
+    gl.uniform1f(u.dt, dt);
+    blit(velocity.write, simW, simH);
+    velocity.swap();
+
+    u = use('divergence');
+    gl.uniform2f(u.texel, tx, ty);
+    bind(u.uVelocity, velocity.read.tex);
+    blit(divergence, simW, simH);
+
+    u = use('pressure');
+    gl.uniform2f(u.texel, tx, ty);
+    for (let i = 0; i < 14; i++) {
+      bind(u.uDivergence, divergence.tex);
+      bind(u.uPressure, pressure.read.tex);
+      blit(pressure.write, simW, simH);
+      pressure.swap();
+    }
+
+    u = use('gradient');
+    gl.uniform2f(u.texel, tx, ty);
+    bind(u.uPressure, pressure.read.tex);
+    bind(u.uVelocity, velocity.read.tex);
+    blit(velocity.write, simW, simH);
+    velocity.swap();
+
+    u = use('advect');
+    gl.uniform2f(u.texel, tx, ty);
+    bind(u.uVelocity, velocity.read.tex);
+    bind(u.uSource, velocity.read.tex);
+    gl.uniform1f(u.dt, dt);
+    gl.uniform1f(u.dissipation, 0.975);
+    blit(velocity.write, simW, simH);
+    velocity.swap();
+  };
+
+  const draw = () => {
+    const u = use('display');
+    gl.uniform2f(u.texel, 1 / simW, 1 / simH);
+    bind(u.uImage, image!);
+    bind(u.uVelocity, velocity.read.tex);
+    gl.uniform2f(u.uCover, cover[0], cover[1]);
+    gl.uniform1f(u.uAmt, st.amt);
+    blit(null, canvas.width, canvas.height);
   };
 
   function attach(next: HTMLElement, m: Mode) {
@@ -118,18 +271,18 @@ export function startLiquid() {
     mode = m;
     if (host !== next) {
       host = next;
-      gl.bindTexture(gl.TEXTURE_2D, textureFor(img));
+      image = imageFor(img);
       next.append(canvas);
       size();
+      clearSim();
       st.amt = 0;
-      st.vel = 0;
+      st.moved = false;
     }
-    st.target = m === 'auto' ? 0.75 : 1;
+    st.target = 1;
     run();
     return true;
   }
 
-  // When nothing is hovered, the preferred or an on-screen auto host takes the glass.
   function idle() {
     // Never behind the loader: it would only steal frames from it.
     if (reduce() || document.documentElement.classList.contains('is-loading')) return;
@@ -140,28 +293,37 @@ export function startLiquid() {
   function run() {
     stop ??= onFrame((now) => {
       st.t0 ||= now;
+      const dt = Math.min(0.033, (now - (st.last || now)) / 1000) || 0.016;
+      st.last = now;
       const t = (now - st.t0) / 1000;
       if (mode === 'auto') {
-        // The ghost pointer: a slow figure-of-eight across the host.
-        st.mx = 0.5 + 0.3 * Math.cos(t * 0.45);
-        st.my = 0.5 + 0.16 * Math.sin(t * 0.9);
+        // The ghost pointer: a wandering path that keeps the mercury stirring.
+        const nx = 0.5 + 0.32 * Math.cos(t * 0.37) + 0.06 * Math.sin(t * 1.9);
+        const ny = 0.5 + 0.22 * Math.sin(t * 0.61) + 0.05 * Math.cos(t * 2.3);
+        st.px = st.x;
+        st.py = st.y;
+        st.x = nx;
+        st.y = ny;
+        st.moved = true;
       }
-      st.amt += (st.target - st.amt) * 0.07;
-      const px = st.ax;
-      const py = st.ay;
-      st.ax += (st.mx - st.ax) * 0.14;
-      st.ay += (st.my - st.ay) * 0.14;
-      st.vel += (Math.min(1, Math.hypot(st.ax - px, st.ay - py) * 40) - st.vel) * 0.1;
-      gl.uniform2f(U.mouse, st.ax, st.ay);
-      gl.uniform1f(U.time, t);
-      gl.uniform1f(U.amt, st.amt);
-      gl.uniform1f(U.vel, st.vel);
-      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      if (st.moved) {
+        const k = 5200;
+        splat(st.x, st.y, (st.x - st.px) * k, (st.y - st.py) * k);
+        st.px = st.x;
+        st.py = st.y;
+        st.moved = false;
+        st.quiet = 0;
+      } else st.quiet += dt;
+      step(dt);
+      st.amt += (st.target - st.amt) * 0.08;
+      draw();
       canvas.style.opacity = st.amt > 0.01 ? '1' : '0';
+      // Settle and let go once the pointer has left and the fluid is calm.
       if (st.target === 0 && st.amt < 0.004) {
         canvas.remove();
         host = null;
         stop = null;
+        st.last = 0;
         idle();
         return false;
       }
@@ -173,26 +335,29 @@ export function startLiquid() {
 
   const enter = (e: PointerEvent) => {
     if (e.pointerType !== 'mouse' || reduce()) return;
-    const target = hostOf(e.target);
-    const next = target && liquidIn(target);
+    const t = hostOf(e.target);
+    const next = t && liquidIn(t);
     if (!next || (next === host && mode === 'pointer')) return;
     if (attach(next, 'pointer')) {
-      move(e);
-      st.ax = st.mx;
-      st.ay = st.my;
+      point(e);
+      st.px = st.x;
+      st.py = st.y;
     }
+  };
+  const point = (e: PointerEvent) => {
+    const r = host!.getBoundingClientRect();
+    st.x = (e.clientX - r.left) / r.width;
+    st.y = 1 - (e.clientY - r.top) / r.height;
   };
   const move = (e: PointerEvent) => {
     if (!host || mode !== 'pointer') return;
-    const r = host.getBoundingClientRect();
-    st.mx = (e.clientX - r.left) / r.width;
-    st.my = 1 - (e.clientY - r.top) / r.height;
+    point(e);
+    st.moved = true;
   };
   const leave = (e: PointerEvent) => {
     if (!host || mode !== 'pointer') return;
     const from = hostOf(e.target);
     if (from && from.contains(host) && !from.contains(e.relatedTarget as Node)) {
-      // An auto host goes back to drifting; a poster settles.
       if (host.dataset.liquid === 'auto') attach(host, 'auto');
       else st.target = 0;
     }
@@ -202,7 +367,6 @@ export function startLiquid() {
   document.addEventListener('pointerout', leave);
   addEventListener('resize', size);
 
-  // Auto hosts run while they are on screen.
   const io = new IntersectionObserver((entries) => {
     for (const e of entries) {
       const h = e.target as HTMLElement;
@@ -224,7 +388,7 @@ export function startLiquid() {
     });
   };
   observe();
-  // The loader hands over: start the hero's glass now.
+  // The loader hands over: start the hero's fluid now.
   new MutationObserver(() => !host && idle()).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
   document.addEventListener('astro:after-swap', () => {
     st.target = 0;
@@ -237,7 +401,6 @@ export function startLiquid() {
     observe();
   });
 
-  // Something can ask for an auto host to take the glass now (the menu's preview), or let go.
   document.addEventListener('liquid:prefer', ((e: CustomEvent<HTMLElement | null>) => {
     preferred = e.detail;
     if (preferred) attach(preferred, 'auto');

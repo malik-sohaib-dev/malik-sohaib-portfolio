@@ -2,6 +2,7 @@
 import { startCursor } from './cursor';
 import { startLiquid } from './liquid';
 import { runLoader } from './loader';
+import { startTilt } from './tilt';
 
 type Cleanup = (() => void) | void;
 const inits: (() => Cleanup)[] = [initFields, initReveals, initVideos, initMenu, initScrolled];
@@ -33,6 +34,7 @@ function page() {
 export function start() {
   startCursor();
   startLiquid();
+  startTilt();
   runLoader();
   document.addEventListener('astro:after-swap', flags);
   // Fires on the first load too.

@@ -153,12 +153,12 @@ html[data-palette='gallery']:not(.js) [data-field='contrast'] {
 }
 html[data-palette='gallery'][data-field='accent'],
 html[data-palette='gallery']:not(.js) [data-field='accent'] {
-  --ground: #2b46ff;
-  --ink: #ffffff;
-  --muted: #dfe4ff;
-  --line: rgb(255 255 255 / 0.24);
-  --faint: rgb(255 255 255 / 0.18);
-  --signal: #ffffff;
+  --ground: #0b0b0b;
+  --ink: #ededE7;
+  --muted: #8f8f89;
+  --line: rgb(237 237 231 / 0.14);
+  --faint: rgb(237 237 231 / 0.12);
+  --signal: #8ea0ff;
 }
 html[data-palette='gallery'] {
   --flood: #2b46ff;

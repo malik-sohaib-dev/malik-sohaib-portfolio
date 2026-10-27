@@ -55,7 +55,14 @@ const Tag = decorative ? 'div' : 'a';
   .poster__bg {
     position: absolute;
     inset: 0;
+  }
+  /* The tilt (src/motion/tilt.ts) eases the art itself; the CSS push-in is only the fallback. */
+  :global(html:not(.liquid-on)) .poster__bg {
     transition: scale var(--d-l) var(--ease);
+  }
+  .poster {
+    transform-style: flat;
+    will-change: transform;
   }
   .poster__bg :global(img),
   .poster__bg :global(canvas) {
