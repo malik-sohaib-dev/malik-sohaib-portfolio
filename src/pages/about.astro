@@ -47,7 +47,7 @@ import { posters } from '../data/posters';
         {
           about.verbs.map((v, i) => (
             <div class:list={['verbs__swap', { 'is-on': i === 0 }]} data-verb-poster={v.poster}>
-              <Poster poster={posters[v.poster]} sizes="(min-width: 900px) 30vw, 0px" />
+              <Poster poster={posters[v.poster]} sizes="(min-width: 900px) 30vw, 0px" decorative />
             </div>
           ))
         }
@@ -226,7 +226,8 @@ import { posters } from '../data/posters';
     translate: 0.15em 0;
   }
   .verb.is-on .verb__n {
-    color: var(--signal);
+    color: var(--ink);
+    box-shadow: inset 0 -3px 0 var(--signal);
   }
   .verbs__poster {
     display: none;
@@ -322,6 +323,16 @@ import { posters } from '../data/posters';
   .quote__by b {
     color: var(--ink);
     font-weight: 600;
+  }
+  .said__more a {
+    display: inline-block;
+    padding-block: 0.3rem;
+    transition: color var(--d-s) var(--ease);
+  }
+  @media (hover: hover) {
+    .said__more a:hover {
+      color: var(--ink);
+    }
   }
   .said__more {
     margin-top: 2.5rem;

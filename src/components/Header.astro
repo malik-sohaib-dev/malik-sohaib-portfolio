@@ -40,7 +40,7 @@ const previews = [...new Set(nav.map((n) => n.preview))];
         {
           previews.map((slug) => (
             <div class="menu__poster" data-preview-for={slug}>
-              <Poster poster={posters[slug]} sizes="(min-width: 900px) 30vw, 0px" />
+              <Poster poster={posters[slug]} sizes="(min-width: 900px) 30vw, 0px" decorative />
             </div>
           ))
         }
@@ -89,12 +89,19 @@ const previews = [...new Set(nav.map((n) => n.preview))];
     margin-right: auto;
     min-height: 44px;
   }
-  /* The mark is one bar of a chart. */
+  /* The mark is one bar of a chart; it grows when you point at the name. */
   .hdr__mark {
     width: 6px;
     height: 18px;
     background: var(--ink);
     box-shadow: inset 0 -7px 0 var(--signal);
+    transform-origin: 50% 100%;
+    transition: scale var(--d-m) var(--ease);
+  }
+  @media (hover: hover) {
+    .hdr__name:hover .hdr__mark {
+      scale: 1 1.35;
+    }
   }
   .hdr__cta {
     --h: 2.5rem;

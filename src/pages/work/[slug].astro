@@ -177,6 +177,15 @@ const nextPoster = posters[next.slug];
     font-size: var(--t-s);
     text-decoration: none;
     color: var(--muted);
+    transition:
+      color var(--d-s) var(--ease),
+      translate var(--d-m) var(--ease);
+  }
+  @media (hover: hover) {
+    .cs-back:hover {
+      color: var(--ink);
+      translate: -0.25rem 0;
+    }
   }
   .cs-hero__title {
     margin: 1rem 0 0 -0.04em;
@@ -262,9 +271,19 @@ const nextPoster = posters[next.slug];
     padding-block: 2rem;
     border-top: 1px solid var(--line);
   }
+  /* The id in ink with an orange marker: legible in every colour field. */
   .dec__id {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     font-size: 1.25rem;
-    color: var(--signal);
+  }
+  .dec__id::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--signal);
   }
   .dec__title {
     font-size: var(--t-l);

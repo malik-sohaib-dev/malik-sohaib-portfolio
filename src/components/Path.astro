@@ -168,6 +168,11 @@ const config = JSON.stringify({ start, end, zoomFrom, now });
       background-color var(--d-s) var(--ease),
       color var(--d-s) var(--ease);
   }
+  @media (hover: hover) {
+    .path__btn:hover {
+      background: color-mix(in srgb, var(--ink) 10%, transparent);
+    }
+  }
   .path__btn[aria-pressed='true'] {
     background: var(--ink);
     color: var(--ground);
@@ -300,7 +305,7 @@ const config = JSON.stringify({ start, end, zoomFrom, now });
   }
   .tl__text {
     position: absolute;
-    top: 11px;
+    top: 7px;
     left: 0;
     display: flex;
     align-items: baseline;
@@ -316,7 +321,16 @@ const config = JSON.stringify({ start, end, zoomFrom, now });
     left: -4px;
   }
   .tl__text a {
+    display: inline-block;
+    padding-block: 4px;
     text-decoration: none;
+    background: linear-gradient(currentColor, currentColor) no-repeat 0 85% / 0 1.5px;
+    transition: background-size var(--d-m) var(--ease);
+  }
+  @media (hover: hover) {
+    .tl__text a:hover {
+      background-size: 100% 1.5px;
+    }
   }
   .tl__detail {
     font-weight: 400;

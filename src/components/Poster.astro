@@ -11,8 +11,10 @@ interface Props {
   eager?: boolean;
   /** Morph into the same poster on the next page (view transitions). One per page. */
   morph?: boolean;
+  /** A preview inside a decorative container: out of the tab order and the accessibility tree. */
+  decorative?: boolean;
 }
-const { poster: p, sizes = '(min-width: 900px) 40vw, 92vw', eager = false, morph = false } = Astro.props;
+const { poster: p, sizes = '(min-width: 900px) 40vw, 92vw', eager = false, morph = false, decorative = false } = Astro.props;
 const external = /^https?:/.test(p.href);
 const loading = eager ? 'eager' : 'lazy';
 ---
@@ -23,7 +25,7 @@ const loading = eager ? 'eager' : 'lazy';
   {...external ? { rel: 'noopener' } : {}}
   data-poster
   data-cursor={external ? 'Visit' : 'View'}
-  aria-label={`${p.title}: ${p.caption}`}
+  {...decorative ? { tabindex: -1, 'aria-hidden': 'true' } : {}}
   style={morph ? `view-transition-name: poster-${p.slug}` : undefined}
 >
   <span class="poster__bg" aria-hidden="true">
@@ -50,6 +52,7 @@ const loading = eager ? 'eager' : 'lazy';
   <span class="poster__meta poster__tl" aria-hidden="true"><span class="poster__num num">{p.index}</span>{p.kind}</span>
   <span class="poster__meta poster__tr" aria-hidden="true">{p.meta.map((m) => <span>{m}</span>)}</span>
   <span class="poster__title display">{p.title}</span>
+  <span class="sr-only">: {p.caption}</span>
   <span class="poster__meta poster__bl" aria-hidden="true">{p.caption}</span>
   <span class="poster__meta poster__br" aria-hidden="true">
     {p.live && <span class="poster__dot" />}{p.status}{external && ' ↗'}
