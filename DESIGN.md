@@ -4,7 +4,7 @@ The plan for the 2026 rebuild. Later passes follow this file, and it changes whe
 
 ## Brief
 
-- **Who:** Malik Sohaib Ahmad ("Sohaib Malik"), full-stack and AI engineer in Pakistan. Senior
+- **Who:** Malik Sohaib Ahmad ("Malik Sohaib"), full-stack and AI engineer in Pakistan. Senior
   Full Stack Engineer at Arthur (Germany, remote) since Nov 2023. Before that BH Group (Lahore)
   and Council for Education (US, remote). In 2026 he built three products of his own: EzVenda
   (live), Mini Havoc (live) and GymPaid (in hand-over).

@@ -5,13 +5,13 @@ import { about, site } from '../data/site';
 import { posters } from '../data/posters';
 ---
 
-<Base footer="links" title="About" description="Sohaib Malik: a full-stack and AI engineer from Pakistan who takes products from an idea to production. How he works, his stack, and what people say.">
+<Base footer="links" title="About" description="Malik Sohaib: a full-stack and AI engineer from Pakistan who takes products from an idea to production. How he works, his stack, and what people say.">
   <section class="ab-hero" data-field="base" aria-labelledby="ab-title">
     <div class="wrap ab-hero__in">
       <h1 class="ab-hero__title display" id="ab-title">{about.greeting}</h1>
       <!-- placeholder: the owner's portrait (4:5). -->
       <figure class="ab-hero__portrait" data-placeholder>
-        <div class="ab-hero__slot" role="img" aria-label="Portrait of Sohaib Malik, coming soon"><span>Portrait</span></div>
+        <div class="ab-hero__slot" role="img" aria-label="Portrait of Malik Sohaib, coming soon"><span>Portrait</span></div>
       </figure>
       <div class="ab-hero__bio">
         {about.bio.map((p) => <p>{p}</p>)}

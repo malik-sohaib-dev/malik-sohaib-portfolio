@@ -6,12 +6,12 @@ import activity from './activity.json';
 export const site = {
   /** 'studio' or 'gallery'. A ?palette= query overrides it while the two are being compared. */
   palette: 'studio' as 'studio' | 'gallery',
-  name: 'Sohaib Malik',
+  name: 'Malik Sohaib',
   fullName: 'Malik Sohaib Ahmad',
   role: 'Full-stack and AI engineer',
   url: 'https://maliksohaib.com',
   description:
-    'Sohaib Malik is a full-stack and AI engineer who takes products from idea to production for companies and clients worldwide: design, frontend, backend, AI and launch.',
+    'Malik Sohaib is a full-stack and AI engineer who takes products from idea to production for companies and clients worldwide: design, frontend, backend, AI and launch.',
   email: 'maliksohaib.official@gmail.com',
   whatsapp: { label: '+92 305 4990819', href: 'https://wa.me/923054990819' },
   resume: 'https://drive.google.com/file/d/1GkmXoQbUvw-G0CaTWXMAeeqX4GtFjBji/view?usp=sharing',
@@ -232,7 +232,7 @@ export const gigs: Gig[] = [
 
 // The About page. The bio uses only facts on record (CV, the old site, the repos).
 export const about = {
-  greeting: 'Hey, I’m Sohaib.',
+  greeting: 'Hey, I’m Malik Sohaib.',
   bio: [
     'I studied mechatronics at Air University and found I liked the software half most. Since 2022 I’ve built for a US education nonprofit, a solar engineering company in Lahore, and Arthur in Germany, where I’m now a senior engineer.',
     'In 2026 I started taking my own ideas all the way: a commerce platform, 23 party games, and a gym system that shipped in two days. I like owning the whole thing, and writing down why I built it the way I did.',

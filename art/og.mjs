@@ -20,7 +20,7 @@ body{margin:0;width:1200px;height:630px;overflow:hidden;font-family:T;color:#111
 </style></head><body>
 <img class="mark" src="data:image/png;base64,${b64('art/src/monogram.png')}">
 <div class="dot"><i></i>maliksohaib.com</div>
-<div class="name">Sohaib<br>Malik</div>
+<div class="name">Malik<br>Sohaib</div>
 <div class="role">Full-stack and AI engineer. Idea to production.</div>
 <div class="frame"></div>
 </body></html>`;

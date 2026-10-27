@@ -271,9 +271,29 @@ else:
 scene_name = base
 if scene_name in ('hero-wide', 'hero-tall'):
     # The name, poured in chrome. Wide: one line per word, side by side in frame; tall: stacked big.
-    name = text('SOHAIB\nMALIK', 2.4, (0, 0.6, 1.0), line=0.82)
+    name = text('MALIK\nSOHAIB', 2.4, (0, 0.6, 1.0), line=0.82)
     ground(name)
     camera(target=(0, 0.6, 2.0), dist=12.5 if scene_name == 'hero-tall' else 7.9, height=1.7, lens=58)
+elif scene_name == 'mercury':
+    # A drop of mercury mid-splash: one heavy body with satellites pulling away on necks.
+    mb = bpy.data.metaballs.new('mercury')
+    mb.resolution = 0.03
+    mb.render_resolution = 0.008
+    mb.threshold = 0.6
+    body = mb.elements.new(type='ELLIPSOID')
+    body.co = (0, 0, 1.25)
+    body.radius = 2.1
+    body.size_x, body.size_y, body.size_z = 1.0, 0.9, 0.8
+    for co, r in [((1.25, -0.1, 1.75), 0.42), ((1.75, 0.0, 2.15), 0.2), ((-1.2, 0.1, 0.95), 0.48), ((-1.75, 0.0, 0.7), 0.24),
+                  ((0.35, -0.2, 2.15), 0.36), ((0.55, -0.1, 2.65), 0.16), ((-0.4, 0.0, 0.45), 0.5), ((2.25, 0.1, 2.5), 0.1)]:
+        e = mb.elements.new(type='BALL')
+        e.co = co
+        e.radius = r * 1.9
+    o = bpy.data.objects.new('mercury', mb)
+    col.objects.link(o)
+    o.data.materials.append(CHROME)
+    o.rotation_euler = (0, math.radians(-8), math.radians(14))
+    camera(target=(0, 0.2, 1.45), dist=8.2, height=1.5, lens=58)
 elif scene_name == 'mini-havoc':
     bean((0, 0.2, 0), 1.0, math.radians(-10))
     bean((-1.25, 1.0, 0), 0.75, math.radians(18))

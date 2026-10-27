@@ -1,4 +1,4 @@
-# Sohaib Malik: portfolio
+# Malik Sohaib: portfolio
 
 The personal site of Malik Sohaib Ahmad, full-stack and AI engineer. Static Astro, no
 animation libraries, about 400 KB for the home page including images.
