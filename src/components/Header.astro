@@ -1,5 +1,8 @@
 ---
+import Poster from './Poster.astro';
 import { nav, site } from '../data/site';
+import { posters } from '../data/posters';
+const previews = [...new Set(nav.map((n) => n.preview))];
 ---
 
 <header class="hdr">
@@ -7,28 +10,51 @@ import { nav, site } from '../data/site';
     <a class="hdr__name" href="/" aria-label={`${site.name}, home`}>
       <span class="hdr__mark" aria-hidden="true"></span>{site.name}
     </a>
-    <nav class="hdr__nav" aria-label="Main">
-      <ul>
-        {nav.map((n) => <li><a class="ul" href={n.href}>{n.label}</a></li>)}
-        <li><a class="ul" href={site.resume} rel="noopener">Résumé</a></li>
-      </ul>
-    </nav>
     <a class="btn hdr__cta" href={`mailto:${site.email}`}>Email me <span class="btn__arrow" aria-hidden="true">↗</span></a>
-    <button class="hdr__menu" type="button" aria-expanded="false" aria-controls="menu" data-menu-toggle>
+    <button class="hdr__menu" type="button" aria-expanded="false" aria-controls="menu" data-menu-toggle data-cursor="Open">
+      <span class="hdr__burger" aria-hidden="true"><i></i><i></i></span>
       <span data-menu-label>Menu</span>
     </button>
   </div>
+
+  <!-- The index: an orange panel wipes down, the links rise, a poster previews the hovered link. -->
   <div class="menu" id="menu" hidden data-menu>
-    <nav class="wrap" aria-label="Main">
-      <ul class="menu__list">
-        {nav.map((n) => <li><a class="menu__link display" href={n.href}>{n.label}</a></li>)}
-        <li><a class="menu__link display" href={site.resume} rel="noopener">Résumé</a></li>
-      </ul>
-      <div class="menu__actions">
-        <a class="btn" href={`mailto:${site.email}`}>Email me <span class="btn__arrow" aria-hidden="true">↗</span></a>
-        <a class="btn btn--ghost" href={site.whatsapp.href} rel="noopener">WhatsApp <span class="btn__arrow" aria-hidden="true">↗</span></a>
+    <div class="wrap menu__in">
+      <nav class="menu__nav" aria-label="Main">
+        <ol class="menu__list">
+          {
+            nav.map((n, i) => (
+              <li style={`--i:${i}`}>
+                <a class="menu__link display" href={n.href} data-preview={n.preview}>
+                  <span class="menu__mask">
+                    <span class="menu__word">{n.label}</span>
+                  </span>
+                  {'count' in n && <sup class="menu__count num">{n.count}</sup>}
+                </a>
+              </li>
+            ))
+          }
+        </ol>
+      </nav>
+      <div class="menu__preview" aria-hidden="true">
+        {
+          previews.map((slug) => (
+            <div class="menu__poster" data-preview-for={slug}>
+              <Poster poster={posters[slug]} sizes="(min-width: 900px) 30vw, 0px" />
+            </div>
+          ))
+        }
       </div>
-    </nav>
+      <div class="menu__foot">
+        <button class="menu__copy" type="button" data-copy={site.email} data-cursor="Copy">
+          <span data-copy-label>{site.email}</span>
+          <span class="menu__copy-hint" aria-hidden="true">Copy</span>
+        </button>
+        <a class="ul" href={site.whatsapp.href} rel="noopener">WhatsApp</a>
+        <a class="ul" href={site.resume} rel="noopener">Résumé</a>
+        {site.socials.map((s) => <a class="ul" href={s.href} rel="noopener">{s.label}</a>)}
+      </div>
+    </div>
   </div>
 </header>
 
@@ -47,9 +73,11 @@ import { nav, site } from '../data/site';
     border-bottom-color: var(--line);
   }
   .hdr__in {
+    position: relative;
+    z-index: 2;
     display: flex;
     align-items: center;
-    gap: 2rem;
+    gap: 1rem;
     height: 4rem;
   }
   .hdr__name {
@@ -61,66 +89,244 @@ import { nav, site } from '../data/site';
     margin-right: auto;
     min-height: 44px;
   }
-  /* The mark is one bar of the strip. */
+  /* The mark is one bar of a chart. */
   .hdr__mark {
     width: 6px;
     height: 18px;
     background: var(--ink);
     box-shadow: inset 0 -7px 0 var(--signal);
   }
-  .hdr__nav ul {
-    display: flex;
-    gap: 1.75rem;
-    font-size: var(--t-s);
-  }
   .hdr__cta {
     --h: 2.5rem;
   }
   .hdr__menu {
-    display: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
     min-height: 44px;
-    padding: 0 0.25rem;
+    padding: 0 0.25rem 0 0.5rem;
     border: 0;
     background: none;
     font-weight: 600;
     cursor: pointer;
   }
-  .menu {
-    position: fixed;
-    inset: 4rem 0 0;
-    background: var(--ground);
-    padding-block: 1.5rem 2rem;
-    overflow-y: auto;
-  }
-  .menu__list {
+  /* Two bars that cross into an X when open. */
+  .hdr__burger {
     display: grid;
-    gap: 0.25rem;
+    gap: 5px;
+    width: 22px;
   }
-  .menu__link {
+  .hdr__burger i {
     display: block;
-    font-size: clamp(3.5rem, 18vw, 6rem);
-    text-decoration: none;
-    padding-block: 0.05em;
+    height: 2px;
+    background: currentColor;
+    transition:
+      translate var(--d-m) var(--ease),
+      rotate var(--d-m) var(--ease);
   }
-  .menu__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    margin-top: 2rem;
+  :global(html.menu-open) .hdr__burger i:first-child {
+    translate: 0 3.5px;
+    rotate: 45deg;
+  }
+  :global(html.menu-open) .hdr__burger i:last-child {
+    translate: 0 -3.5px;
+    rotate: -45deg;
+  }
+  /* While open, the header sits on the orange panel. */
+  :global(html.menu-open) .hdr {
+    background: transparent;
+    backdrop-filter: none;
+    border-bottom-color: transparent;
+    color: #111110;
+  }
+  :global(html.menu-open) .hdr__mark {
+    background: #111110;
+    box-shadow: inset 0 -7px 0 #f0f0ec;
+  }
+  :global(html.menu-open) .hdr__cta {
+    visibility: hidden;
   }
   @media (max-width: 899px) {
-    .hdr__in {
-      gap: 1rem;
-    }
-    .hdr__nav {
-      display: none;
-    }
     .hdr__cta {
       --h: 2.25rem;
       padding: 0 1em;
     }
-    .hdr__menu {
+  }
+
+  .menu {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    padding-top: 4rem;
+    background: var(--signal);
+    color: #111110;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    --ink: #111110;
+    --muted: #3d1a0c;
+    --line: rgb(17 17 16 / 0.22);
+    --flood: #f0f0ec;
+  }
+  .menu__in {
+    display: grid;
+    gap: 2rem;
+    min-height: calc(100svh - 4rem);
+    padding-block: 1rem 1.5rem;
+    grid-template-rows: 1fr auto;
+  }
+  .menu__list {
+    display: grid;
+    align-content: center;
+  }
+  .menu__link {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 0.15em;
+    font-size: clamp(3.25rem, 13vh, 9.5rem);
+    line-height: 0.88;
+    text-decoration: none;
+  }
+  .menu__mask {
+    display: block;
+    overflow: clip;
+    padding-bottom: 0.04em;
+  }
+  .menu__word {
+    display: block;
+    transition: translate var(--d-m) var(--ease);
+  }
+  .menu__count {
+    font-size: 0.28em;
+    line-height: 1;
+    margin-top: 0.3em;
+    top: 0;
+  }
+  /* Hovered: the word slides right and the others step back. */
+  @media (hover: hover) {
+    .menu__list:has(.menu__link:hover) .menu__link:not(:hover) {
+      opacity: 0.35;
+    }
+    .menu__link:hover .menu__word {
+      translate: 0.12em 0;
+    }
+  }
+  .menu__link {
+    transition: opacity var(--d-s) var(--ease);
+  }
+  .menu__link[aria-current='page'] .menu__word {
+    text-decoration: underline;
+    text-decoration-thickness: 0.06em;
+    text-underline-offset: 0.08em;
+  }
+  .menu__preview {
+    display: none;
+  }
+  .menu__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.75rem;
+    padding-top: 1rem;
+    border-top: 1.5px solid #111110;
+    font-size: var(--t-s);
+  }
+  .menu__foot a {
+    min-height: 32px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .menu__copy {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 40px;
+    margin-right: auto;
+    padding: 0 0.9rem;
+    border: 1.5px solid #111110;
+    border-radius: 999px;
+    background: transparent;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      background-color var(--d-s) var(--ease),
+      color var(--d-s) var(--ease);
+  }
+  .menu__copy-hint {
+    font-size: var(--t-xs);
+    opacity: 0.6;
+  }
+  @media (hover: hover) {
+    .menu__copy:hover {
+      background: #111110;
+      color: var(--signal);
+    }
+  }
+
+  @media (min-width: 900px) {
+    .menu__in {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--gutter);
+    }
+    .menu__nav {
+      grid-column: 1 / 8;
+      align-self: center;
+    }
+    .menu__preview {
       display: block;
+      position: relative;
+      grid-column: 9 / -1;
+      align-self: center;
+      aspect-ratio: 4 / 5;
+      max-height: 68svh;
+    }
+    .menu__poster {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      translate: 0 3%;
+      scale: 0.96;
+      transition:
+        opacity var(--d-m) var(--ease),
+        translate var(--d-m) var(--ease),
+        scale var(--d-m) var(--ease);
+      pointer-events: none;
+    }
+    .menu__poster.is-on {
+      opacity: 1;
+      translate: 0 0;
+      scale: 1;
+    }
+    .menu__foot {
+      grid-column: 1 / -1;
+    }
+  }
+
+  /* Open and close: the panel wipes down from the header, the words rise one after another. */
+  :global(html.motion) .menu {
+    clip-path: inset(0 0 100% 0);
+    transition: clip-path 700ms var(--ease);
+  }
+  :global(html.motion) .menu.is-open {
+    clip-path: inset(0 0 0 0);
+  }
+  :global(html.motion) .menu .menu__word {
+    translate: 0 105%;
+    transition: translate 800ms var(--ease) calc(120ms + var(--i) * 55ms);
+  }
+  :global(html.motion) .menu.is-open .menu__word {
+    translate: 0 0;
+  }
+  :global(html.motion) .menu .menu__foot {
+    opacity: 0;
+    transition: opacity var(--d-m) var(--ease) 350ms;
+  }
+  :global(html.motion) .menu.is-open .menu__foot {
+    opacity: 1;
+  }
+  @media (hover: hover) {
+    :global(html.motion) .menu.is-open .menu__link:hover .menu__word {
+      translate: 0.12em 0;
+      transition-delay: 0ms;
     }
   }
 </style>

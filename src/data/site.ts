@@ -20,10 +20,14 @@ export const site = {
   location: 'Pakistan, working remotely with teams worldwide',
 } as const;
 
+// The full-screen index. `preview` names the poster shown beside a link while it is hovered.
 export const nav = [
-  { label: 'Path', href: '/#path' },
-  { label: 'Work', href: '/#work' },
-  { label: 'About', href: '/#about' },
+  { label: 'Work', href: '/#work', count: 3, preview: 'ezvenda' },
+  { label: 'Path', href: '/#path', preview: 'mini-havoc' },
+  { label: 'Teams', href: '/#companies', count: 3, preview: 'photon-elixir-phoenix' },
+  { label: 'Clients', href: '/#clients', preview: 'gympaid' },
+  { label: 'About', href: '/about', preview: 'arthur-vibe' },
+  { label: 'Contact', href: '/#contact', preview: 'bh-group' },
 ] as const;
 
 export const hero = {

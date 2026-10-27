@@ -107,23 +107,47 @@ function initMenu(): Cleanup {
   const btn = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
   const menu = document.querySelector<HTMLElement>('[data-menu]');
   if (!btn || !menu) return;
+  const html = document.documentElement;
   const label = btn.querySelector('[data-menu-label]')!;
+  const links = [...menu.querySelectorAll<HTMLAnchorElement>('.menu__link')];
+  const previews = [...menu.querySelectorAll<HTMLElement>('[data-preview-for]')];
+  const copy = menu.querySelector<HTMLButtonElement>('[data-copy]');
+  let closing = 0;
+
+  // The current page's link is marked.
+  for (const a of links) {
+    const url = new URL(a.href);
+    if (url.pathname === location.pathname && (!url.hash || url.pathname !== '/')) a.setAttribute('aria-current', 'page');
+  }
+  const preview = (slug?: string) => previews.forEach((p) => p.classList.toggle('is-on', p.dataset.previewFor === slug));
+
   const set = (open: boolean) => {
+    clearTimeout(closing);
     btn.setAttribute('aria-expanded', String(open));
     label.textContent = open ? 'Close' : 'Menu';
-    menu.hidden = !open;
-    document.documentElement.classList.toggle('menu-open', open);
-    if (open) menu.querySelector<HTMLElement>('a')?.focus();
+    html.classList.toggle('menu-open', open);
+    html.style.overflow = open ? 'hidden' : '';
+    if (open) {
+      menu.hidden = false;
+      preview(links[0]?.dataset.preview);
+      requestAnimationFrame(() => requestAnimationFrame(() => menu.classList.add('is-open')));
+      links[0]?.focus({ preventScroll: true });
+    } else {
+      menu.classList.remove('is-open');
+      // Hide once the wipe has played (at once under reduced motion).
+      closing = window.setTimeout(() => (menu.hidden = true), html.classList.contains('motion') ? 700 : 0);
+    }
   };
-  const toggle = () => set(Boolean(menu.hidden));
+  const toggle = () => set(Boolean(menu.hidden) || !menu.classList.contains('is-open'));
   const onKey = (e: KeyboardEvent) => {
-    if (e.key === 'Escape' && !menu.hidden) {
+    if (menu.hidden) return;
+    if (e.key === 'Escape') {
       set(false);
       btn.focus();
     }
     // Keep focus inside the open menu (the toggle counts as inside).
-    if (e.key === 'Tab' && !menu.hidden) {
-      const items = [btn, ...menu.querySelectorAll<HTMLElement>('a')];
+    if (e.key === 'Tab') {
+      const items = [btn, ...menu.querySelectorAll<HTMLElement>('a, button')];
       const i = items.indexOf(document.activeElement as HTMLElement);
       const next = e.shiftKey ? (i <= 0 ? items.length - 1 : i - 1) : i === items.length - 1 ? 0 : i + 1;
       e.preventDefault();
@@ -133,14 +157,38 @@ function initMenu(): Cleanup {
   const onClick = (e: Event) => {
     if ((e.target as HTMLElement).closest('a')) set(false);
   };
+  const onOver = (e: Event) => {
+    const a = (e.target as HTMLElement).closest<HTMLElement>('[data-preview]');
+    if (a) preview(a.dataset.preview);
+  };
+  const onCopy = async () => {
+    if (!copy) return;
+    const out = copy.querySelector('[data-copy-label]')!;
+    try {
+      await navigator.clipboard.writeText(copy.dataset.copy!);
+      out.textContent = 'Copied to clipboard';
+    } catch {
+      location.href = `mailto:${copy.dataset.copy}`;
+      return;
+    }
+    setTimeout(() => (out.textContent = copy.dataset.copy!), 1600);
+  };
   btn.addEventListener('click', toggle);
   document.addEventListener('keydown', onKey);
   menu.addEventListener('click', onClick);
+  menu.addEventListener('pointerover', onOver);
+  menu.addEventListener('focusin', onOver);
+  copy?.addEventListener('click', onCopy);
   return () => {
-    set(false);
+    html.classList.remove('menu-open');
+    html.style.overflow = '';
+    clearTimeout(closing);
     btn.removeEventListener('click', toggle);
     document.removeEventListener('keydown', onKey);
     menu.removeEventListener('click', onClick);
+    menu.removeEventListener('pointerover', onOver);
+    menu.removeEventListener('focusin', onOver);
+    copy?.removeEventListener('click', onCopy);
   };
 }
 
