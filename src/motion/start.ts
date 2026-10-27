@@ -1,5 +1,6 @@
 // Boots the page behaviour and re-runs it after every client-side navigation.
 import { startCursor } from './cursor';
+import { startLiquid } from './liquid';
 
 type Cleanup = (() => void) | void;
 const inits: (() => Cleanup)[] = [initFields, initReveals, initVideos, initMenu, initScrolled];
@@ -23,6 +24,7 @@ function page() {
 
 export function start() {
   startCursor();
+  startLiquid();
   document.addEventListener('astro:after-swap', flags);
   // Fires on the first load too.
   document.addEventListener('astro:page-load', page);

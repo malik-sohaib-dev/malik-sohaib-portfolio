@@ -1,21 +1,12 @@
-// The project posters: grayscale art, a liquid-chrome object (art/blender), and real type.
-// Hovering one floods in the real product from the pointer, so the poster sells and the product proves.
+// The project posters: grayscale Blender scenes (art/blender/poster.py, rendered by art/posters.sh)
+// with real type on top. Representations, not screenshots: the real screens live on the case pages.
 import type { ImageMetadata } from 'astro';
-import ezChrome from '../assets/posters/ezvenda-chrome.webp';
-import ezBg from '../assets/posters/ezvenda-bg.webp';
-import mhChrome from '../assets/posters/mini-havoc-chrome.webp';
-import mhBg from '../assets/posters/mini-havoc-bg.webp';
-import gpChrome from '../assets/posters/gympaid-chrome.webp';
-import phChrome from '../assets/posters/photon-elixir-phoenix-chrome.webp';
-import viChrome from '../assets/posters/arthur-vibe-chrome.webp';
-import bhChrome from '../assets/posters/bh-group-chrome.webp';
-import ezProduct from '../assets/work/ezvenda-product.webp';
-import mhSumo from '../assets/work/mini-havoc-sumo.jpg';
-
-export type Reveal =
-  | { kind: 'image'; src: ImageMetadata; alt: string }
-  | { kind: 'video'; src: string; poster: ImageMetadata; alt: string }
-  | { kind: 'fact'; text: string };
+import ezArt from '../assets/posters/ezvenda-art.webp';
+import mhArt from '../assets/posters/mini-havoc-art.webp';
+import gpArt from '../assets/posters/gympaid-art.webp';
+import phArt from '../assets/posters/photon-elixir-phoenix-art.webp';
+import viArt from '../assets/posters/arthur-vibe-art.webp';
+import bhArt from '../assets/posters/bh-group-art.webp';
 
 export type Poster = {
   slug: string;
@@ -31,10 +22,7 @@ export type Poster = {
   /** Bottom-right. */
   status: string;
   live?: boolean;
-  chrome: ImageMetadata;
-  bg?: ImageMetadata;
-  ground: 'dark' | 'light';
-  reveal: Reveal;
+  art: ImageMetadata;
 };
 
 export const posters: Record<string, Poster> = {
@@ -48,10 +36,7 @@ export const posters: Record<string, Poster> = {
     caption: 'Hosted shops with cash on delivery for small merchants in Pakistan.',
     status: 'Live',
     live: true,
-    chrome: ezChrome,
-    bg: ezBg,
-    ground: 'dark',
-    reveal: { kind: 'image', src: ezProduct, alt: 'A product page in a shop built on EzVenda.' },
+    art: ezArt,
   },
   'mini-havoc': {
     slug: 'mini-havoc',
@@ -63,10 +48,7 @@ export const posters: Record<string, Poster> = {
     caption: 'Party games on everyone’s phone. 23 games, up to 24 players.',
     status: 'Live',
     live: true,
-    chrome: mhChrome,
-    bg: mhBg,
-    ground: 'dark',
-    reveal: { kind: 'video', src: '/media/mini-havoc-sumo', poster: mhSumo, alt: 'Gameplay of Sumo Out!' },
+    art: mhArt,
   },
   gympaid: {
     slug: 'gympaid',
@@ -77,9 +59,7 @@ export const posters: Record<string, Poster> = {
     meta: ['2026', 'Built in two days'],
     caption: 'A member who pays on the 31st stays on the 31st, even through February.',
     status: 'In hand-over',
-    chrome: gpChrome,
-    ground: 'light',
-    reveal: { kind: 'fact', text: 'Who owes you money today, answered in one screen.' },
+    art: gpArt,
   },
   'photon-elixir-phoenix': {
     slug: 'photon-elixir-phoenix',
@@ -90,9 +70,7 @@ export const posters: Record<string, Poster> = {
     meta: ['Arthur', 'Under NDA'],
     caption: 'Many long-lived streams on Node, moved to channels on the BEAM.',
     status: 'Shipped',
-    chrome: phChrome,
-    ground: 'light',
-    reveal: { kind: 'fact', text: 'Five environments on two clouds, one codebase.' },
+    art: phArt,
   },
   'arthur-vibe': {
     slug: 'arthur-vibe',
@@ -103,9 +81,7 @@ export const posters: Record<string, Poster> = {
     meta: ['Arthur', 'Under NDA'],
     caption: 'An AI that runs the interviews, then writes the report you can question.',
     status: 'Shipped',
-    chrome: viChrome,
-    ground: 'light',
-    reveal: { kind: 'fact', text: 'Go Lambdas, Step Functions and pgvector, behind one provider adapter.' },
+    art: viArt,
   },
   'bh-group': {
     slug: 'bh-group',
@@ -116,8 +92,6 @@ export const posters: Record<string, Poster> = {
     meta: ['BH Group', '2022 to 2023'],
     caption: 'Design and simulate a solar system, then print a 24-page report.',
     status: 'pvx.ai',
-    chrome: bhChrome,
-    ground: 'light',
-    reveal: { kind: 'fact', text: 'Real-time solar calculations and generated electrical diagrams.' },
+    art: bhArt,
   },
 };

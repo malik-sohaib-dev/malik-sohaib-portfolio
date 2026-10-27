@@ -1,6 +1,6 @@
 ---
-// A project poster. Layers, back to front: grayscale art (or a studio ground), the real product
-// (revealed from the pointer on hover), the liquid-chrome object, the type, the frame.
+// A project poster: one grayscale Blender scene (art/blender/poster.py) with real type on top.
+// On hover, src/motion/liquid.ts lays a WebGL canvas over the art and runs liquid glass through it.
 import { Image } from 'astro:assets';
 import type { Poster } from '../data/posters';
 
@@ -11,43 +11,23 @@ interface Props {
   eager?: boolean;
   /** Morph into the same poster on the next page (view transitions). One per page. */
   morph?: boolean;
-  /** A preview inside a decorative container: out of the tab order and the accessibility tree. */
+  /** A preview inside a decorative container: not a link, and out of the accessibility tree. */
   decorative?: boolean;
 }
 const { poster: p, sizes = '(min-width: 900px) 40vw, 92vw', eager = false, morph = false, decorative = false } = Astro.props;
 const external = /^https?:/.test(p.href);
-const loading = eager ? 'eager' : 'lazy';
-// A decorative preview is not a link: the real link to the same page is elsewhere.
 const Tag = decorative ? 'div' : 'a';
 ---
 
 <Tag
-  class:list={['poster', `poster--${p.ground}`]}
+  class="poster"
   {...decorative ? { 'aria-hidden': 'true' } : { href: p.href, 'data-cursor': external ? 'Visit' : 'View', ...(external ? { rel: 'noopener' } : {}) }}
   data-poster
   style={morph ? `view-transition-name: poster-${p.slug}` : undefined}
 >
   <span class="poster__bg" aria-hidden="true">
-    {p.bg && <Image src={p.bg} alt="" widths={[480, 720, 1200]} sizes={sizes} loading={loading} />}
+    <Image src={p.art} alt="" widths={[480, 720, 1200]} sizes={sizes} loading={eager ? 'eager' : 'lazy'} />
   </span>
-
-  <span class="poster__reveal" aria-hidden="true">
-    {p.reveal.kind === 'image' && <Image src={p.reveal.src} alt="" widths={[480, 960]} sizes={sizes} loading="lazy" />}
-    {
-      p.reveal.kind === 'video' && (
-        <video muted loop playsinline preload="none" poster={p.reveal.poster.src} data-poster-video>
-          <source src={`${p.reveal.src}.webm`} type='video/webm; codecs="av01.0.05M.08"' />
-          <source src={`${p.reveal.src}.mp4`} type="video/mp4" />
-        </video>
-      )
-    }
-    {p.reveal.kind === 'fact' && <span class="poster__fact display">{p.reveal.text}</span>}
-  </span>
-
-  <span class="poster__chrome" aria-hidden="true">
-    <Image src={p.chrome} alt="" widths={[400, 720, 1200]} sizes={sizes} loading={loading} />
-  </span>
-
   <span class="poster__meta poster__tl" aria-hidden="true"><span class="poster__num num">{p.index}</span>{p.kind}</span>
   <span class="poster__meta poster__tr" aria-hidden="true">{p.meta.map((m) => <span>{m}</span>)}</span>
   <span class="poster__title display">{p.title}</span>
@@ -62,85 +42,32 @@ const Tag = decorative ? 'div' : 'a';
 <style>
   .poster {
     --pad: clamp(14px, 4.5cqi, 28px);
-    --fg: #f0f0ec;
     position: relative;
     display: block;
     aspect-ratio: 4 / 5;
     overflow: hidden;
     isolation: isolate;
     container-type: inline-size;
-    color: var(--fg);
+    color: #f0f0ec;
     text-decoration: none;
-    background: #0d0d0c;
+    background: #050505;
   }
-  .poster--light {
-    --fg: #111110;
-    background: radial-gradient(120% 90% at 30% 15%, #f2f2ee 0%, #c9c9c4 55%, #9d9d97 100%);
-  }
-  .poster__bg,
-  .poster__reveal,
-  .poster__chrome,
-  .poster__frame {
+  .poster__bg {
     position: absolute;
     inset: 0;
+    transition: scale var(--d-l) var(--ease);
   }
   .poster__bg :global(img),
-  .poster__reveal :global(img),
-  .poster__reveal video {
+  .poster__bg :global(canvas) {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
-  /* Shade the art so the corner type always reads. */
-  .poster--dark .poster__bg::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg, rgb(0 0 0 / 0.55), transparent 28%, transparent 55%, rgb(0 0 0 / 0.85));
-  }
-
-  /* The real product floods in from the pointer, like a drop landing. */
-  .poster__reveal {
-    z-index: 1;
-    clip-path: circle(0% at var(--mx, 50%) var(--my, 50%));
-    transition: clip-path 900ms var(--ease);
-    background: #111110;
-  }
-  .poster--light .poster__reveal {
-    background: var(--signal);
-  }
-  /* A scrim over the product, so the corner type and the title stay readable on any screen. */
-  .poster--dark .poster__reveal::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg, rgb(0 0 0 / 0.6), transparent 26%, transparent 45%, rgb(0 0 0 / 0.88));
-  }
-  .poster__fact {
-    position: absolute;
-    left: var(--pad);
-    right: var(--pad);
-    top: 18%;
-    font-size: clamp(1.25rem, 9cqi, 3.25rem);
-    line-height: 0.9;
-    color: #111110;
-  }
-
-  .poster__chrome {
-    z-index: 2;
-    transition:
-      translate var(--d-l) var(--ease),
-      scale var(--d-l) var(--ease),
-      opacity var(--d-m) var(--ease);
-  }
-  .poster__chrome :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    object-position: 50% 50%;
-    scale: 0.62;
-    translate: 0 -14%;
-    filter: drop-shadow(0 30px 40px rgb(0 0 0 / 0.35));
+  .poster__bg :global(canvas) {
+    opacity: 0;
+    transition: opacity 200ms linear;
   }
 
   .poster__meta {
@@ -168,6 +95,7 @@ const Tag = decorative ? 'div' : 'a';
     bottom: var(--pad);
     left: var(--pad);
     max-width: 62%;
+    color: rgb(240 240 236 / 0.75);
   }
   .poster__br {
     bottom: var(--pad);
@@ -180,91 +108,51 @@ const Tag = decorative ? 'div' : 'a';
     width: 0.6em;
     height: 0.6em;
     border-radius: 50%;
-    background: var(--signal);
+    background: currentColor;
+    box-shadow: 0 0 0 0.25em rgb(240 240 236 / 0.2);
   }
+  /* The title sits in the dark space the scenes leave above their subject. */
   .poster__title {
     position: absolute;
     z-index: 3;
+    top: calc(var(--pad) + 12cqi);
     left: calc(var(--pad) - 0.04em);
     right: var(--pad);
-    bottom: calc(var(--pad) + 13cqi);
-    font-size: min(19cqi, 8.5rem);
-    line-height: 0.82;
+    font-size: min(17cqi, 8rem);
+    line-height: 0.84;
     transition: translate var(--d-l) var(--ease);
   }
-  /* Small posters (two up on a phone) keep the title and drop the long caption. */
+  .poster__frame {
+    position: absolute;
+    z-index: 4;
+    inset: calc(var(--pad) / 2);
+    border: 1px solid currentColor;
+    opacity: 0.22;
+    pointer-events: none;
+    transition:
+      inset var(--d-m) var(--ease),
+      opacity var(--d-m) var(--ease);
+  }
   @container (max-width: 280px) {
     .poster__bl {
       display: none;
     }
-    .poster__title {
-      bottom: calc(var(--pad) + 9cqi);
-    }
   }
-  .poster__frame {
-    z-index: 4;
-    inset: calc(var(--pad) / 2);
-    border: 1px solid currentColor;
-    opacity: 0.3;
-  }
-
   @media (hover: hover) {
-    .poster:hover .poster__reveal,
-    .poster:focus-visible .poster__reveal {
-      clip-path: circle(150% at var(--mx, 50%) var(--my, 50%));
+    .poster:hover .poster__title,
+    .poster:focus-visible .poster__title {
+      translate: 0 -0.06em;
     }
-    /* Over a product the chrome evaporates; over a fact it lifts out of the way. */
-    .poster--dark:hover .poster__chrome,
-    .poster--dark:focus-visible .poster__chrome {
-      opacity: 0;
-      scale: 1.12;
+    .poster:hover .poster__frame,
+    .poster:focus-visible .poster__frame {
+      opacity: 0.5;
     }
-    .poster--light:hover .poster__chrome,
-    .poster--light:focus-visible .poster__chrome {
-      opacity: 0;
-      scale: 0.9;
-    }
-    /* Over the product the type turns light, so it reads on any reveal. */
-    .poster:hover,
-    .poster:focus-visible {
-      --fg: #f0f0ec;
-    }
-    .poster--light:hover,
-    .poster--light:focus-visible {
-      --fg: #111110;
-    }
-    .poster:hover .poster__title {
-      translate: 0 -0.08em;
+    /* Without the WebGL glass (reduced motion, no WebGL), the art still answers: a slow push in. */
+    :global(html:not(.liquid-on)) .poster:hover .poster__bg {
+      scale: 1.04;
     }
   }
-  .poster:active .poster__chrome {
-    scale: 0.98;
+  .poster:active .poster__frame {
+    inset: calc(var(--pad) / 2 + 3px);
   }
 </style>
-
-<script>
-  import { onPage } from '../motion/start';
-
-  // The reveal starts where the pointer enters; a poster's clip plays only while it is hovered.
-  onPage(() => {
-    const enter = (e: PointerEvent) => {
-      const el = (e.target as HTMLElement).closest<HTMLElement>('[data-poster]');
-      if (!el || e.pointerType === 'touch') return;
-      const r = el.getBoundingClientRect();
-      el.style.setProperty('--mx', `${((e.clientX - r.left) / r.width) * 100}%`);
-      el.style.setProperty('--my', `${((e.clientY - r.top) / r.height) * 100}%`);
-      el.querySelector<HTMLVideoElement>('[data-poster-video]')?.play().catch(() => {});
-    };
-    const leave = (e: PointerEvent) => {
-      const el = (e.target as HTMLElement).closest<HTMLElement>('[data-poster]');
-      if (!el || el.contains(e.relatedTarget as Node)) return;
-      el.querySelector<HTMLVideoElement>('[data-poster-video]')?.pause();
-    };
-    document.addEventListener('pointerover', enter);
-    document.addEventListener('pointerout', leave);
-    return () => {
-      document.removeEventListener('pointerover', enter);
-      document.removeEventListener('pointerout', leave);
-    };
-  });
-</script>

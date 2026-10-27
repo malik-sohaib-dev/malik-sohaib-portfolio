@@ -20,8 +20,7 @@ These run on my machine, not on Vercel (they need private repos, GitHub logins o
 
 ```bash
 npm run activity          # GitHub contributions from both accounts -> src/data/activity.json
-sh art/render.sh          # Blender chrome objects -> src/assets/posters/*-chrome.webp
-node art/warp.mjs         # grayscale warped poster backgrounds -> src/assets/posters/*-bg.webp
+sh art/posters.sh         # Blender poster scenes -> src/assets/posters/*-art.webp
 node art/og.mjs           # share card -> public/og.png
 ```
 

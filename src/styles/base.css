@@ -224,8 +224,9 @@ html.motion [data-reveal].is-in {
   height: 5.25rem;
   margin: 0.75rem 0 0 0.75rem;
   border-radius: 50%;
-  background: #111110;
-  color: #f0f0ec;
+  background: #f0f0ec;
+  color: #111110;
+  box-shadow: 0 0 0 1px rgb(17 17 16 / 0.35);
   font-family: var(--f-text);
   font-size: 0.8125rem;
   font-weight: 600;
@@ -237,9 +238,4 @@ html.motion [data-reveal].is-in {
 }
 .cursor.is-on.is-down .cursor__label {
   scale: 0.86;
-}
-/* On the orange menu the disc turns paper, so it stays visible. */
-html.menu-open .cursor__label {
-  background: #f0f0ec;
-  color: #111110;
 }

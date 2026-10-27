@@ -59,20 +59,21 @@ its own field.
 **Type:** Big Shoulders (display, numerals, uppercase) and Host Grotesk (text), both variable and
 self-hosted. No mono.
 
-**Posters:** 4:5, one subject, chrome object upper, title lower-left, captions in the same four
-corners, a thin inset frame. Dark posters use the project's own renders in grayscale with a baked
-water warp (`art/warp.mjs`); light posters sit on a grey studio ground. Chrome objects come from
-`art/blender/chrome.py` via `art/render.sh`:
+**Posters:** 4:5, one grayscale Blender scene each (`art/blender/poster.py`, rendered by
+`art/posters.sh`): liquid-chrome subjects on a black mirror floor in a dark studio, lit as one
+picture. Title in the dark space above the subject, captions in the same four corners, a thin
+inset frame. Representations, not screenshots; the real screens live on the case pages. Hovering
+runs liquid glass through the same image (`src/motion/liquid.ts`: a lens under the pointer,
+ripples, a drift that grows with pointer speed).
 
-| Poster | Object | Why |
-|---|---|---|
-| EzVenda | "Rs" | rupees, commerce |
-| Mini Havoc | a bean | the game's cast |
-| GymPaid | "31" | the anchor-day rule: the 31st stays the 31st |
-| Photon to Elixir | drops falling into one | many streams become one channel |
-| Arthur Vibe | "?" | an AI that asks the questions |
-| PV Smith | "kW" | solar |
-| 404 | "404" | melted |
+| Poster | Scene |
+|---|---|
+| EzVenda | a chrome "Rs" with coins |
+| Mini Havoc | three chrome beans, one jumping |
+| GymPaid | a chrome "31" and a dumbbell |
+| Photon to Elixir | streams of drops falling into one pool |
+| Arthur Vibe | a chrome "?" |
+| PV Smith | a chrome "kW" under a chrome sun |
 
 **Motion:** expo-out ease (`cubic-bezier(0.16, 1, 0.3, 1)`). No GSAP or Lenis: one rAF clock
 (`src/motion/clock.ts`) that runs only while something animates, IntersectionObserver for reveals
