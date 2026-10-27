@@ -227,3 +227,44 @@ export const gigs: Gig[] = [
   { name: 'Photopia', year: '2023', kind: 'Side project', summary: 'Generate images with OpenAI and share them, with the prompt, in a community feed.', url: 'https://photopia-beta.vercel.app' },
   { name: 'PriceWatch', year: '2023', kind: 'Side project', summary: 'Tracks Amazon prices with a scraper and emails you when one drops.', url: 'https://price-watch.vercel.app' },
 ];
+
+// The About page. The bio uses only facts on record (CV, the old site, the repos).
+export const about = {
+  greeting: 'Hey, I’m Sohaib.',
+  bio: [
+    'I studied mechatronics at Air University and found I liked the software half most. Since 2022 I’ve built for a US education nonprofit, a solar engineering company in Lahore, and Arthur in Germany, where I’m now a senior engineer.',
+    'In 2026 I started taking my own ideas all the way: a commerce platform, 23 party games, and a gym system that shipped in two days. I like owning the whole thing, and writing down why I built it the way I did.',
+  ],
+  // `poster` swaps in beside the list while a row is hovered.
+  verbs: [
+    { word: 'Own it', text: 'Idea, design, frontend, backend, AI and launch. One person you can hold to the result.', poster: 'ezvenda' },
+    { word: 'Write it down', text: 'Every choice I make without being told gets a written reason. EzVenda has 305 of them.', poster: 'gympaid' },
+    { word: 'Make it hold', text: 'Real-time systems, multi-cloud, load tests before launch, security reviews before deploys.', poster: 'photon-elixir-phoenix' },
+    { word: 'Teach it', text: 'I onboard and mentor engineers, and I ran the intern hiring and training at BH Group.', poster: 'bh-group' },
+  ],
+  stack: [
+    'TypeScript', 'React', 'Astro', 'Node', 'Fastify', 'Go', 'Elixir', 'Phoenix', 'Postgres', 'pgvector', 'Redis',
+    'three.js', 'WebSockets', 'AWS', 'GCP', 'Docker', 'Cloudflare', 'OpenAI', 'Claude', 'Gemini', 'MCP', 'Blender',
+  ],
+  current: [
+    { what: 'Senior Full Stack Engineer', where: 'Arthur, remote' },
+    { what: 'Building EzVenda and Mini Havoc', where: 'my own products' },
+  ],
+  testimonials: [
+    {
+      quote: 'He served as a Full Stack Developer before earning a well-deserved promotion to Senior Developer, a milestone that came as no surprise to anyone who worked with him.',
+      author: 'Syed Mujtaba Raza',
+      role: 'Team Lead, Arthur',
+    },
+    {
+      quote: 'Sohaib consistently delivered high-quality results and demonstrated a deep understanding of both front-end and back-end development.',
+      author: 'Harold Huggins',
+      role: 'Director, Council for Education',
+    },
+    {
+      quote: 'I highly recommend Sohaib for his exceptional communication skills, technical expertise, and strong teamwork abilities.',
+      author: 'Irtaza Hussan',
+      role: 'Team Lead, BH Group',
+    },
+  ],
+};

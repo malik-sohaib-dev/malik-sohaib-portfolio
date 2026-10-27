@@ -1,0 +1,429 @@
+---
+import Base from '../layouts/Base.astro';
+import Poster from '../components/Poster.astro';
+import { about, site } from '../data/site';
+import { posters } from '../data/posters';
+---
+
+<Base title="About" description="Sohaib Malik: a full-stack and AI engineer from Pakistan who takes products from an idea to production. How he works, his stack, and what people say.">
+  <section class="ab-hero" data-field="paper" aria-labelledby="ab-title">
+    <div class="wrap ab-hero__in">
+      <h1 class="ab-hero__title display" id="ab-title">{about.greeting}</h1>
+      <!-- placeholder: the owner's portrait (4:5). -->
+      <figure class="ab-hero__portrait" data-placeholder>
+        <div class="ab-hero__slot" role="img" aria-label="Portrait of Sohaib Malik, coming soon"><span>Portrait</span></div>
+      </figure>
+      <div class="ab-hero__bio">
+        {about.bio.map((p) => <p>{p}</p>)}
+      </div>
+      <ul class="ab-hero__now" aria-label="Currently">
+        {
+          about.current.map((c) => (
+            <li>
+              <span class="ab-hero__live" aria-hidden="true" />
+              <b>{c.what}</b> <span>{c.where}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="verbs" data-field="ink" aria-labelledby="verbs-title">
+    <div class="wrap verbs__in">
+      <h2 class="verbs__title display" id="verbs-title">How I work</h2>
+      <ol class="verbs__list" data-verbs>
+        {
+          about.verbs.map((v, i) => (
+            <li class="verb" data-verb={v.poster}>
+              <span class="verb__n num">0{i + 1}</span>
+              <h3 class="verb__word display">{v.word}</h3>
+              <p class="verb__text">{v.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+      <div class="verbs__poster" aria-hidden="true">
+        {
+          about.verbs.map((v, i) => (
+            <div class:list={['verbs__swap', { 'is-on': i === 0 }]} data-verb-poster={v.poster}>
+              <Poster poster={posters[v.poster]} sizes="(min-width: 900px) 30vw, 0px" />
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="stack" data-field="paper" aria-labelledby="stack-title">
+    <div class="wrap">
+      <h2 class="stack__title display" id="stack-title">What I build with</h2>
+      <ul class="stack__grid">
+        {about.stack.map((s) => <li class="stack__tile">{s}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <section class="said" data-field="paper" aria-labelledby="said-title">
+    <div class="wrap">
+      <h2 class="sr-only" id="said-title">What people I worked with say</h2>
+      <ul class="said__list">
+        {
+          about.testimonials.map((t) => (
+            <li>
+              <figure class="quote">
+                <blockquote class="quote__text">“{t.quote}”</blockquote>
+                <figcaption class="quote__by">
+                  <b>{t.author}</b> {t.role}
+                </figcaption>
+              </figure>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="said__more">
+        Full recommendations are on <a href={site.socials[0].href} rel="noopener">LinkedIn</a>.
+      </p>
+    </div>
+  </section>
+
+  <section class="mail" data-field="signal" aria-labelledby="mail-title">
+    <h2 class="sr-only" id="mail-title">Email</h2>
+    <a class="mail__marquee display" href={`mailto:${site.email}`} data-cursor="Write">
+      <span class="mail__track" aria-hidden="true">
+        {Array.from({ length: 4 }, () => <span>{site.email}</span>)}
+      </span>
+      <span class="sr-only">{site.email}</span>
+    </a>
+    <div class="wrap mail__actions">
+      <button class="btn" type="button" data-copy={site.email} data-cursor="Copy"><span data-copy-label>Copy email</span></button>
+      <a class="btn btn--ghost" href={site.whatsapp.href} rel="noopener">WhatsApp <span class="btn__arrow" aria-hidden="true">↗</span></a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* Hero: a giant hello beside the portrait, then the story. */
+  .ab-hero__in {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 2rem var(--gutter);
+    padding-block: clamp(2rem, 6vw, 4rem) clamp(4rem, 10vw, 7rem);
+  }
+  .ab-hero__title {
+    grid-column: 1 / -1;
+    font-size: clamp(4.5rem, 19vw, 16rem);
+    line-height: 0.8;
+    margin-left: -0.04em;
+    text-transform: none;
+  }
+  .ab-hero__portrait {
+    grid-column: 1 / 4;
+  }
+  .ab-hero__slot {
+    aspect-ratio: 4 / 5;
+    display: grid;
+    place-items: end start;
+    padding: 0.75rem;
+    background:
+      repeating-linear-gradient(135deg, transparent 0 10px, var(--line) 10px 11px),
+      color-mix(in srgb, var(--ink) 6%, transparent);
+    border: 1px solid var(--line);
+    font-size: var(--t-xs);
+    color: var(--muted);
+  }
+  .ab-hero__bio {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: 1.25rem;
+    font-size: clamp(1.25rem, 1.05rem + 0.8vw, 1.75rem);
+    line-height: 1.35;
+  }
+  .ab-hero__now {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: 0.5rem;
+    font-size: var(--t-s);
+  }
+  .ab-hero__now li {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+  }
+  .ab-hero__now span:last-child {
+    color: var(--muted);
+  }
+  .ab-hero__live {
+    width: 8px;
+    height: 8px;
+    flex: none;
+    border-radius: 50%;
+    background: var(--signal);
+    box-shadow: 0 0 0 1.5px var(--ink);
+    translate: 0 -1px;
+  }
+  @media (min-width: 900px) {
+    .ab-hero__in {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+    .ab-hero__title {
+      grid-column: 1 / 9;
+      align-self: start;
+    }
+    .ab-hero__portrait {
+      grid-column: 9 / -1;
+      grid-row: 1 / span 2;
+    }
+    .ab-hero__bio {
+      grid-column: 1 / 8;
+      align-self: end;
+    }
+    .ab-hero__now {
+      grid-column: 1 / 8;
+    }
+  }
+
+  /* How I work: rows on the left; the poster for the row in focus on the right. */
+  .verbs {
+    padding-block: clamp(5rem, 12vw, 9rem);
+  }
+  .verbs__in {
+    display: grid;
+    gap: 2rem var(--gutter);
+  }
+  .verbs__title {
+    font-size: var(--t-xl);
+    margin-left: -0.04em;
+  }
+  .verbs__list {
+    border-top: 1px solid var(--line);
+  }
+  .verb {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    gap: 0.4rem 1rem;
+    padding-block: 1.4rem;
+    border-bottom: 1px solid var(--line);
+    outline-offset: -2px;
+    cursor: default;
+  }
+  .verb__n {
+    grid-row: 1 / span 2;
+    font-size: 1.1rem;
+    color: var(--muted);
+    padding-top: 0.5rem;
+  }
+  .verb__word {
+    font-size: var(--t-l);
+    transition: translate var(--d-m) var(--ease);
+  }
+  .verb__text {
+    max-width: 34rem;
+    color: var(--muted);
+    font-size: var(--t-s);
+  }
+  .verb.is-on .verb__word {
+    translate: 0.15em 0;
+  }
+  .verb.is-on .verb__n {
+    color: var(--signal);
+  }
+  .verbs__poster {
+    display: none;
+  }
+  @media (min-width: 900px) {
+    .verbs__in {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+    .verbs__title {
+      grid-column: 1 / -1;
+    }
+    .verbs__list {
+      grid-column: 1 / 7;
+    }
+    .verbs__poster {
+      display: block;
+      grid-column: 8 / -1;
+      position: sticky;
+      top: 6rem;
+      align-self: start;
+      aspect-ratio: 4 / 5;
+    }
+    .verbs__swap {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      scale: 0.97;
+      transition:
+        opacity var(--d-m) var(--ease),
+        scale var(--d-m) var(--ease);
+    }
+    .verbs__swap.is-on {
+      opacity: 1;
+      scale: 1;
+    }
+  }
+
+  /* Stack: tiles that flood ink on hover. */
+  .stack {
+    padding-block: clamp(5rem, 12vw, 9rem) clamp(3rem, 6vw, 4rem);
+  }
+  .stack__title {
+    font-size: var(--t-l);
+    margin-bottom: 1.75rem;
+  }
+  .stack__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(9.5rem, 30%), 1fr));
+    border-top: 1px solid var(--line);
+    border-left: 1px solid var(--line);
+  }
+  .stack__tile {
+    display: grid;
+    place-items: center;
+    min-height: clamp(3.75rem, 10vw, 5.5rem);
+    padding: 0.5rem;
+    font-size: clamp(0.8125rem, 0.75rem + 0.3vw, 1rem);
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    font-weight: 600;
+    text-align: center;
+    transition:
+      background-color var(--d-s) var(--ease),
+      color var(--d-s) var(--ease);
+  }
+  @media (hover: hover) {
+    .stack__tile:hover {
+      background: var(--ink);
+      color: var(--ground);
+    }
+  }
+
+  /* What people say: big quotes, one per row. */
+  .said {
+    padding-block: clamp(3rem, 8vw, 6rem) clamp(5rem, 12vw, 9rem);
+  }
+  .said__list {
+    display: grid;
+    gap: clamp(2.5rem, 6vw, 4rem);
+  }
+  .quote__text {
+    margin: 0;
+    max-width: 52rem;
+    font-size: clamp(1.4rem, 1.1rem + 1.2vw, 2.25rem);
+    line-height: 1.25;
+    text-indent: -0.45em;
+  }
+  .quote__by {
+    margin-top: 1rem;
+    font-size: var(--t-s);
+    color: var(--muted);
+  }
+  .quote__by b {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .said__more {
+    margin-top: 2.5rem;
+    font-size: var(--t-s);
+    color: var(--muted);
+  }
+  @media (min-width: 900px) {
+    .said__list li:nth-child(2) {
+      margin-left: 25%;
+    }
+    .said__list li:nth-child(3) {
+      margin-left: 8%;
+    }
+  }
+
+  /* The email as a giant marquee. */
+  .mail {
+    padding-block: clamp(4rem, 9vw, 7rem);
+    overflow: hidden;
+  }
+  .mail__marquee {
+    position: relative;
+    overflow: clip;
+    display: block;
+    font-size: clamp(3.5rem, 14vw, 12rem);
+    line-height: 1;
+    text-decoration: none;
+    text-transform: none;
+    white-space: nowrap;
+  }
+  .mail__track {
+    display: inline-flex;
+    gap: 0.5em;
+    padding-right: 0.5em;
+  }
+  :global(html.motion) .mail__track {
+    animation: marquee 22s linear infinite;
+  }
+  @media (hover: hover) {
+    :global(html.motion) .mail__marquee:hover .mail__track {
+      animation-play-state: paused;
+    }
+  }
+  @keyframes marquee {
+    to {
+      translate: -50% 0;
+    }
+  }
+  .mail__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+</style>
+
+<script>
+  import { onPage } from '../motion/start';
+
+  // The row in focus (hovered, focused, or crossing the middle of the screen) picks the poster.
+  onPage(() => {
+    const list = document.querySelector<HTMLElement>('[data-verbs]');
+    if (!list) return;
+    const rows = [...list.querySelectorAll<HTMLElement>('[data-verb]')];
+    const swaps = [...document.querySelectorAll<HTMLElement>('[data-verb-poster]')];
+    const pick = (row: HTMLElement) => {
+      rows.forEach((r) => r.classList.toggle('is-on', r === row));
+      swaps.forEach((s) => s.classList.toggle('is-on', s.dataset.verbPoster === row.dataset.verb));
+    };
+    const onEvent = (e: Event) => {
+      const row = (e.target as HTMLElement).closest<HTMLElement>('[data-verb]');
+      if (row) pick(row);
+    };
+    const io = new IntersectionObserver((entries) => entries.forEach((e) => e.isIntersecting && pick(e.target as HTMLElement)), {
+      rootMargin: '-45% 0px -50% 0px',
+    });
+    rows.forEach((r) => io.observe(r));
+    pick(rows[0]);
+    list.addEventListener('pointerover', onEvent);
+    list.addEventListener('focusin', onEvent);
+    return () => {
+      io.disconnect();
+      list.removeEventListener('pointerover', onEvent);
+      list.removeEventListener('focusin', onEvent);
+    };
+  });
+
+  // Copy buttons on this page (the menu has its own).
+  onPage(() => {
+    const btns = [...document.querySelectorAll<HTMLButtonElement>('main [data-copy]')];
+    const copy = async (e: Event) => {
+      const b = e.currentTarget as HTMLButtonElement;
+      const out = b.querySelector('[data-copy-label]')!;
+      try {
+        await navigator.clipboard.writeText(b.dataset.copy!);
+        out.textContent = 'Copied';
+        setTimeout(() => (out.textContent = 'Copy email'), 1600);
+      } catch {
+        location.href = `mailto:${b.dataset.copy}`;
+      }
+    };
+    btns.forEach((b) => b.addEventListener('click', copy));
+    return () => btns.forEach((b) => b.removeEventListener('click', copy));
+  });
+</script>
