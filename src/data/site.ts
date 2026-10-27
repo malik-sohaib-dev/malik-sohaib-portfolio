@@ -106,7 +106,7 @@ export const products: Product[] = [
     stats: [
       { value: '51', label: 'screens across merchant, shop and admin' }, // HANDOVER: M1 = 51 screens
       { value: '39', label: 'tools an AI assistant can use (MCP)' }, // apps/api/src/modules/agents/mcp
-      { value: '305', label: 'written engineering decisions' }, // DECISIONS.md, ### D- headings
+      { value: '307', label: 'written engineering decisions' }, // DECISIONS.md, ### D- headings
     ],
     stack: ['TypeScript', 'Fastify', 'Postgres', 'React', 'Astro', 'BullMQ', 'Cloudflare'],
     media: {
@@ -238,7 +238,7 @@ export const about = {
   // `poster` swaps in beside the list while a row is hovered.
   verbs: [
     { word: 'Own it', text: 'Idea, design, frontend, backend, AI and launch. One person you can hold to the result.', poster: 'ezvenda' },
-    { word: 'Write it down', text: 'Every choice I make without being told gets a written reason. EzVenda has 305 of them.', poster: 'gympaid' },
+    { word: 'Write it down', text: 'Every choice I make without being told gets a written reason. EzVenda has 307 of them.', poster: 'gympaid' },
     { word: 'Make it hold', text: 'Real-time systems, multi-cloud, load tests before launch, security reviews before deploys.', poster: 'photon-elixir-phoenix' },
     { word: 'Teach it', text: 'I onboard and mentor engineers, and I ran the intern hiring and training at BH Group.', poster: 'bh-group' },
   ],
