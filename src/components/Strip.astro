@@ -1,0 +1,277 @@
+---
+// The commit strip: one bar per day since EzVenda's first commit, stacked by product.
+// variant "hero": tags, playhead, scrubbing. variant "mini": one product inked, the rest faint, static.
+import { commitData, products } from '../data/site';
+
+interface Props {
+  variant?: 'hero' | 'mini';
+  highlight?: string;
+}
+const { variant = 'hero', highlight } = Astro.props;
+const { from, days: n, series } = commitData;
+const slugs = products.map((p) => p.slug);
+const dates = Array.from({ length: n }, (_, i) => {
+  const d = new Date(`${from}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + i);
+  return d;
+});
+const perDay = dates.map((_, i) => slugs.map((s) => (series as Record<string, number[]>)[s][i]));
+const totals = perDay.map((c) => c.reduce((a, b) => a + b, 0));
+const max = Math.max(...totals);
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const fmt = (d: Date) => `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`;
+const dayIndex = (iso: string) => Math.round((Date.parse(`${iso}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 864e5);
+// Tags past the middle hang to the left of their day; rows alternate so neighbours never collide.
+const tags = products.map((p, k) => {
+  const i = dayIndex(p.started);
+  return { slug: p.slug, label: p.tag, date: fmt(new Date(`${p.started}T00:00:00Z`)), i, left: i / n > 0.5, row: k % 2 };
+});
+const total = totals.reduce((a, b) => a + b, 0);
+const names = Object.fromEntries(products.map((p) => [p.slug, p.name]));
+// Compact data for the client: [date label, ...counts per product] per day.
+const payload = JSON.stringify({ slugs, names, days: perDay.map((c, i) => [fmt(dates[i]), ...c]) });
+const label = `Commits per day from ${fmt(dates[0])} to ${fmt(dates[n - 1])}: ${total.toLocaleString('en-US')} in total`;
+---
+
+<figure class:list={['strip', `strip--${variant}`]} data-strip={variant} data-highlight={highlight}>
+  {
+    variant === 'hero' && (
+      <div class="strip__tags" aria-hidden="true">
+        {tags.map((t) => (
+          <a class:list={['strip__tag', { 'strip__tag--left': t.left }]} href={`#${t.slug}`} tabindex="-1" style={`--x:${(t.i + 0.5) / n};--row:${t.row}`} data-tag={t.slug} data-at={t.i}>
+            <span class="strip__tag-name">{t.label}</span>
+            <span class="strip__tag-date">{t.date}</span>
+          </a>
+        ))}
+      </div>
+    )
+  }
+  <div
+    class="strip__plot"
+    style={`--n:${n}`}
+    {...variant === 'hero'
+      ? {
+          role: 'slider',
+          tabindex: 0,
+          'aria-label': label,
+          'aria-valuemin': 0,
+          'aria-valuemax': n - 1,
+          'aria-valuenow': n - 1,
+          'aria-valuetext': `${fmt(dates[n - 1])}: ${totals[n - 1]} commits`,
+        }
+      : { 'aria-hidden': 'true' }}
+  >
+    {
+      perDay.map((c, i) => (
+        <span class="strip__day" style={`--h:${totals[i] / max};--i:${i}`} data-zero={totals[i] === 0 || undefined}>
+          {c.map((v, k) => v > 0 && <i data-p={slugs[k]} style={`flex-grow:${v}`} />)}
+        </span>
+      ))
+    }
+    {variant === 'hero' && <span class="strip__head" aria-hidden="true" style={`--x:${(n - 0.5) / n}`}><span class="strip__readout" data-readout /></span>}
+  </div>
+  {
+    variant === 'hero' && (
+      <figcaption class="strip__axis">
+        <span>{fmt(dates[0])}</span>
+        <span class="strip__hint"><span class="strip__hint-hover">Point at a day to read it</span><span class="strip__hint-touch">Drag across to read a day</span></span>
+        <span>{fmt(dates[n - 1])}</span>
+      </figcaption>
+    )
+  }
+  {variant === 'hero' && <script type="application/json" data-strip-data set:html={payload} />}
+</figure>
+
+<style>
+  .strip {
+    position: relative;
+    --bar-gap: clamp(1px, 0.25vw, 3px);
+  }
+  .strip__plot {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(var(--n, 90), minmax(0, 1fr));
+    grid-auto-flow: column;
+    column-gap: var(--bar-gap);
+    align-items: end;
+    height: var(--strip-h, clamp(96px, 20vh, 220px));
+    border-bottom: 1.5px solid var(--ink);
+    touch-action: pan-y;
+    outline-offset: 6px;
+    container-type: inline-size;
+  }
+  .strip--mini .strip__plot {
+    --strip-h: 56px;
+    border-bottom-width: 1px;
+  }
+  .strip__day {
+    display: flex;
+    flex-direction: column-reverse;
+    height: max(2px, calc(var(--h) * 100%));
+    transform-origin: 50% 100%;
+    transition: scale 500ms var(--ease);
+  }
+  .strip__day[data-zero] {
+    background: var(--faint);
+  }
+  .strip__day i {
+    display: block;
+    min-height: 1px;
+    background: var(--ink);
+    transition: background-color var(--d-s) var(--ease);
+  }
+  /* Product boundaries inside a day: a ground-coloured hairline. */
+  .strip__day i + i {
+    box-shadow: 0 1px 0 var(--ground);
+  }
+  .strip--mini .strip__day i {
+    background: var(--faint);
+  }
+  .strip--mini[data-highlight='ezvenda'] i[data-p='ezvenda'],
+  .strip--mini[data-highlight='mini-havoc'] i[data-p='mini-havoc'],
+  .strip--mini[data-highlight='gympaid'] i[data-p='gympaid'] {
+    background: var(--ink);
+  }
+  .strip[data-lit='ezvenda'] i[data-p='ezvenda'],
+  .strip[data-lit='mini-havoc'] i[data-p='mini-havoc'],
+  .strip[data-lit='gympaid'] i[data-p='gympaid'] {
+    background: var(--signal) !important;
+  }
+
+  /* Run-in: bars wait at the baseline until the playhead passes them. */
+  :global(html.motion) .strip--hero:not(.is-done) .strip__day:not(.is-up) {
+    scale: 1 0;
+  }
+
+  .strip__head {
+    position: absolute;
+    top: -14px;
+    bottom: -8px;
+    left: 0;
+    width: 0;
+    pointer-events: none;
+    translate: calc(var(--x) * 100cqi) 0;
+  }
+  .strip__head::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -1px;
+    width: 2px;
+    background: var(--signal);
+  }
+  .strip__head::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -5px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--signal);
+    animation: breathe 2.4s var(--ease) infinite;
+  }
+  @keyframes breathe {
+    50% {
+      scale: 1.5;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .strip__head::after {
+      animation: none;
+    }
+  }
+  .strip__readout {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 0;
+    translate: var(--rx, -100%) 0;
+    padding: 0.35rem 0.6rem;
+    background: var(--ink);
+    color: var(--ground);
+    font-size: var(--t-xs);
+    line-height: 1.3;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity var(--d-s) var(--ease);
+  }
+  .strip.is-scrubbing .strip__readout,
+  .strip__plot:focus-visible .strip__readout {
+    opacity: 1;
+  }
+  .strip__readout :global(b) {
+    font-weight: 600;
+  }
+
+  .strip__tags {
+    position: relative;
+    height: 3.4rem;
+  }
+  .strip__tag {
+    position: absolute;
+    bottom: calc(var(--row) * 1.7rem);
+    left: calc(var(--x) * 100%);
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    padding-left: 0.5rem;
+    border-left: 1.5px solid var(--ink);
+    font-size: var(--t-xs);
+    line-height: 1;
+    padding-block: 0.2rem;
+    white-space: nowrap;
+    text-decoration: none;
+    transition:
+      opacity var(--d-m) var(--ease),
+      translate var(--d-m) var(--ease);
+  }
+  .strip__tag--left {
+    translate: -100% 0;
+    border-left: 0;
+    border-right: 1.5px solid var(--ink);
+    padding-left: 0;
+    padding-right: 0.5rem;
+    flex-direction: row-reverse;
+  }
+  .strip__tag-name {
+    font-weight: 600;
+  }
+  .strip__tag-date {
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  :global(html.motion) .strip--hero:not(.is-done) .strip__tag:not(.is-up) {
+    opacity: 0;
+    translate: 0 8px;
+  }
+  :global(html.motion) .strip--hero:not(.is-done) .strip__tag--left:not(.is-up) {
+    translate: -100% 8px;
+  }
+  .strip__axis {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0.6rem;
+    font-size: var(--t-xs);
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .strip__hint {
+    display: none;
+  }
+  :global(html.js) .strip__hint {
+    display: inline;
+  }
+  .strip__hint-touch {
+    display: none;
+  }
+  @media (hover: none) {
+    .strip__hint-hover {
+      display: none;
+    }
+    .strip__hint-touch {
+      display: inline;
+    }
+  }
+</style>

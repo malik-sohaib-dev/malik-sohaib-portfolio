@@ -1,0 +1,126 @@
+---
+import { nav, site } from '../data/site';
+---
+
+<header class="hdr">
+  <div class="wrap hdr__in">
+    <a class="hdr__name" href="/" aria-label={`${site.name}, home`}>
+      <span class="hdr__mark" aria-hidden="true"></span>{site.name}
+    </a>
+    <nav class="hdr__nav" aria-label="Main">
+      <ul>
+        {nav.map((n) => <li><a class="ul" href={n.href}>{n.label}</a></li>)}
+        <li><a class="ul" href={site.resume} rel="noopener">Résumé</a></li>
+      </ul>
+    </nav>
+    <a class="btn hdr__cta" href={`mailto:${site.email}`}>Email me <span class="btn__arrow" aria-hidden="true">↗</span></a>
+    <button class="hdr__menu" type="button" aria-expanded="false" aria-controls="menu" data-menu-toggle>
+      <span data-menu-label>Menu</span>
+    </button>
+  </div>
+  <div class="menu" id="menu" hidden data-menu>
+    <nav class="wrap" aria-label="Main">
+      <ul class="menu__list">
+        {nav.map((n) => <li><a class="menu__link display" href={n.href}>{n.label}</a></li>)}
+        <li><a class="menu__link display" href={site.resume} rel="noopener">Résumé</a></li>
+      </ul>
+      <div class="menu__actions">
+        <a class="btn" href={`mailto:${site.email}`}>Email me <span class="btn__arrow" aria-hidden="true">↗</span></a>
+        <a class="btn btn--ghost" href={site.whatsapp.href} rel="noopener">WhatsApp <span class="btn__arrow" aria-hidden="true">↗</span></a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .hdr {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: color-mix(in srgb, var(--ground) 88%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--d-s) var(--ease);
+  }
+  :global(html.scrolled) .hdr {
+    border-bottom-color: var(--line);
+  }
+  .hdr__in {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    height: 4rem;
+  }
+  .hdr__name {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-weight: 600;
+    text-decoration: none;
+    margin-right: auto;
+    min-height: 44px;
+  }
+  /* The mark is one bar of the strip. */
+  .hdr__mark {
+    width: 6px;
+    height: 18px;
+    background: var(--ink);
+    box-shadow: inset 0 -7px 0 var(--signal);
+  }
+  .hdr__nav ul {
+    display: flex;
+    gap: 1.75rem;
+    font-size: var(--t-s);
+  }
+  .hdr__cta {
+    --h: 2.5rem;
+  }
+  .hdr__menu {
+    display: none;
+    min-height: 44px;
+    padding: 0 0.25rem;
+    border: 0;
+    background: none;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .menu {
+    position: fixed;
+    inset: 4rem 0 0;
+    background: var(--ground);
+    padding-block: 1.5rem 2rem;
+    overflow-y: auto;
+  }
+  .menu__list {
+    display: grid;
+    gap: 0.25rem;
+  }
+  .menu__link {
+    display: block;
+    font-size: clamp(3.5rem, 18vw, 6rem);
+    text-decoration: none;
+    padding-block: 0.05em;
+  }
+  .menu__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+  @media (max-width: 899px) {
+    .hdr__in {
+      gap: 1rem;
+    }
+    .hdr__nav {
+      display: none;
+    }
+    .hdr__cta {
+      --h: 2.25rem;
+      padding: 0 1em;
+    }
+    .hdr__menu {
+      display: block;
+    }
+  }
+</style>
