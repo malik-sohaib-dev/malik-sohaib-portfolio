@@ -1,203 +1,511 @@
 ---
-// The hero: the name poured in liquid chrome (art/blender/poster.py, hero-wide / hero-tall), with
-// liquid glass drifting through it and following the pointer (src/motion/liquid.ts). The name is
-// real text in the h1; the render is its picture.
-import { getImage } from 'astro:assets';
+// The hero, the Mercury Stage: a stirrable mercury wallpaper, the name set large on it, what I
+// build as a short index, and the work as a slide of posters along the bottom. A service row
+// lights the project in the slide that proves it. On phones the index moves below the slide.
+import { Image } from 'astro:assets';
+import Poster from './Poster.astro';
 import { hero, site } from '../data/site';
-import wideDark from '../assets/posters/hero-wide-dark.webp';
-import tallDark from '../assets/posters/hero-tall-dark.webp';
-import wideLight from '../assets/posters/hero-wide-light.webp';
-import tallLight from '../assets/posters/hero-tall-light.webp';
+import { posters } from '../data/posters';
+import wallpaper from '../assets/hero/mercury.webp';
 
-// One art-directed picture per palette: wide on desktop, tall on phones.
-const art = async (wide: ImageMetadata, tall: ImageMetadata) => {
-  const w = await Promise.all([1280, 1920, 2400].map((width) => getImage({ src: wide, width, format: 'webp' })));
-  const t = await Promise.all([720, 1080].map((width) => getImage({ src: tall, width, format: 'webp' })));
-  return {
-    wide: w.map((i, k) => `${i.src} ${[1280, 1920, 2400][k]}w`).join(', '),
-    tall: t.map((i, k) => `${i.src} ${[720, 1080][k]}w`).join(', '),
-    src: w[1].src,
-  };
-};
-const pictures = { studio: await art(wideDark, tallDark), gallery: await art(wideLight, tallLight) };
+const apps = ['ezvenda', 'mini-havoc', 'gympaid', 'photon-elixir-phoenix', 'arthur-vibe', 'bh-group'].map((s) => posters[s]);
+// Each service points at the project that proves it.
+const services = [
+  { name: 'Products and web apps', example: 'EzVenda: a commerce platform, from the first commit to merchants trading on it.', slug: 'ezvenda' },
+  { name: 'Real-time apps and games', example: 'Mini Havoc: 23 multiplayer games on a 30 Hz server, load-tested to 480 players.', slug: 'mini-havoc' },
+  { name: 'AI agents and integrations', example: 'Arthur Vibe: AI-led interviews with reports you can question.', slug: 'arthur-vibe' },
+  { name: 'Tools for a business', example: 'GymPaid: renewals and WhatsApp reminders for a gym, built in two days.', slug: 'gympaid' },
+];
 ---
 
-<section class="hero" data-field="base" aria-labelledby="hero-name">
-  {
-    (['studio', 'gallery'] as const).map((p) => (
-      <div class:list={['hero__art', `hero__art--${p}`]} data-liquid="auto" aria-hidden="true">
-        <picture>
-          <source media="(max-width: 899px)" srcset={pictures[p].tall} sizes="100vw" />
-          <img src={pictures[p].src} srcset={pictures[p].wide} sizes="100vw" alt="" fetchpriority={p === site.palette ? 'high' : 'low'} decoding="async" />
-        </picture>
-      </div>
-    ))
-  }
-  <div class="wrap hero__in">
-    <h1 class="sr-only" id="hero-name">{site.name}, {hero.role.toLowerCase()}</h1>
-    <div class="hero__pitch">
-      <p class="hero__role display">{hero.role}</p>
-      <p class="hero__lede">{hero.lede}</p>
-      <div class="hero__actions">
+<section class="hs" data-field="base" aria-labelledby="hs-name" data-stage>
+  <div class="hs__wall" data-liquid="auto" aria-hidden="true">
+    <Image src={wallpaper} alt="" widths={[800, 1280, 1920, 2400]} sizes="100vw" loading="eager" />
+  </div>
+
+  <div class="hs__top wrap">
+    <p class="hs__status"><span class="hs__dot" aria-hidden="true"></span>Open to new projects · Remote, worldwide</p>
+    <div class="hs__intro">
+      <h1 class="hs__name display" id="hs-name">
+        Malik<br />Sohaib<span class="sr-only">, {hero.role.toLowerCase()}</span>
+      </h1>
+      <p class="hs__role">{hero.role}. Idea to production, for companies, clients and products of my own.</p>
+      <div class="hs__actions">
         <a class="btn" href={`mailto:${site.email}`}>Email me <span class="btn__arrow" aria-hidden="true">↗</span></a>
         <a class="btn btn--ghost" href={site.whatsapp.href} rel="noopener">WhatsApp <span class="btn__arrow" aria-hidden="true">↗</span></a>
-        <a class="hero__more ul" href="/about">More about me</a>
       </div>
     </div>
-    <dl class="hero__facts">
-      {
-        hero.facts.map((f) => (
-          <div class="fact">
-            <dt class="fact__label">{f.label}</dt>
-            <dd class="fact__value display">{f.value}</dd>
-          </div>
-        ))
-      }
-    </dl>
+    <div class="hs__build">
+      <h2 class="hs__label">What I build</h2>
+      <ol class="hs__list">
+        {
+          services.map((sv, i) => (
+            <li>
+              <a class="hs__row" href={posters[sv.slug].href} data-service={sv.slug}>
+                <span class="hs__n num">0{i + 1}</span>
+                <span class="hs__sname">{sv.name}</span>
+                <span class="hs__ex">{sv.example}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </div>
+
+  <!-- The work, as a slide of posters along the bottom. -->
+  <nav class="hs__dock" aria-label="Selected work" data-dock>
+    {
+      apps.map((p) => (
+        <a class="hs__app" href={p.href} data-cursor="View" data-peek={p.slug}>
+          <span class="hs__icon">
+            <Image src={p.art} alt="" widths={[160, 320]} sizes="(min-width: 900px) 60px, 34vw" loading="lazy" />
+          </span>
+          <span class="hs__appname">{p.title}</span>
+        </a>
+      ))
+    }
+    <a class="hs__app hs__app--all" href="#work">
+      <span class="hs__icon"><span>All</span></span>
+      <span class="hs__appname">All work</span>
+    </a>
+  </nav>
+  <div class="hs__peek" data-peek-box aria-hidden="true">
+    {
+      apps.map((p) => (
+        <div class="hs__peek-item" data-peek-for={p.slug}>
+          <Poster poster={p} sizes="300px" decorative />
+        </div>
+      ))
+    }
   </div>
 </section>
 
 <style>
-  /* Two rows: the chrome name on top, filling what the copy leaves; the copy beneath. */
-  .hero {
+  .hs {
     position: relative;
-    min-height: calc(100svh - 4rem);
-    display: grid;
-    grid-template-rows: minmax(46svh, 1fr) auto;
-    overflow: clip;
+    height: calc(100svh - 4rem);
+    min-height: 640px;
+    overflow: hidden;
+    color: #ededE7;
+    background: #0b0b0b;
+    --ink: #ededE7;
+    --ground: #0b0b0b;
+    --muted: #a9a9a3;
+    --line: rgb(237 237 231 / 0.16);
   }
-  .hero__art {
-    position: relative;
-    grid-row: 1;
-    grid-column: 1;
-  }
-  .hero__art :global(img),
-  .hero__art :global(canvas) {
+  .hs__wall,
+  .hs__wall :global(img),
+  .hs__wall :global(canvas) {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: 50% 38%;
   }
-  .hero__art :global(canvas) {
+  .hs__wall :global(canvas) {
     opacity: 0;
     transition: opacity 300ms linear;
   }
-  /* Only the active palette's picture is shown (and so observed by the glass). */
-  :global(html[data-palette='studio']) .hero__art--gallery,
-  :global(html[data-palette='gallery']) .hero__art--studio {
-    display: none;
-  }
-  /* The mirror floor fades into the ground, so the picture has no bottom edge. */
-  .hero__art::after {
+  /* A soft shade, so type over the mercury always reads. */
+  .hs__wall::after {
     content: '';
     position: absolute;
-    inset: 62% 0 0;
-    background: linear-gradient(to top, var(--ground), transparent);
+    inset: 0;
+    background: radial-gradient(90% 70% at 18% 45%, rgb(0 0 0 / 0.55), transparent 70%), linear-gradient(to top, rgb(0 0 0 / 0.55), transparent 35%);
     pointer-events: none;
   }
-  .hero__in {
-    position: relative;
-    z-index: 1;
-    /* Empty space passes the pointer through to the glass; the copy itself catches it. */
-    pointer-events: none;
-    grid-row: 2;
-    display: grid;
-    gap: 2rem var(--gutter);
-    margin-top: -3rem;
-    padding-block: 0 2rem;
-  }
-  .hero__in > * {
-    pointer-events: auto;
-  }
-  .hero__role {
-    font-size: clamp(2rem, 1.2rem + 3.6vw, 4.25rem);
-    line-height: 0.9;
-  }
-  .hero__lede {
-    max-width: 36rem;
-    margin-top: 1rem;
-    line-height: 1.45;
-  }
-  .hero__actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.75rem 1.25rem;
-    margin-top: 1.5rem;
-  }
-  .hero__more {
-    font-weight: 600;
-    font-size: var(--t-s);
-    min-height: 32px;
-    display: inline-flex;
-    align-items: center;
-  }
-  .hero__facts {
-    display: grid;
-    border-top: 1px solid var(--line);
-  }
-  .fact {
-    display: grid;
-    grid-template-columns: 7.5rem 1fr;
-    align-items: baseline;
-    gap: 1rem;
-    padding-block: 0.7rem;
-    border-bottom: 1px solid var(--line);
-  }
-  .fact__value {
-    order: -1;
-    font-size: 1.75rem;
-    text-transform: none;
-  }
-  .fact__label {
-    font-size: var(--t-s);
-    color: var(--muted);
-  }
-  @media (min-width: 900px) {
-    .hero__in {
-      grid-template-columns: repeat(12, minmax(0, 1fr));
-      align-items: end;
-      padding-block: 0 2.5rem;
+  @keyframes drift {
+    to {
+      transform: scale(1.08) translate(-1.5%, 1%);
     }
-    .hero__pitch {
-      grid-column: 1 / 7;
-    }
-    .hero__facts {
-      grid-column: 8 / -1;
-    }
-    .hero__lede {
-      font-size: 1.2rem;
-    }
+  }
+  :global(html.motion:not(.liquid-on)) .hs__wall :global(img) {
+    animation: drift 18s ease-in-out infinite alternate;
   }
 
-  /* Intro, after the loader: the picture settles from a soft blur, then the copy rises. */
-  @keyframes settle {
+  .hs__top {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-rows: auto 1fr;
+    column-gap: var(--gutter);
+    height: calc(100% - 7.5rem);
+    padding-top: 1.75rem;
+    pointer-events: none;
+  }
+  .hs__top > * {
+    pointer-events: auto;
+  }
+  .hs__status {
+    grid-column: 1 / -1;
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-size: var(--t-s);
+    font-weight: 600;
+  }
+  .hs__dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #ededE7;
+    animation: pulse 2.2s ease-out infinite;
+  }
+  @keyframes pulse {
     from {
-      opacity: 0;
-      scale: 1.06;
-      filter: blur(14px);
+      box-shadow: 0 0 0 0 rgb(237 237 231 / 0.6);
+    }
+    to {
+      box-shadow: 0 0 0 9px rgb(237 237 231 / 0);
     }
   }
-  @keyframes rise {
-    from {
-      opacity: 0;
-      translate: 0 18px;
-    }
+  .hs__intro {
+    grid-column: 1 / 8;
+    align-self: end;
+    display: grid;
+    gap: 1.25rem;
+    padding-bottom: 2rem;
   }
-  :global(html.motion:not(.is-ready)) .hero__art,
-  :global(html.motion:not(.is-ready)) .hero__pitch,
-  :global(html.motion:not(.is-ready)) .hero__facts {
+  .hs__name {
+    margin: 0 0 0 -0.04em;
+    font-size: clamp(4rem, 13vw, 12.5rem);
+    line-height: 0.8;
+  }
+  .hs__role {
+    max-width: 30rem;
+    font-size: 1.15rem;
+    line-height: 1.45;
+    color: #c9c9c3;
+  }
+  .hs__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .hs__build {
+    grid-column: 9 / -1;
+    align-self: end;
+    padding-bottom: 2rem;
+  }
+  .hs__label {
+    margin-bottom: 0.6rem;
+    font-size: var(--t-xs);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #a9a9a3;
+  }
+  .hs__list {
+    border-top: 1px solid var(--line);
+  }
+  .hs__row {
+    display: grid;
+    grid-template-columns: 2rem 1fr;
+    gap: 0 0.5rem;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid var(--line);
+    text-decoration: none;
+  }
+  .hs__n {
+    color: #8f8f89;
+    padding-top: 0.15rem;
+  }
+  .hs__sname {
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: translate var(--d-m) var(--ease);
+  }
+  /* A row's example opens while it is pointed at or focused. */
+  .hs__ex {
+    grid-column: 2;
+    max-height: 0;
+    overflow: hidden;
     opacity: 0;
+    font-size: var(--t-s);
+    color: #b9b9b3;
+    transition:
+      max-height var(--d-m) var(--ease),
+      opacity var(--d-m) var(--ease),
+      margin var(--d-m) var(--ease);
   }
-  :global(html.motion.is-ready) .hero__art {
-    animation: settle 1400ms var(--ease) both;
+  .hs__row:hover .hs__ex,
+  .hs__row:focus-visible .hs__ex,
+  .hs__row.is-on .hs__ex {
+    max-height: 4.5em;
+    opacity: 1;
+    margin-top: 0.3rem;
   }
-  :global(html.motion.is-ready) .hero__pitch {
-    animation: rise var(--d-l) var(--ease) 350ms both;
+  .hs__row:hover .hs__sname,
+  .hs__row:focus-visible .hs__sname,
+  .hs__row.is-on .hs__sname {
+    translate: 0.35rem 0;
   }
-  :global(html.motion.is-ready) .hero__facts {
-    animation: rise var(--d-l) var(--ease) 450ms both;
+
+  /* The slide of work */
+  .hs__dock {
+    position: absolute;
+    left: 50%;
+    bottom: 1.1rem;
+    z-index: 4;
+    translate: -50% 0;
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    padding: 10px 12px;
+    background: rgb(14 14 14 / 0.5);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 20px;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.14);
+  }
+  .hs__app {
+    position: relative;
+    flex: none;
+    width: 60px;
+    text-decoration: none;
+    transform-origin: 50% 100%;
+    transition: scale 180ms var(--ease);
+  }
+  .hs__icon {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #161616;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.14);
+    transition: box-shadow var(--d-s) var(--ease);
+  }
+  .hs__icon :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 62%;
+  }
+  .hs__app.is-lit .hs__icon {
+    box-shadow:
+      inset 0 0 0 2px #ededE7,
+      0 0 24px rgb(255 255 255 / 0.25);
+  }
+  .hs__app--all .hs__icon span {
+    font-weight: 600;
+    font-size: 0.8rem;
+  }
+  .hs__appname {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 8px);
+    translate: -50% 4px;
+    white-space: nowrap;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgb(14 14 14 / 0.85);
+    font-size: 11px;
+    font-weight: 600;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity var(--d-s) var(--ease),
+      translate var(--d-s) var(--ease);
+  }
+  .hs__app--all:hover .hs__appname,
+  .hs__app:focus-visible .hs__appname {
+    opacity: 1;
+    translate: -50% 0;
+  }
+  .hs__peek {
+    position: absolute;
+    left: 0;
+    bottom: 7.4rem;
+    z-index: 5;
+    width: 17rem;
+    aspect-ratio: 4 / 5;
+    pointer-events: none;
+    opacity: 0;
+    translate: var(--px, 0) 16px;
+    scale: 0.92;
+    transform-origin: 50% 100%;
+    transition:
+      opacity 260ms var(--ease),
+      scale 420ms var(--ease),
+      translate 420ms var(--ease);
+    filter: drop-shadow(0 30px 50px rgb(0 0 0 / 0.6));
+  }
+  .hs__peek.is-on {
+    opacity: 1;
+    scale: 1;
+    translate: var(--px, 0) 0;
+  }
+  .hs__peek-item {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 200ms linear;
+  }
+  .hs__peek-item.is-on {
+    opacity: 1;
+  }
+
+  /* Phones: status, name, one line, two buttons, then the slide; the index follows below it. */
+  @media (max-width: 899px) {
+    .hs {
+      height: auto;
+      min-height: calc(100svh - 4rem);
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 2rem;
+    }
+    .hs__wall::after {
+      background: linear-gradient(to bottom, rgb(0 0 0 / 0.72), rgb(0 0 0 / 0.5) 45%, rgb(0 0 0 / 0.85) 75%);
+    }
+    .hs__top {
+      display: contents;
+    }
+    .hs__status {
+      position: relative;
+      z-index: 2;
+      order: 1;
+      margin: 1.25rem var(--margin) 0;
+      font-size: 0.8125rem;
+    }
+    .hs__intro {
+      position: relative;
+      z-index: 2;
+      order: 2;
+      margin: auto var(--margin) 0;
+      padding: 2.5rem 0 1.5rem;
+      gap: 1rem;
+    }
+    .hs__name {
+      font-size: clamp(3.75rem, 22vw, 6.5rem);
+    }
+    .hs__role {
+      font-size: 1rem;
+    }
+    .hs__peek {
+      display: none;
+    }
+    .hs__dock {
+      order: 3;
+      position: relative;
+      left: auto;
+      bottom: auto;
+      translate: none;
+      padding: 0 var(--margin);
+      gap: 12px;
+      background: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      box-shadow: none;
+      border-radius: 0;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-padding-inline: var(--margin);
+      scrollbar-width: none;
+    }
+    .hs__app {
+      width: 34vw;
+      scroll-snap-align: start;
+      display: grid;
+      gap: 6px;
+    }
+    .hs__icon {
+      aspect-ratio: 4 / 5;
+      border-radius: 12px;
+    }
+    .hs__appname {
+      position: static;
+      translate: none;
+      opacity: 1;
+      padding: 0;
+      background: none;
+      font-size: 12px;
+    }
+    .hs__build {
+      position: relative;
+      z-index: 2;
+      order: 4;
+      margin: 2rem var(--margin) 0;
+      padding: 0;
+    }
+    .hs__row {
+      padding: 0.7rem 0;
+    }
+    .hs__sname {
+      font-size: 1rem;
+    }
+    /* No hover on phones: each example sits under its service, quietly. */
+    .hs__ex {
+      max-height: none;
+      opacity: 1;
+      margin-top: 0.2rem;
+      font-size: 0.8125rem;
+      color: #8f8f89;
+    }
   }
 </style>
+
+<script>
+  import { onPage } from '../motion/start';
+
+  onPage(() => {
+    const stage = document.querySelector<HTMLElement>('[data-stage]');
+    if (!stage) return;
+    const offs: (() => void)[] = [];
+    const desktop = () => matchMedia('(min-width: 900px)').matches;
+    const dock = stage.querySelector<HTMLElement>('[data-dock]')!;
+    const apps = [...dock.querySelectorAll<HTMLElement>('.hs__app')];
+    const peek = stage.querySelector<HTMLElement>('[data-peek-box]')!;
+    const items = [...peek.querySelectorAll<HTMLElement>('[data-peek-for]')];
+
+    // Light a project in the slide; when the slide itself is pointed at, lift its poster too.
+    const show = (slug: string | null, x?: number, lift = false) => {
+      apps.forEach((a) => a.classList.toggle('is-lit', !!slug && a.dataset.peek === slug));
+      if (!slug || !lift || !desktop()) return peek.classList.remove('is-on');
+      items.forEach((it) => it.classList.toggle('is-on', it.dataset.peekFor === slug));
+      const o = stage.getBoundingClientRect();
+      const w = peek.offsetWidth;
+      peek.style.setProperty('--px', `${Math.max(16, Math.min(o.width - w - 16, (x ?? 0) - o.left - w / 2))}px`);
+      peek.classList.add('is-on');
+    };
+
+    // The slide magnifies near the pointer and lifts the hovered poster.
+    const over = (e: PointerEvent) => {
+      if (!desktop() || e.pointerType !== 'mouse') return;
+      for (const a of apps) {
+        const r = a.getBoundingClientRect();
+        const d = Math.abs(e.clientX - (r.left + r.width / 2));
+        a.style.scale = String(1 + 0.45 * Math.max(0, 1 - d / 130));
+      }
+      const app = (e.target as HTMLElement).closest<HTMLElement>('[data-peek]');
+      show(app?.dataset.peek ?? null, e.clientX, true);
+    };
+    const rest = () => {
+      apps.forEach((a) => (a.style.scale = '1'));
+      show(null);
+    };
+    dock.addEventListener('pointermove', over);
+    dock.addEventListener('pointerleave', rest);
+    offs.push(() => {
+      dock.removeEventListener('pointermove', over);
+      dock.removeEventListener('pointerleave', rest);
+    });
+
+    // A service row lights the project that proves it.
+    const rows = [...stage.querySelectorAll<HTMLElement>('.hs__row')];
+    const events = ['pointerenter', 'pointerleave', 'focus', 'blur'];
+    const onRow = (e: Event) => {
+      const row = e.currentTarget as HTMLElement;
+      const on = e.type === 'pointerenter' || e.type === 'focus';
+      rows.forEach((r) => r.classList.toggle('is-on', on && r === row));
+      show(on ? row.dataset.service! : null);
+    };
+    rows.forEach((r) => events.forEach((t) => r.addEventListener(t, onRow)));
+    offs.push(() => rows.forEach((r) => events.forEach((t) => r.removeEventListener(t, onRow))));
+    return () => offs.forEach((o) => o());
+  });
+</script>

@@ -10,7 +10,7 @@ export function runLoader() {
   const el = document.getElementById('loader');
   if (!html.classList.contains('is-loading') || !el) return;
   const count = el.querySelector<HTMLElement>('[data-loader-count]')!;
-  const heroImg = document.querySelector<HTMLImageElement>(`.hero__art--${html.dataset.palette} img`);
+  const heroImg = document.querySelector<HTMLImageElement>(".hs__wall img");
   const tasks: Promise<unknown>[] = [document.fonts?.ready ?? Promise.resolve()];
   if (heroImg && !heroImg.complete) tasks.push(new Promise((r) => heroImg.addEventListener('load', r, { once: true })).then(() => heroImg.decode?.().catch(() => {})));
   let done = 0;

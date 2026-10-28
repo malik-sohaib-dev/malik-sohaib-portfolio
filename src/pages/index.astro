@@ -1,108 +1,18 @@
 ---
 import Base from '../layouts/Base.astro';
-import HeroGlyph from '../components/heroes/HeroGlyph.astro';
-import HeroBrush from '../components/heroes/HeroBrush.astro';
-import HeroInsert from '../components/heroes/HeroInsert.astro';
-import HeroOS from '../components/heroes/HeroOS.astro';
-import HeroIndex from '../components/heroes/HeroIndex.astro';
+import Hero from '../components/Hero.astro';
 import Path from '../components/Path.astro';
 import Activity from '../components/Activity.astro';
 import Work from '../components/Work.astro';
 import Companies from '../components/Companies.astro';
 import Clients from '../components/Clients.astro';
-
-// While the hero is being chosen, all five directions are built; ?hero=1..5 picks one.
-const heroes = ['Mercury Glyph', 'Render Brush', 'The Insert', 'Liquid OS', 'Mercury Index'];
 ---
 
 <Base>
-  <script is:inline>
-    // Before paint: show the chosen hero (remembered for the session), the first by default.
-    (function () {
-      var h = '1';
-      try {
-        var q = new URLSearchParams(location.search).get('hero');
-        if (q && /^[1-5]$/.test(q)) sessionStorage.setItem('hero', q);
-        h = sessionStorage.getItem('hero') || '4';
-        var t = new URLSearchParams(location.search).get('top');
-        if (t && /^[abc]$/.test(t)) sessionStorage.setItem('top', t);
-        document.documentElement.dataset.top = sessionStorage.getItem('top') || 'a';
-      } catch (e) {}
-      document.documentElement.dataset.hero = h;
-    })();
-  </script>
-  <HeroGlyph />
-  <HeroBrush />
-  <HeroInsert />
-  <HeroOS />
-  <HeroIndex />
-  <nav class="heropick" aria-label="Hero directions (preview)">
-    {heroes.map((name, i) => <a href={`/?hero=${i + 1}`} data-astro-reload title={name}>{i + 1}</a>)}
-    <span class="heropick__sep" aria-hidden="true"></span>
-    {['a', 'b', 'c'].map((t) => <a class="heropick__top" href={`/?hero=4&top=${t}`} data-astro-reload data-top-pick={t} title={`Hero 4, introduction ${t.toUpperCase()}`}>{t.toUpperCase()}</a>)}
-  </nav>
+  <Hero />
   <Path />
   <Activity />
   <Work />
   <Companies />
   <Clients />
 </Base>
-
-<style is:global>
-  /* Only the chosen hero shows. !important: each hero sets its own display. */
-  html[data-hero='1'] [data-hero-variant]:not([data-hero-variant='1']),
-  html[data-hero='2'] [data-hero-variant]:not([data-hero-variant='2']),
-  html[data-hero='3'] [data-hero-variant]:not([data-hero-variant='3']),
-  html[data-hero='4'] [data-hero-variant]:not([data-hero-variant='4']),
-  html[data-hero='5'] [data-hero-variant]:not([data-hero-variant='5']),
-  html:not([data-hero]) [data-hero-variant]:not([data-hero-variant='4']) {
-    display: none !important;
-  }
-  .heropick {
-    position: fixed;
-    right: 10px;
-    top: 50%;
-    translate: 0 -50%;
-    z-index: 90;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 5px;
-    border-radius: 999px;
-    background: rgb(20 20 20 / 0.85);
-    backdrop-filter: blur(10px);
-    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.15);
-    font: 600 13px/1 var(--f-text);
-  }
-  .heropick__sep {
-    height: 1px;
-    margin: 2px 6px;
-    background: rgb(255 255 255 / 0.2);
-  }
-  html:not([data-hero='4']) .heropick__sep,
-  html:not([data-hero='4']) .heropick__top {
-    display: none;
-  }
-  html[data-top='a'] [data-top-pick='a'],
-  html[data-top='b'] [data-top-pick='b'],
-  html[data-top='c'] [data-top-pick='c'] {
-    box-shadow: inset 0 0 0 1.5px #ededE7;
-  }
-  .heropick a {
-    display: grid;
-    place-items: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    color: #ededE7;
-    text-decoration: none;
-  }
-  html[data-hero='1'] .heropick a:nth-child(1),
-  html[data-hero='2'] .heropick a:nth-child(2),
-  html[data-hero='3'] .heropick a:nth-child(3),
-  html[data-hero='4'] .heropick a:nth-child(4),
-  html[data-hero='5'] .heropick a:nth-child(5) {
-    background: #ededE7;
-    color: #0b0b0b;
-  }
-</style>

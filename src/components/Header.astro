@@ -107,6 +107,12 @@ const previews = [...new Set(nav.map((n) => n.preview))];
   .hdr__cta {
     --h: 2.5rem;
   }
+  /* Narrow phones: the name and Menu need the room; the hero has its own Email button. */
+  @media (max-width: 399px) {
+    .hdr__cta {
+      display: none;
+    }
+  }
   .hdr__menu {
     display: inline-flex;
     align-items: center;
