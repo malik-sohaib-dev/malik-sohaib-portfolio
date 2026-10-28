@@ -4,15 +4,28 @@ import type { ImageMetadata } from 'astro';
 import ezHome from '../assets/work/ezvenda-home.webp';
 import ezProduct from '../assets/work/ezvenda-product.webp';
 import ezCheckout from '../assets/work/ezvenda-checkout.webp';
-import ezDesktop from '../assets/work/ezvenda-desktop.webp';
-import mhHush from '../assets/work/mini-havoc-hush.jpg';
-import mhFloor from '../assets/work/mini-havoc-floor.jpg';
-import mhHex from '../assets/work/mini-havoc-hexdrop.jpg';
-import mhSumo from '../assets/work/mini-havoc-sumo.jpg';
-import gpCard from '../assets/work/gympaid-card.png';
+import ezBuilder from '../assets/work/ezvenda-builder.webp';
+import ezAi from '../assets/work/ezvenda-ai.webp';
+import ezOrder from '../assets/work/ezvenda-order.webp';
+import gpDue from '../assets/work/gympaid-due.webp';
+import gpMembers from '../assets/work/gympaid-members.webp';
+import gpPlans from '../assets/work/gympaid-plans.webp';
 
 export type Decision = { id?: string; title: string; chose: string; insteadOf: string; why: string };
-export type Shot = { src: ImageMetadata; alt: string; caption: string; tall?: boolean };
+/** A picture of the product in its frame (see Device.astro): a still, or a clip that plays in view. */
+export type Shot = {
+  frame: 'browser' | 'phone' | 'game';
+  alt: string;
+  caption: string;
+  src?: ImageMetadata;
+  /** A clip's path without extension (public/media/games/<name>.webm, .mp4, .jpg). */
+  clip?: string;
+  url?: string;
+  label?: string;
+  /** Full width, or a narrow column (phones). */
+  wide?: boolean;
+  tall?: boolean;
+};
 
 export type CaseStudy = {
   slug: string;
@@ -29,7 +42,6 @@ export type CaseStudy = {
   outcomes: string[];
   stack: string[];
   shots?: Shot[];
-  video?: { src: string; poster: ImageMetadata; alt: string; caption: string };
   nda?: string;
 };
 
@@ -65,10 +77,12 @@ export const cases: CaseStudy[] = [
     ],
     stack: ['TypeScript', 'Fastify', 'ts-rest', 'Drizzle', 'Postgres', 'BullMQ', 'React', 'TanStack', 'Astro', 'Cloudflare for SaaS', 'R2', 'MCP'],
     shots: [
-      { src: ezDesktop, alt: 'A shop built on EzVenda, on a desktop browser.', caption: 'A merchant’s shop on the vitrine theme.' },
-      { src: ezHome, alt: 'The shop home page on a phone.', caption: 'Phone first: most shoppers arrive from social apps.', tall: true },
-      { src: ezProduct, alt: 'A product page with price, discount and photos.', caption: 'Product pages carry price, stock and structured data.', tall: true },
-      { src: ezCheckout, alt: 'Guest checkout asking for a phone number.', caption: 'Guest checkout built around cash on delivery.', tall: true },
+      { frame: 'browser', url: 'app.ezvenda.com/store', src: ezBuilder, alt: 'The EzVenda store builder: the home page’s sections on the left, the live shop on the right.', caption: 'The store builder: sections on the left, the shop as shoppers see it on the right.', wide: true },
+      { frame: 'browser', url: 'app.ezvenda.com/ai', src: ezAi, alt: 'The Your AI page: changes an assistant made, waiting for the merchant to publish.', caption: 'An AI assistant edits the shop over MCP; the merchant reviews before it goes live.' },
+      { frame: 'browser', url: 'app.ezvenda.com/orders', src: ezOrder, alt: 'An order in the merchant app: what to pack, cash to collect on delivery.', caption: 'Orders built around cash on delivery: pack it, hand it over, collect.' },
+      { frame: 'phone', src: ezHome, alt: 'The shop home page on a phone.', caption: 'Phone first: most shoppers arrive from social apps.', tall: true },
+      { frame: 'phone', src: ezProduct, alt: 'A product page with price, discount and photos.', caption: 'Product pages carry price, stock and structured data.', tall: true },
+      { frame: 'phone', src: ezCheckout, alt: 'Guest checkout asking for a phone number.', caption: 'Guest checkout built around cash on delivery.', tall: true },
     ],
   },
   {
@@ -99,11 +113,12 @@ export const cases: CaseStudy[] = [
       'About 860 commits and over 150 pull requests in its first month.',
     ],
     stack: ['TypeScript', 'three.js', 'cannon-es', 'Fastify', 'WebSockets', 'node:sqlite', 'Web Audio', 'Capacitor'],
-    video: { src: '/media/mini-havoc-sumo', poster: mhSumo, alt: 'Gameplay of Sumo Out!', caption: 'Sumo Out!, recorded from a real game.' },
     shots: [
-      { src: mhHush, alt: 'Hush: a first-person view down a haunted house corridor.', caption: 'Hush: a two-floor haunted house.' },
-      { src: mhFloor, alt: 'Colour Floor: beans on a grid of coloured tiles.', caption: 'Colour Floor.' },
-      { src: mhHex, alt: 'Hex Drop: beans on a honeycomb that falls away.', caption: 'Hex Drop.' },
+      { frame: 'game', clip: '/media/games/crossfire', label: 'Crossfire', alt: 'Crossfire: beans on a round arena dodging a sweeping beam.', caption: 'Crossfire, from a real game night.', wide: true },
+      { frame: 'game', clip: '/media/games/hexdrop', label: 'Hex Drop', alt: 'Hex Drop: beans on a honeycomb that falls away under them.', caption: 'Hex Drop: the floor falls away where you stand.' },
+      { frame: 'game', clip: '/media/games/sumo', label: 'Sumo Out!', alt: 'Sumo Out!: four beans shove each other around a ring.', caption: 'Sumo Out!: last bean in the ring wins.' },
+      { frame: 'game', clip: '/media/games/brawl', label: 'Havoc Golf', alt: 'Havoc Golf: beans putting across a green island.', caption: 'Havoc Golf: everyone putts at once.' },
+      { frame: 'game', clip: '/media/games/hush', label: 'Hush', alt: 'Hush: a first-person view through a haunted house.', caption: 'Hush: escape the house before you are heard.' },
     ],
   },
   {
@@ -132,7 +147,11 @@ export const cases: CaseStudy[] = [
       'Door polling at about 12 ms per poll, with no fingerprints stored.',
     ],
     stack: ['TypeScript', 'Fastify', 'Drizzle', 'Postgres', 'React', 'TanStack', 'ZKTeco ADMS'],
-    shots: [{ src: gpCard, alt: 'GymPaid’s card: who owes you money today.', caption: 'The one question the product answers.' }],
+    shots: [
+      { frame: 'browser', url: 'gympaid.ezvenda.com/queue', src: gpDue, alt: 'GymPaid’s due list: who owes money today, with WhatsApp and Paid buttons.', caption: 'The one question it answers: who owes money today, with a reminder a tap away.', wide: true },
+      { frame: 'browser', url: 'gympaid.ezvenda.com/members', src: gpMembers, alt: 'The members list: plan, status and next due date for each member.', caption: 'Every member’s plan and when they are next due.' },
+      { frame: 'browser', url: 'gympaid.ezvenda.com/plans', src: gpPlans, alt: 'Membership plans: monthly, three months and annual.', caption: 'Plans with the price per month worked out.' },
+    ],
   },
   {
     slug: 'photon-elixir-phoenix',

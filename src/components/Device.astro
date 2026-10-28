@@ -1,0 +1,164 @@
+---
+// A product picture in its frame: a browser window (with the product's address), a phone, or a
+// game screen (with the game's name). It holds a still or a clip; a clip plays muted while on
+// screen, can be paused, and never plays under reduced motion (initVideos in motion/start.ts).
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  frame: 'browser' | 'phone' | 'game';
+  alt: string;
+  image?: ImageMetadata;
+  /** A clip's path without extension: <clip>.webm (AV1), <clip>.mp4, <clip>.jpg as its poster. */
+  clip?: string;
+  url?: string;
+  label?: string;
+  sizes?: string;
+}
+const { frame, alt, image, clip, url, label, sizes = '(min-width: 900px) 60vw, 92vw' } = Astro.props;
+---
+
+<div class:list={['dev', `dev--${frame}`]} {...clip ? { 'data-video': '' } : {}}>
+  {
+    frame === 'browser' && (
+      <div class="dev__bar" aria-hidden="true">
+        <span class="dev__dots">
+          <i />
+          <i />
+          <i />
+        </span>
+        {url && <span class="dev__url">{url}</span>}
+      </div>
+    )
+  }
+  {frame === 'game' && label && <span class="dev__label">{label}</span>}
+  <div class="dev__screen">
+    {
+      clip ? (
+        <video data-autoplay muted loop playsinline preload="none" poster={`${clip}.jpg`} aria-label={alt}>
+          <source src={`${clip}.webm`} type='video/webm; codecs="av01.0.05M.08"' />
+          <source src={`${clip}.mp4`} type="video/mp4" />
+        </video>
+      ) : (
+        image && <Image src={image} alt={alt} widths={[640, 1200, 1800, 2400]} sizes={sizes} loading="lazy" />
+      )
+    }
+  </div>
+  {
+    clip && (
+      <button class="dev__toggle" type="button" data-video-toggle aria-pressed="false">
+        <span data-video-label>Play</span>
+        <span class="sr-only"> the clip</span>
+      </button>
+    )
+  }
+</div>
+
+<style>
+  .dev {
+    position: relative;
+    background: #121212;
+    box-shadow:
+      inset 0 0 0 1px rgb(255 255 255 / 0.08),
+      0 24px 60px -20px rgb(0 0 0 / 0.55);
+  }
+  .dev__screen {
+    position: relative;
+    overflow: hidden;
+    background: #000;
+  }
+  .dev__screen :global(img),
+  .dev__screen video {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .dev__screen video {
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+
+  /* A browser: a quiet bar with the address. */
+  .dev--browser {
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .dev__bar {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    height: 2.4rem;
+    padding: 0 0.9rem;
+    border-bottom: 1px solid rgb(255 255 255 / 0.08);
+  }
+  .dev__dots {
+    display: flex;
+    gap: 0.4rem;
+  }
+  .dev__dots i {
+    width: 0.62rem;
+    height: 0.62rem;
+    border-radius: 50%;
+    background: rgb(255 255 255 / 0.22);
+  }
+  .dev__url {
+    flex: 1;
+    max-width: 22rem;
+    margin-inline: auto;
+    padding: 0.28rem 0.9rem;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.07);
+    color: #b9b9b3;
+    font-size: 0.75rem;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* A phone: a rounded bezel. */
+  .dev--phone {
+    padding: 0.6rem;
+    border-radius: 2.2rem;
+  }
+  .dev--phone .dev__screen {
+    border-radius: 1.7rem;
+  }
+
+  /* A game screen: a bezel and the game's name. */
+  .dev--game {
+    padding: 0.55rem;
+    border-radius: 1.1rem;
+  }
+  .dev--game .dev__screen {
+    border-radius: 0.7rem;
+  }
+  .dev__label {
+    position: absolute;
+    left: 1.2rem;
+    top: 1.2rem;
+    z-index: 2;
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    background: rgb(12 12 12 / 0.72);
+    backdrop-filter: blur(8px);
+    color: #ededE7;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .dev__toggle {
+    position: absolute;
+    right: 1.2rem;
+    bottom: 1.2rem;
+    z-index: 2;
+    min-height: 32px;
+    padding: 0 0.85rem;
+    border: 0;
+    border-radius: 999px;
+    background: rgb(240 240 236 / 0.92);
+    color: #111110;
+    font-size: var(--t-xs);
+    font-weight: 600;
+    cursor: pointer;
+  }
+</style>

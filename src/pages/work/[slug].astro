@@ -1,5 +1,5 @@
 ---
-import { Image } from 'astro:assets';
+import Device from '../../components/Device.astro';
 import Base from '../../layouts/Base.astro';
 import Poster from '../../components/Poster.astro';
 import { cases, type CaseStudy } from '../../data/cases';
@@ -107,24 +107,12 @@ const nextPoster = posters[next.slug];
     }
 
     {
-      (c.video || c.shots?.length) && (
+      c.shots?.length && (
         <section class="cs-shots" data-field="contrast" aria-label="The product">
           <div class="wrap cs-shots__grid">
-            {c.video && (
-              <figure class="shot shot--wide" data-video>
-                <video data-autoplay muted loop playsinline preload="none" poster={c.video.poster.src} aria-label={c.video.alt}>
-                  <source src={`${c.video.src}.webm`} type='video/webm; codecs="av01.0.05M.08"' />
-                  <source src={`${c.video.src}.mp4`} type="video/mp4" />
-                </video>
-                <button class="shot__toggle" type="button" data-video-toggle aria-pressed="false">
-                  <span data-video-label>Play</span>
-                </button>
-                <figcaption>{c.video.caption}</figcaption>
-              </figure>
-            )}
-            {c.shots?.map((s, i) => (
-              <figure class:list={['shot', { 'shot--tall': s.tall, 'shot--wide': !s.tall && !c.video && i === 0 }]}>
-                <Image src={s.src} alt={s.alt} widths={[480, 960, 1440]} sizes={s.tall ? '(min-width: 900px) 28vw, 46vw' : '(min-width: 900px) 84vw, 92vw'} loading="lazy" />
+            {c.shots.map((s) => (
+              <figure class:list={['shot', { 'shot--tall': s.tall, 'shot--wide': s.wide }]}>
+                <Device frame={s.frame} image={s.src} clip={s.clip} url={s.url} label={s.label} alt={s.alt} sizes={s.wide ? '(min-width: 900px) 84vw, 92vw' : s.tall ? '(min-width: 900px) 28vw, 46vw' : '(min-width: 900px) 42vw, 92vw'} />
                 <figcaption>{s.caption}</figcaption>
               </figure>
             ))}
@@ -347,42 +335,24 @@ const nextPoster = posters[next.slug];
   .shot--tall {
     grid-column: auto;
   }
-  .shot :global(img),
-  .shot video {
-    width: 100%;
-    height: auto;
-    border: 1px solid var(--line);
-  }
-  .shot video {
-    aspect-ratio: 16 / 9;
-    object-fit: cover;
-    background: #000;
-  }
   .shot figcaption {
-    margin-top: 0.6rem;
+    margin-top: 0.7rem;
     font-size: var(--t-xs);
     color: var(--muted);
-  }
-  .shot__toggle {
-    position: absolute;
-    left: 12px;
-    top: 12px;
-    min-height: 32px;
-    padding: 0 0.85rem;
-    border: 0;
-    border-radius: 999px;
-    background: #f0f0ec;
-    color: #111110;
-    font-size: var(--t-xs);
-    font-weight: 600;
-    cursor: pointer;
   }
   @media (min-width: 900px) {
     .cs-shots__grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
+    /* Halves sit two to a row, phones three. */
+    .cs-shots__grid {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
     .shot:not(.shot--tall):not(.shot--wide) {
-      grid-column: auto;
+      grid-column: span 3;
+    }
+    .shot--tall {
+      grid-column: span 2;
     }
   }
 
