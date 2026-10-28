@@ -41,14 +41,40 @@ body { font-family: T, sans-serif; -webkit-font-smoothing: antialiased; }
 .card small { display: block; margin-top: calc(var(--u) * 0.8); font-size: calc(var(--u) * 2); color: #555; }
 .pill { display: inline-flex; align-items: center; padding: 0.55em 1.1em; border-radius: 999px; background: var(--white); color: var(--ink); font-weight: 600; font-size: calc(var(--u) * 2.8); white-space: nowrap; }
 
+/* Product frames: a browser with its address, a game screen with its name, a phone. Real colour. */
+.dev { position: absolute; background: #121212; box-shadow: 0 calc(var(--u) * 2) calc(var(--u) * 5) rgb(0 0 0 / 0.45), inset 0 0 0 1px rgb(255 255 255 / 0.1); }
+.dev .scr { position: absolute; overflow: hidden; background: #000; }
+.dev .scr img, .dev .scr video { display: block; width: 100%; height: 100%; object-fit: cover; }
+.dev.browser { border-radius: calc(var(--u) * 1); overflow: hidden; aspect-ratio: 16 / 10.9; }
+.dev.browser .bar { position: absolute; left: 0; right: 0; top: 0; height: calc(var(--u) * 2.4); display: flex; align-items: center; gap: calc(var(--u) * 0.6); padding: 0 calc(var(--u) * 1); border-bottom: 1px solid rgb(255 255 255 / 0.08); }
+.dev.browser .bar i { width: calc(var(--u) * 0.6); height: calc(var(--u) * 0.6); border-radius: 50%; background: rgb(255 255 255 / 0.25); }
+.dev.browser .bar span { flex: 1; max-width: 58%; margin: 0 auto; padding: 0.2em 0.8em; border-radius: 999px; background: rgb(255 255 255 / 0.08); color: #bdbdb7; font-size: calc(var(--u) * 1.15); text-align: center; white-space: nowrap; overflow: hidden; }
+.dev.browser .scr { left: 0; right: 0; bottom: 0; top: calc(var(--u) * 2.4); }
+.dev.game { border-radius: calc(var(--u) * 1.4); aspect-ratio: 16 / 9.4; }
+.dev.game .scr { inset: calc(var(--u) * 0.55); border-radius: calc(var(--u) * 0.9); }
+.dev.game .lbl { position: absolute; left: calc(var(--u) * 1.4); top: calc(var(--u) * 1.4); z-index: 2; padding: 0.3em 0.75em; border-radius: 999px; background: rgb(12 12 12 / 0.75); color: var(--white); font-size: calc(var(--u) * 1.4); font-weight: 600; }
+.dev.phone { border-radius: calc(var(--u) * 3.4); aspect-ratio: 9 / 19; }
+.dev.phone .scr { inset: calc(var(--u) * 0.7); border-radius: calc(var(--u) * 2.8); }
+
+/* The moving collage: framed screens on a tilted plane, columns drifting in opposite directions.
+   The plane fades out under the type (data-fade side). */
+.plane { position: absolute; inset: 0; overflow: hidden; perspective: calc(var(--u) * 220); z-index: 1; }
+.plane .grid { position: absolute; left: 50%; top: 50%; width: 160%; display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: calc(var(--u) * 2.2); align-items: start; transform: translate(-50%, -50%) rotateX(var(--rx)) rotateZ(var(--rz)); transform-style: preserve-3d; }
+.plane .col { display: grid; gap: calc(var(--u) * 2.2); will-change: transform; }
+.plane .dev { position: relative; }
+.plane .dev.phone { width: 62%; justify-self: center; }
+.plane[data-side='left'] { -webkit-mask-image: linear-gradient(90deg, transparent 8%, #000 52%); }
+.plane[data-side='right'] { -webkit-mask-image: linear-gradient(270deg, transparent 8%, #000 52%); }
+body.port .plane[data-side] { -webkit-mask-image: linear-gradient(180deg, transparent 6%, #000 34%, #000 82%, transparent 96%); }
+
 /* Captions: three words; the one being said is boxed. */
 #caps { position: absolute; left: 6%; right: 6%; bottom: 6.5%; z-index: 50; text-align: center; font-family: D; font-weight: 800; text-transform: uppercase; font-size: calc(var(--u) * 5.6); line-height: 1.1; }
 body.port #caps { bottom: 12%; font-size: calc(var(--u) * 8); }
-#caps span { display: inline-block; margin: 0 0.08em; padding: 0 0.1em; }
-#caps[data-tone='light'] span { color: rgb(12 12 12 / 0.3); }
+#caps span { display: inline-block; margin: 0 0.04em; padding: 0.04em 0.16em 0; }
+#caps[data-tone='light'] span { color: rgb(12 12 12 / 0.38); background: rgb(233 232 226 / 0.88); }
 #caps[data-tone='light'] span.said { color: var(--ink); }
 #caps[data-tone='light'] span.now { color: var(--paper); background: var(--ink); }
-#caps[data-tone='dark'] span { color: rgb(237 237 231 / 0.35); }
+#caps[data-tone='dark'] span { color: rgb(237 237 231 / 0.45); background: rgb(11 11 11 / 0.7); }
 #caps[data-tone='dark'] span.said { color: var(--white); }
 #caps[data-tone='dark'] span.now { color: var(--ink); background: var(--white); }
 #flash { position: absolute; inset: 0; background: #fff; opacity: 0; z-index: 60; pointer-events: none; }
@@ -68,15 +94,15 @@ body.port #s-name .print { left: auto; right: 4%; bottom: auto; top: 44%; width:
 
 #s-idea .give { left: 6%; top: 18%; font-size: calc(var(--u) * 2.4); }
 #s-idea .idea { left: 6%; top: 25%; font-size: calc(var(--u) * 7); }
-#s-idea .p1 { left: 40%; top: 10%; width: 17%; height: 62%; }
-#s-idea .p2 { left: 59%; top: 16%; width: 17%; height: 62%; }
-#s-idea .p3 { left: 78%; top: 8%; width: 17%; height: 62%; }
-#s-idea .product { left: 4%; top: 46%; font-size: calc(var(--u) * 24); z-index: 10; mix-blend-mode: difference; color: #fff; }
+#s-idea .p1 { left: 34%; top: 8%; width: 36%; z-index: 3; }
+#s-idea .p2 { left: 52%; top: 40%; width: 34%; z-index: 5; }
+#s-idea .p3 { left: 66%; top: 6%; width: 30%; z-index: 2; }
+#s-idea .product { left: 4%; top: 46%; font-size: calc(var(--u) * 24); z-index: 10; color: #fff; text-shadow: 0 0.04em 0.35em rgb(0 0 0 / 0.7); }
 body.port #s-idea .give { top: 9%; }
 body.port #s-idea .idea { top: 12%; }
-body.port #s-idea .p1 { left: 6%; top: 24%; width: 28%; height: 34%; }
-body.port #s-idea .p2 { left: 36%; top: 28%; width: 28%; height: 34%; }
-body.port #s-idea .p3 { left: 66%; top: 22%; width: 28%; height: 34%; }
+body.port #s-idea .p1 { left: 5%; top: 19%; width: 78%; }
+body.port #s-idea .p2 { left: 14%; top: 33%; width: 80%; }
+body.port #s-idea .p3 { left: 8%; top: 47%; width: 70%; z-index: 4; }
 body.port #s-idea .product { top: 58%; font-size: calc(var(--u) * 21); }
 
 #s-years .four { left: 8%; top: 6%; font-size: calc(var(--u) * 90); line-height: 0.78; }
@@ -107,49 +133,53 @@ body.port #s-teams .c2 { left: 22%; top: 29%; width: 70%; }
 body.port #s-teams .c3 { left: 8%; top: 51%; width: 70%; }
 body.port #s-teams .senior { right: 6%; top: 66%; }
 
-#s-own .q1 { left: 5%; top: 16%; width: 26%; height: 72%; }
-#s-own .q2 { left: 37%; top: 16%; width: 26%; height: 72%; }
-#s-own .q3 { left: 69%; top: 16%; width: 26%; height: 72%; }
-#s-own .products { left: 3%; top: 30%; font-size: calc(var(--u) * 22); z-index: 10; mix-blend-mode: difference; color: #fff; }
+#s-own .q1 { left: 4%; top: 12%; width: 34%; }
+#s-own .q2 { left: 34%; top: 44%; width: 32%; z-index: 3; }
+#s-own .q3 { left: 62%; top: 10%; width: 34%; }
+#s-own .products { left: 3%; top: 30%; font-size: calc(var(--u) * 22); z-index: 10; color: #fff; text-shadow: 0 0.04em 0.35em rgb(0 0 0 / 0.7); }
 #s-own .of { left: 42%; top: 58%; font-size: calc(var(--u) * 5.4); }
-body.port #s-own .q1 { left: 6%; top: 8%; width: 40%; height: 28%; }
-body.port #s-own .q2 { left: 54%; top: 14%; width: 40%; height: 28%; }
-body.port #s-own .q3 { left: 20%; top: 46%; width: 60%; height: 22%; }
+body.port #s-own .q1 { left: 6%; top: 6%; width: 76%; }
+body.port #s-own .q2 { left: 16%; top: 54%; width: 78%; }
+body.port #s-own .q3 { left: 10%; top: 68%; width: 70%; }
 body.port #s-own .products { top: 36%; font-size: calc(var(--u) * 19); }
 body.port #s-own .of { left: 30%; top: 47%; }
 
 #s-ez .name { left: 3%; top: 6%; font-size: calc(var(--u) * 24); z-index: 1; color: rgb(12 12 12 / 0.9); }
-#s-ez .ph1 { left: 30%; top: 12%; width: 19%; height: 78%; z-index: 5; }
-#s-ez .ph2 { left: 52%; top: 20%; width: 15%; height: 62%; z-index: 4; }
-#s-ez .print { right: 7%; top: 18%; width: 22%; height: 30%; }
-#s-ez .real { right: 9%; top: 58%; font-size: calc(var(--u) * 4.4); }
+#s-ez .ph1 { left: 26%; top: 12%; width: 44%; z-index: 4; }
+#s-ez .ph2 { left: 58%; top: 40%; width: 30%; z-index: 5; }
+#s-ez .ph3 { left: 86%; top: 8%; width: 10%; z-index: 6; }
+#s-ez .print { left: 6%; top: 52%; width: 15%; height: 24%; }
+#s-ez .real { left: 30%; top: 74%; font-size: calc(var(--u) * 4.4); z-index: 7; }
 #s-ez .k { left: 3.4%; top: 33%; }
 body.port #s-ez .name { top: 5%; font-size: calc(var(--u) * 19); }
 body.port #s-ez .k { top: 15%; }
-body.port #s-ez .ph1 { left: 8%; top: 20%; width: 48%; height: 50%; }
-body.port #s-ez .ph2 { left: 58%; top: 26%; width: 36%; height: 38%; }
-body.port #s-ez .print { right: 6%; top: auto; bottom: 22%; width: 34%; height: 14%; }
-body.port #s-ez .real { right: auto; left: 8%; top: 73%; }
+body.port #s-ez .ph1 { left: 5%; top: 20%; width: 90%; }
+body.port #s-ez .ph2 { left: 22%; top: 38%; width: 72%; }
+body.port #s-ez .ph3 { left: 6%; top: 46%; width: 26%; }
+body.port #s-ez .print { left: auto; right: 6%; top: auto; bottom: 22%; width: 30%; height: 12%; }
+body.port #s-ez .real { left: 8%; top: 74%; }
 
 #s-havoc .name { left: 4%; top: 7%; font-size: calc(var(--u) * 15); z-index: 10; }
-#s-havoc .main { left: 32%; top: 12%; width: 50%; height: 56%; z-index: 4; }
-#s-havoc .g1 { left: 5%; top: 46%; width: 22%; height: 22%; }
-#s-havoc .g2 { left: 72%; top: 62%; width: 22%; height: 22%; }
-#s-havoc .g3 { left: 84%; top: 10%; width: 13%; height: 26%; }
+#s-havoc .main { left: 30%; top: 10%; width: 50%; z-index: 4; }
+#s-havoc .g1 { left: 4%; top: 46%; width: 26%; z-index: 5; }
+#s-havoc .g2 { left: 70%; top: 56%; width: 26%; z-index: 5; }
+#s-havoc .g3 { left: 76%; top: 6%; width: 21%; z-index: 3; }
 #s-havoc .sessions { left: 50%; top: 64%; font-size: calc(var(--u) * 6.6); color: var(--white); }
 body.port #s-havoc .name { top: 5%; font-size: calc(var(--u) * 16); }
-body.port #s-havoc .main { left: 6%; top: 24%; width: 88%; height: 30%; }
-body.port #s-havoc .g1 { left: 6%; top: 57%; width: 42%; height: 13%; }
-body.port #s-havoc .g2 { left: 52%; top: 57%; width: 42%; height: 13%; }
-body.port #s-havoc .g3 { display: none; }
+body.port #s-havoc .main { left: 5%; top: 22%; width: 90%; }
+body.port #s-havoc .g1 { left: 5%; top: 50%; width: 46%; }
+body.port #s-havoc .g2 { left: 49%; top: 56%; width: 46%; }
+body.port #s-havoc .g3 { left: 20%; top: 64%; width: 46%; }
 body.port #s-havoc .sessions { left: 18%; top: 47%; }
 
 #s-gym .name { right: 4%; top: 8%; font-size: calc(var(--u) * 20); text-align: right; }
-#s-gym .card2 { left: 6%; top: 22%; width: 52%; height: 50%; z-index: 4; }
-#s-gym .days { left: 52%; top: 56%; font-size: calc(var(--u) * 11); color: var(--ink); }
+#s-gym .card2 { left: 5%; top: 14%; width: 50%; z-index: 4; }
+#s-gym .card3 { left: 44%; top: 44%; width: 34%; z-index: 5; }
+#s-gym .days { left: 78%; top: 60%; font-size: calc(var(--u) * 9); color: var(--ink); z-index: 6; }
 body.port #s-gym .name { right: 6%; top: 6%; font-size: calc(var(--u) * 19); }
-body.port #s-gym .card2 { left: 6%; top: 28%; width: 88%; height: 26%; }
-body.port #s-gym .days { left: 30%; top: 56%; }
+body.port #s-gym .card2 { left: 5%; top: 22%; width: 90%; }
+body.port #s-gym .card3 { left: 18%; top: 44%; width: 76%; }
+body.port #s-gym .days { left: 8%; top: 62%; }
 
 #s-build .ph { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; text-align: center; visibility: hidden; }
 #s-build .ph .d { font-size: calc(var(--u) * 20); max-width: 90vw; }
@@ -200,11 +230,9 @@ body.port #s-talk .contact { left: 7%; top: 82%; }
   </section>
 
   <section class="sc black" id="s-idea">
+    <div class="plane" data-plane="s-idea"></div>
     <p class="a k give" data-fade data-word="idea:Give">Give me an</p>
     <span class="tape idea" data-slap data-r="-2" data-word="idea:idea">Idea</span>
-    <div class="panel p1" data-drop data-r="-2" data-word="idea:hand"><img class="gray" src="../../src/assets/work/ezvenda-home.webp" alt="" style="object-position:top"></div>
-    <div class="panel p2" data-drop data-r="2" data-word="idea:back"><img class="gray" src="../../src/assets/work/mini-havoc-sumo.jpg" alt=""></div>
-    <div class="panel p3" data-drop data-r="-1" data-word="idea:a"><img class="gray" src="../../src/assets/work/gympaid-card.png" alt="" style="object-position:22% 50%"></div>
     <div class="a d product" data-slam="b" data-word="idea:product">Product</div>
   </section>
 
@@ -230,34 +258,28 @@ body.port #s-talk .contact { left: 7%; top: 82%; }
   </section>
 
   <section class="sc black" id="s-own">
-    <div class="panel q1" data-drop data-r="-1" data-at="0.05"><img class="gray" src="../../src/assets/work/ezvenda-desktop.webp" alt=""></div>
-    <div class="panel q2" data-drop data-r="1" data-at="0.2"><img class="gray" src="../../src/assets/work/mini-havoc-hexdrop.jpg" alt=""></div>
-    <div class="panel q3" data-drop data-r="-1" data-at="0.35"><img class="gray" src="../../src/assets/work/gympaid-card.png" alt="" style="object-position:20% 50%"></div>
+    <div class="plane" data-plane="s-own"></div>
     <div class="a d products" data-slam="l" data-word="own:products">Products</div>
     <span class="tape of" data-slap data-r="2" data-word="own:own">of my own</span>
   </section>
 
   <section class="sc paper" id="s-ez">
+    <div class="plane" data-plane="s-ez"></div>
     <div class="a d name" data-slam="l" data-word="ezvenda:EzVenda">EzVenda</div>
     <p class="a k" data-fade data-at="0.4">01 · Commerce platform</p>
-    <div class="panel ph1" data-drop data-r="-3" data-at="0.3"><img class="gray" src="../../src/assets/work/ezvenda-product.webp" alt="" style="object-position:top"></div>
-    <div class="panel ph2" data-drop data-r="4" data-word="ezvenda:shops"><img class="gray" src="../../src/assets/work/ezvenda-checkout.webp" alt="" style="object-position:top"></div>
     <div class="print" data-slap data-r="5" data-word="ezvenda:online"><img class="gray" src="../../src/assets/posters/ezvenda-art.webp" alt=""></div>
     <span class="tape ink real" data-slap data-r="-4" data-word="ezvenda:real">A real merchant</span>
   </section>
 
   <section class="sc black" id="s-havoc">
+    <div class="plane" data-plane="s-havoc"></div>
     <div class="a d name" data-slam="l" data-word="havoc:Mini">Mini<br>Havoc</div>
-    <div class="panel main" data-drop data-r="-1" data-at="0.2"><video class="gray" src="../../public/media/mini-havoc-sumo.webm" muted></video></div>
-    <div class="print g1" data-slap data-r="-5" data-word="havoc:party"><img class="gray" src="../../src/assets/work/mini-havoc-hexdrop.jpg" alt=""></div>
-    <div class="print g2" data-slap data-r="4" data-word="havoc:games"><img class="gray" src="../../src/assets/work/mini-havoc-floor.jpg" alt=""></div>
-    <div class="print g3" data-slap data-r="-3" data-word="havoc:with"><img class="gray" src="../../src/assets/work/mini-havoc-hush.jpg" alt=""></div>
     <span class="stamp sessions" data-slap data-r="-7" data-word="havoc:hundreds">100s of sessions</span>
   </section>
 
   <section class="sc paper" id="s-gym">
+    <div class="plane" data-plane="s-gym"></div>
     <div class="a d name" data-slam="r" data-word="gympaid:GymPaid">GymPaid</div>
-    <div class="panel card2" data-drop data-r="-2" data-at="0.25"><img class="gray" src="../../src/assets/work/gympaid-card.png" alt=""></div>
     <span class="stamp days" data-slap data-r="-9" data-word="gympaid:two">2 days</span>
   </section>
 
@@ -315,6 +337,35 @@ const S = scenes([
   { id: 's-ask', beats: ['ask'] },
   { id: 's-talk', beats: ['talk'] },
 ]);
+
+// The moving collages: which screens, how the plane tilts, and which side the type sits on.
+const WK = '../../src/assets/work/';
+const GM = '../../public/media/games/';
+const B_ = (img, url) => ({ k: 'browser', img, url });
+const G_ = (clip, label) => ({ k: 'game', clip, label });
+const P_ = (img) => ({ k: 'phone', img });
+const PLANES = {
+  's-idea': { side: 'left', rx: 52, rz: -30, n: 4, items: [B_('ezvenda-builder.webp', 'app.ezvenda.com/store'), G_('crossfire', 'Mini Havoc'), B_('gympaid-due.webp', 'gympaid.ezvenda.com'), B_('ezvenda-ai.webp', 'app.ezvenda.com/ai'), G_('hexdrop', 'Hex Drop'), B_('gympaid-members.webp', 'gympaid.ezvenda.com/members'), P_('ezvenda-product.webp'), B_('ezvenda-orders.webp', 'app.ezvenda.com/orders')] },
+  's-own': { side: 'left', rx: 48, rz: 28, n: 4, items: [B_('ezvenda-store.webp', 'app.ezvenda.com/store'), G_('sumo', 'Sumo Out!'), B_('gympaid-plans.webp', 'gympaid.ezvenda.com/plans'), B_('ezvenda-customers.webp', 'app.ezvenda.com/customers'), G_('brawl', 'Havoc Golf'), B_('gympaid-due.webp', 'gympaid.ezvenda.com'), B_('ezvenda-products.webp', 'app.ezvenda.com/products')] },
+  's-ez': { side: 'left', rx: 54, rz: -34, n: 4, items: [B_('ezvenda-builder.webp', 'app.ezvenda.com/store'), P_('ezvenda-home.webp'), B_('ezvenda-order.webp', 'app.ezvenda.com/orders'), B_('ezvenda-ai.webp', 'app.ezvenda.com/ai'), P_('ezvenda-product.webp'), B_('ezvenda-desktop.webp', 'hilal-traders.ezvenda.store'), B_('ezvenda-orders.webp', 'app.ezvenda.com/orders'), P_('ezvenda-checkout.webp'), B_('ezvenda-customers.webp', 'app.ezvenda.com/customers')] },
+  's-havoc': { side: 'left', rx: 50, rz: -28, n: 4, items: [G_('brawl', 'Havoc Golf'), G_('crossfire', 'Crossfire'), G_('sumo', 'Sumo Out!'), G_('hexdrop', 'Hex Drop'), G_('hush', 'Hush'), G_('floor', 'Colour Floor')] },
+  's-gym': { side: 'right', rx: 52, rz: 30, n: 3, items: [B_('gympaid-due.webp', 'gympaid.ezvenda.com'), B_('gympaid-members.webp', 'gympaid.ezvenda.com/members'), B_('gympaid-plans.webp', 'gympaid.ezvenda.com/plans'), B_('gympaid-card.png', 'gympaid.ezvenda.com')] },
+};
+const frameHTML = (it) =>
+  it.k === 'browser'
+    ? `<div class="dev browser"><div class="bar"><i></i><i></i><i></i><span>${it.url}</span></div><div class="scr"><img src="${WK}${it.img}" alt="" style="object-position:top left"></div></div>`
+    : it.k === 'game'
+      ? `<div class="dev game"><span class="lbl">${it.label}</span><div class="scr"><video src="${GM}${it.clip}.webm" muted></video></div></div>`
+      : `<div class="dev phone"><div class="scr"><img src="${WK}${it.img}" alt="" style="object-position:top"></div></div>`;
+for (const [id, pl] of Object.entries(PLANES)) {
+  const el = document.querySelector(`[data-plane="${id}"]`);
+  el.dataset.side = pl.side;
+  const per = Math.max(3, Math.ceil((pl.items.length * 1.5) / pl.n));
+  const cols = Array.from({ length: pl.n }, (_, c) => Array.from({ length: per }, (_, k) => pl.items[(c * 2 + k) % pl.items.length]));
+  el.innerHTML = `<div class="grid" style="--n:${pl.n};--rx:${pl.rx}deg;--rz:${pl.rz}deg">${cols.map((col) => `<div class="col">${[...col, ...col].map(frameHTML).join('')}</div>`).join('')}</div>`;
+}
+const planeCols = [...document.querySelectorAll('.plane .col')];
+
 const groups = captions(S);
 const caps = document.getElementById('caps');
 
@@ -344,7 +395,6 @@ stops.forEach((s, i) => {
 });
 const stopEls = [...layers.querySelectorAll('.stop')];
 
-const video = document.querySelector('#s-havoc video');
 
 window.render = async (t) => {
   let flash = 0;
@@ -410,10 +460,18 @@ window.render = async (t) => {
     const q = ease(win(t, s.from, s.to));
     document.querySelector('#s-teams .track').style.transform = port ? `translateY(${(0.5 - q) * 4}%)` : `translateX(${(0.5 - q) * 6}%)`;
   }
-  // Mini Havoc: the real game plays in its panel.
-  {
-    const s = S.find((x) => x.id === 's-havoc');
-    if (t >= s.from && t < s.to + 0.3 && video.readyState >= 1) waits.push(seek(video, t - s.from));
+  // The collages drift: each column at its own pace, neighbours opposite, looping on its own height.
+  for (const [i, col] of planeCols.entries()) {
+    const half = col.offsetHeight / 2;
+    if (!half) continue;
+    const speed = H * (0.05 + (i % 4) * 0.012) * (i % 2 ? 1 : -1);
+    const y = (((t * speed) % half) + half) % half;
+    col.style.transform = `translateY(${-y}px)`;
+  }
+  // Clips play in their frames while their scene is up (each from its own start).
+  for (const s of S) {
+    if (t < s.from || t >= s.to + 0.3) continue;
+    s.el.querySelectorAll('video').forEach((v, k) => v.readyState >= 1 && waits.push(seek(v, t - s.from + k * 1.7)));
   }
   // Build: one card per phrase, hard cuts.
   const phrases = [...document.querySelectorAll('#s-build .ph')];
