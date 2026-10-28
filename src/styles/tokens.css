@@ -34,34 +34,33 @@
 @property --ground {
   syntax: '<color>';
   inherits: true;
-  initial-value: #f0f0ec;
+  initial-value: #0b0b0b;
 }
 @property --ink {
   syntax: '<color>';
   inherits: true;
-  initial-value: #111110;
+  initial-value: #ededE7;
 }
 @property --muted {
   syntax: '<color>';
   inherits: true;
-  initial-value: #5c5c57;
+  initial-value: #8f8f89;
 }
 @property --line {
   syntax: '<color>';
   inherits: true;
-  initial-value: rgb(17 17 16 / 0.14);
+  initial-value: rgb(237 237 231 / 0.14);
 }
 
 :root {
-  --ground: #f0f0ec;
-  --ink: #111110;
-  --muted: #5c5c57;
-  --line: rgb(17 17 16 / 0.14);
-  --signal: #ff5a1f;
-  --faint: rgb(17 17 16 / 0.18);
-  /* What a primary button floods with on hover, and the text on top of it. */
-  --flood: var(--signal);
-  --on-flood: #111110;
+  --ground: #0b0b0b;
+  --ink: #ededE7;
+  --muted: #8f8f89;
+  --line: rgb(237 237 231 / 0.14);
+  --faint: rgb(237 237 231 / 0.12);
+  /* No colour accent: chrome and contrast do the work. */
+  --signal: #ffffff;
+  --ring: #ffffff;
 
   --f-display: 'Display', 'Display Fallback', 'Arial Narrow', sans-serif;
   --f-text: 'Text', 'Text Fallback', system-ui, sans-serif;
@@ -84,9 +83,9 @@
   --d-l: 900ms;
 }
 
-/* Palettes and chapter fields. Sections declare a role (base, contrast, accent); the palette on
-   <html> maps roles to colours. With JS the whole page takes the field of the chapter in view;
-   without JS each chapter paints its own. */
+/* Chapter fields. Sections declare a role (base, contrast, accent) and the role picks the colours:
+   the site lives in the posters' black studio, with pale chapters for contrast. With JS the whole
+   page takes the field of the chapter in view; without JS each chapter paints its own. */
 html {
   transition:
     --ground 700ms var(--ease),
@@ -94,20 +93,8 @@ html {
     --muted 700ms var(--ease),
     --line 700ms var(--ease);
 }
-
-/* Studio black: the site lives in the posters' black studio. No colour accent: chrome does it. */
-html[data-palette='studio'],
-html[data-palette='studio'][data-field='base'],
-html[data-palette='studio']:not(.js) [data-field='base'] {
-  --ground: #0b0b0b;
-  --ink: #ededE7;
-  --muted: #8f8f89;
-  --line: rgb(237 237 231 / 0.14);
-  --faint: rgb(237 237 231 / 0.12);
-  --signal: #ffffff;
-}
-html[data-palette='studio'][data-field='contrast'],
-html[data-palette='studio']:not(.js) [data-field='contrast'] {
+html[data-field='contrast'],
+html:not(.js) [data-field='contrast'] {
   --ground: #ededE7;
   --ink: #0e0e0e;
   --muted: #5c5c57;
@@ -115,55 +102,14 @@ html[data-palette='studio']:not(.js) [data-field='contrast'] {
   --faint: rgb(14 14 14 / 0.12);
   --signal: #0e0e0e;
 }
-html[data-palette='studio'][data-field='accent'],
-html[data-palette='studio']:not(.js) [data-field='accent'] {
+html[data-field='accent'],
+html:not(.js) [data-field='accent'] {
   --ground: #1a1a19;
   --ink: #ededE7;
   --muted: #9b9b95;
   --line: rgb(237 237 231 / 0.16);
   --faint: rgb(237 237 231 / 0.12);
   --signal: #ffffff;
-}
-html[data-palette='studio'] {
-  /* Buttons flood with chrome. */
-  --flood: linear-gradient(180deg, #ffffff 0%, #c9c9c3 45%, #7d7d78 100%);
-  --on-flood: #0b0b0b;
-  --ring: #ffffff;
-}
-
-/* Gallery white: a pale wall with the posters hung as dark prints, and one cobalt accent. */
-html[data-palette='gallery'],
-html[data-palette='gallery'][data-field='base'],
-html[data-palette='gallery']:not(.js) [data-field='base'] {
-  --ground: #eeeeea;
-  --ink: #0e0e0e;
-  --muted: #5c5c57;
-  --line: rgb(14 14 14 / 0.14);
-  --faint: rgb(14 14 14 / 0.12);
-  --signal: #2b46ff;
-}
-html[data-palette='gallery'][data-field='contrast'],
-html[data-palette='gallery']:not(.js) [data-field='contrast'] {
-  --ground: #0b0b0b;
-  --ink: #ededE7;
-  --muted: #8f8f89;
-  --line: rgb(237 237 231 / 0.14);
-  --faint: rgb(237 237 231 / 0.12);
-  --signal: #8ea0ff;
-}
-html[data-palette='gallery'][data-field='accent'],
-html[data-palette='gallery']:not(.js) [data-field='accent'] {
-  --ground: #0b0b0b;
-  --ink: #ededE7;
-  --muted: #8f8f89;
-  --line: rgb(237 237 231 / 0.14);
-  --faint: rgb(237 237 231 / 0.12);
-  --signal: #8ea0ff;
-}
-html[data-palette='gallery'] {
-  --flood: #2b46ff;
-  --on-flood: #ffffff;
-  --ring: #2b46ff;
 }
 
 html:not(.js) [data-field] {

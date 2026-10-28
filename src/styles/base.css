@@ -120,7 +120,7 @@ button {
   line-height: 0.9;
 }
 
-/* Primary action: signal floods up from the baseline, the arrow travels. */
+/* Primary action: ink fills in from the left on hover, the arrow travels. */
 .btn {
   --h: 3rem;
   position: relative;

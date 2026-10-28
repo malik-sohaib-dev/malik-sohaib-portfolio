@@ -177,7 +177,7 @@ const previews = [...new Set(nav.map((n) => n.preview))];
     }
   }
 
-  /* Black glass in either palette: the page blurs behind it. */
+  /* Black glass: the page blurs behind it. */
   .menu {
     position: fixed;
     inset: 0;
@@ -193,8 +193,6 @@ const previews = [...new Set(nav.map((n) => n.preview))];
     --ink: #ededE7;
     --muted: #8f8f89;
     --line: rgb(237 237 231 / 0.16);
-    --flood: linear-gradient(180deg, #ffffff 0%, #c9c9c3 45%, #7d7d78 100%);
-    --on-flood: #0b0b0b;
   }
   .menu__in {
     display: grid;

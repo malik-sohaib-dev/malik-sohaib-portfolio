@@ -15,11 +15,6 @@ export function onPage(init: () => Cleanup) {
 
 function flags() {
   const html = document.documentElement;
-  // Astro replaces <html> attributes on navigation: restore the palette being previewed.
-  try {
-    const p = sessionStorage.getItem('palette');
-    if (p) html.dataset.palette = p;
-  } catch {}
   html.classList.add('js');
   // The loader only plays on the first load; every later page is ready at once.
   if (!html.classList.contains('is-loading')) html.classList.add('is-ready');
