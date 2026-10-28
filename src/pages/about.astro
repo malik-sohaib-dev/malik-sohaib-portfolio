@@ -1,7 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
-import portrait from '../assets/portrait/studio-dark.webp';
+import portrait from '../assets/portrait/profile-coat.webp';
 import Poster from '../components/Poster.astro';
 import { about, site } from '../data/site';
 import { posters } from '../data/posters';
@@ -13,7 +13,7 @@ import { posters } from '../data/posters';
       <h1 class="ab-hero__title display" id="ab-title">{about.greeting}</h1>
       <figure class="ab-hero__portrait">
         <span class="ab-hero__photo" data-liquid>
-          <Image src={portrait} alt="Malik Sohaib in a black shirt and dark glasses, in black and white." widths={[480, 720, 1000]} sizes="(min-width: 900px) 30vw, 75vw" loading="eager" />
+          <Image src={portrait} alt="Malik Sohaib in profile, in a wool coat over a turtleneck, in black and white." widths={[480, 720, 1000]} sizes="(min-width: 900px) 30vw, 75vw" loading="eager" />
         </span>
       </figure>
       <div class="ab-hero__bio">
@@ -134,7 +134,7 @@ import { posters } from '../data/posters';
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: 50% 25%;
+    object-position: 60% 30%;
   }
   .ab-hero__bio {
     grid-column: 1 / -1;

@@ -1,9 +1,9 @@
 ---
-// The close: the invitation over my silhouette in haze (art/portrait.py; the mercury stirs it like
-// every picture), then everything else in four short columns.
-// On pages with their own call to action (About) only the columns and the last line show.
-import { Image } from 'astro:assets';
-import haze from '../assets/portrait/haze.webp';
+// The close: the invitation, then my full name over my portrait as a mosaic that resolves as it
+// comes into view and sharpens under the pointer (src/motion/mosaic.ts), then four short columns.
+// On pages with their own call to action (About) the invitation is left out.
+import { getImage } from 'astro:assets';
+import light from '../assets/portrait/profile-light.webp';
 import { site } from '../data/site';
 import { posters } from '../data/posters';
 interface Props {
@@ -13,21 +13,21 @@ const { links = false } = Astro.props;
 const year = new Date().getFullYear();
 const work = Object.values(posters).filter((p) => p.href.startsWith('/work/'));
 const outside = { target: '_blank', rel: 'noopener' };
+// The photo the mosaic averages down, and a tiny copy that is the mosaic before (or without) script.
+const full = await getImage({ src: light, width: 1254, format: 'webp' });
+const tiny = await getImage({ src: light, width: 72, format: 'webp' });
 ---
 
-<footer class:list={['ftr', { 'ftr--links': links }]} id="contact" data-field="contrast">
+<footer class:list={['ftr', { 'ftr--links': links }]} id="contact" data-field="base">
   {
     !links && (
-      <div class="ftr__stage" data-liquid-surface>
-        <span class="ftr__haze" data-liquid aria-hidden="true">
-          <Image src={haze} alt="" widths={[800, 1400, 2400]} sizes="100vw" loading="lazy" />
-        </span>
-        <div class="wrap ftr__ask">
-          <h2 class="ftr__title display">
-            Let’s
-            <br />
-            talk.
-          </h2>
+      <div class="wrap ftr__ask">
+        <h2 class="ftr__title display">
+          Let’s
+          <br />
+          talk.
+        </h2>
+        <div class="ftr__side">
           <p class="ftr__lede">
             A project to build, a role to fill, advice you need, an idea to bounce around, a collaboration, or something you want to
             learn. Whatever it is, write to me. Just saying hi is welcome too.
@@ -44,6 +44,11 @@ const outside = { target: '_blank', rel: 'noopener' };
       </div>
     )
   }
+  <div class="ftr__stage" data-mosaic data-src={full.src} data-focus-x="0.42" data-focus-y="0.36">
+    <img class="ftr__tiny" src={tiny.src} alt="Malik Sohaib in profile, lit from behind, as a mosaic." width="72" height="72" loading="lazy" />
+    <canvas aria-hidden="true"></canvas>
+    <p class="ftr__name display"><span>Malik</span> <span>Sohaib</span> <span>Ahmad</span></p>
+  </div>
   <div class="wrap">
     <nav class="ftr__cols" aria-label="Footer">
       <div>
@@ -102,55 +107,25 @@ const outside = { target: '_blank', rel: 'noopener' };
   </div>
 </footer>
 
+<script>
+  import { onPage } from '../motion/start';
+  import { mosaic } from '../motion/mosaic';
+
+  onPage(() => {
+    const stage = document.querySelector<HTMLElement>('[data-mosaic]');
+    return stage ? mosaic(stage) : undefined;
+  });
+</script>
+
 <style>
   .ftr {
     padding-bottom: 2rem;
   }
-  .ftr--links {
-    padding-top: clamp(3rem, 8vw, 5rem);
-  }
-  /* The stage: the haze edge to edge, fading into the page at its foot; the words sit on its
-     quiet left (on phones, at its foot). */
-  .ftr__stage {
-    position: relative;
-    display: grid;
-    align-items: end;
-    min-height: min(92svh, 900px);
-    padding-block: clamp(6rem, 12vw, 9rem) clamp(2rem, 5vw, 4rem);
-    overflow: hidden;
-  }
-  .ftr__haze {
-    position: absolute;
-    inset: 0;
-  }
-  .ftr__haze :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: 62% 35%;
-  }
-  .ftr__stage::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
-    background:
-      linear-gradient(to bottom, transparent 55%, var(--ground) 100%),
-      linear-gradient(90deg, rgb(237 237 231 / 0.45), transparent 55%);
-  }
+  /* The invitation: the words on the left, what to do about them on the right. */
   .ftr__ask {
-    position: relative;
-    z-index: 2;
-    width: 100%;
-  }
-  @media (max-width: 899px) {
-    .ftr__haze :global(img) {
-      object-position: 72% 30%;
-    }
-    .ftr__stage::after {
-      background: linear-gradient(to bottom, transparent 30%, rgb(237 237 231 / 0.75) 62%, var(--ground) 100%);
-    }
+    display: grid;
+    gap: 2rem var(--gutter);
+    padding-block: clamp(5rem, 12vw, 9rem) clamp(3rem, 7vw, 5rem);
   }
   .ftr__title {
     font-size: var(--t-mega);
@@ -158,8 +133,7 @@ const outside = { target: '_blank', rel: 'noopener' };
   }
   .ftr__lede {
     max-width: 30rem;
-    margin-top: 2rem;
-    color: #2a2a28;
+    color: var(--muted);
   }
   .ftr__actions {
     display: flex;
@@ -167,19 +141,86 @@ const outside = { target: '_blank', rel: 'noopener' };
     gap: 0.75rem;
     margin-top: 2rem;
   }
+  @media (min-width: 900px) {
+    .ftr__ask {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      align-items: end;
+    }
+    .ftr__title {
+      grid-column: 1 / 8;
+    }
+    .ftr__side {
+      grid-column: 8 / -1;
+      padding-bottom: 0.6rem;
+    }
+  }
+
+  /* The stage: the portrait edge to edge as a mosaic, my name across its foot. Before the script
+     draws (or without it), a 72px copy scaled up without smoothing is the mosaic. */
+  .ftr__stage {
+    position: relative;
+    height: min(92svh, 62vw);
+    min-height: 420px;
+    overflow: hidden;
+    background: #0b0b0b;
+  }
+  @media (max-width: 899px) {
+    .ftr__stage {
+      height: 128vw;
+    }
+  }
+  .ftr__tiny,
+  .ftr__stage canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .ftr__tiny {
+    object-fit: cover;
+    object-position: 42% 42%;
+    image-rendering: pixelated;
+  }
+  .ftr__stage canvas {
+    opacity: 0;
+    transition: opacity 400ms linear;
+  }
+  .ftr__stage:global(.is-drawn) canvas {
+    opacity: 1;
+  }
+  /* The name inverts what is under it, like the cursor: light on the dark figure, dark on the light. */
+  .ftr__name {
+    position: absolute;
+    left: var(--margin);
+    right: var(--margin);
+    bottom: clamp(0.5rem, 2vw, 1.5rem);
+    z-index: 1;
+    color: #fff;
+    mix-blend-mode: difference;
+    font-size: 10.4vw;
+    line-height: 0.82;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  @media (max-width: 899px) {
+    .ftr__name {
+      font-size: 19vw;
+      white-space: normal;
+    }
+    .ftr__name span {
+      display: block;
+    }
+  }
 
   /* Four short columns: the work, the rest of the site, elsewhere, and how to reach me. */
   .ftr__cols {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 2.25rem var(--gutter);
-    margin-top: clamp(2rem, 5vw, 4rem);
-    padding-top: 2rem;
-    border-top: 1px solid var(--line);
+    padding-top: clamp(2.5rem, 5vw, 4rem);
   }
-  .ftr--links .ftr__cols {
-    margin-top: 0;
-  }
+
   @media (min-width: 900px) {
     .ftr__cols {
       grid-template-columns: repeat(4, minmax(0, 1fr));
