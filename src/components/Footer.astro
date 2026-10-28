@@ -1,7 +1,7 @@
 ---
-// The close, on every page: the invitation (pick what it is about and the email starts itself; or
-// take the address from the marquee), then my full name under my silhouette in soft light
-// (art/portrait.py; the mercury stirs it like every picture), then four short columns.
+// The close, on every page: the invitation (pick what it is about and the email starts itself, or
+// take the address), then my silhouette in soft light with my full name drawn into it as part of
+// the picture (art/portrait.py; the mercury stirs both), then four short columns.
 import { Image } from 'astro:assets';
 import glow from '../assets/portrait/profile-glow.webp';
 import { site } from '../data/site';
@@ -32,19 +32,13 @@ const mailto = (subject: string) => `mailto:${site.email}?subject=${encodeURICom
           ))
         }
       </ul>
+      <p class="ftr__direct">
+        Or write to <a href={`mailto:${site.email}`}>{site.email}</a>
+        <button type="button" data-copy={site.email}><span data-copy-label>Copy</span></button>
+        <span aria-hidden="true">/</span>
+        <a href={site.whatsapp.href} {...outside}>WhatsApp ↗</a>
+      </p>
     </div>
-  </div>
-  <a class="ftr__mail display" href={`mailto:${site.email}`} data-cursor="Write to me">
-    <span class="ftr__track" aria-hidden="true">
-      {Array.from({ length: 4 }, () => <span>{site.email}</span>)}
-    </span>
-    <span class="sr-only">{site.email}</span>
-  </a>
-  <div class="wrap ftr__actions">
-    <button class="btn" type="button" data-copy={site.email}><span data-copy-label>Copy email</span></button>
-    <a class="btn btn--ghost" href={site.whatsapp.href} {...outside}>
-      WhatsApp <span class="btn__arrow" aria-hidden="true">↗</span>
-    </a>
   </div>
   <!-- The end, one screen tall: the silhouette takes what the links leave. -->
   <div class="ftr__end">
@@ -53,6 +47,7 @@ const mailto = (subject: string) => `mailto:${site.email}?subject=${encodeURICom
       <Image src={glow} alt="Malik Sohaib in profile, a silhouette against soft light." widths={[800, 1400, 2400]} sizes="100vw" loading="lazy" />
     </span>
     <p class="ftr__name display" data-fit><span>Malik Sohaib Ahmad</span></p>
+    <!-- With script, the name is drawn into the picture (see the poster script below). -->
   </div>
   <div class="wrap ftr__bottom">
     <nav class="ftr__cols" aria-label="Footer">
@@ -125,7 +120,7 @@ const mailto = (subject: string) => `mailto:${site.email}?subject=${encodeURICom
       try {
         await navigator.clipboard.writeText(btn.dataset.copy!);
         out.textContent = 'Copied';
-        setTimeout(() => (out.textContent = 'Copy email'), 1600);
+        setTimeout(() => (out.textContent = 'Copy'), 1600);
       } catch {
         location.href = `mailto:${btn.dataset.copy}`;
       }
@@ -148,6 +143,103 @@ const mailto = (subject: string) => `mailto:${site.email}?subject=${encodeURICom
     document.fonts.ready.then(fit);
     return () => ro.disconnect();
   });
+
+  // The poster: the name drawn into the picture, so it is part of it. It is filled with the photo
+  // itself brightened (lit by the same light, with the same grain) under a soft glow, its foot runs
+  // off the bottom edge, and the picture fades into the page there. The result replaces the image's
+  // source, so the mercury distorts the name with everything else. Redrawn when the stage resizes.
+  onPage(() => {
+    const stage = document.querySelector<HTMLElement>('.ftr__stage');
+    const img = stage?.querySelector<HTMLImageElement>('img');
+    if (!stage || !img) return;
+    const best = img.srcset.split(',').pop()!.trim().split(' ')[0] || img.src;
+    const name = stage.querySelector('[data-fit] span')!.textContent!.toUpperCase();
+    const photo = new Image();
+    photo.src = best;
+    let url = '';
+    let timer = 0;
+    let live = true;
+
+    const cover = (ctx: CanvasRenderingContext2D, W: number, H: number, fy = 0.38) => {
+      const k = Math.max(W / photo.naturalWidth, H / photo.naturalHeight);
+      const w = photo.naturalWidth * k;
+      const h = photo.naturalHeight * k;
+      ctx.drawImage(photo, (W - w) / 2, (H - h) * fy, w, h);
+    };
+
+    const bake = async () => {
+      await Promise.all([document.fonts.ready, photo.decode()]);
+      if (!live) return;
+      const r = stage.getBoundingClientRect();
+      const dpr = Math.min(2, devicePixelRatio || 1);
+      const W = Math.round(r.width * dpr);
+      const H = Math.round(r.height * dpr);
+      if (!W || !H) return;
+      const c = document.createElement('canvas');
+      c.width = W;
+      c.height = H;
+      const ctx = c.getContext('2d')!;
+      cover(ctx, W, H);
+
+      // The letters, fitted to the width between the margins, a fifth of their height below the edge.
+      const margin = parseFloat(getComputedStyle(stage.querySelector('[data-fit]')!).left) * dpr;
+      const font = (px: number) => `900 ${px}px Display, 'Display Fallback', sans-serif`;
+      const t = document.createElement('canvas');
+      t.width = W;
+      t.height = H;
+      const tx = t.getContext('2d')!;
+      tx.font = font(100);
+      const size = (100 * (W - margin * 2)) / tx.measureText(name).width;
+      tx.font = font(size);
+      const cap = tx.measureText(name).actualBoundingBoxAscent;
+      tx.textAlign = 'center';
+      tx.textBaseline = 'alphabetic';
+      tx.fillStyle = '#ecece6';
+      tx.fillText(name, W / 2, H + cap * 0.2);
+      // Lit from within: the photo, brightened, shows through the letters.
+      tx.globalCompositeOperation = 'source-atop';
+      tx.globalAlpha = 0.55;
+      tx.filter = 'brightness(1.9) contrast(1.1)';
+      cover(tx, W, H);
+
+      // A soft glow of the same letters, then the letters.
+      ctx.save();
+      ctx.filter = `blur(${Math.round(size * 0.08)}px)`;
+      ctx.globalAlpha = 0.35;
+      ctx.globalCompositeOperation = 'screen';
+      ctx.drawImage(t, 0, 0);
+      ctx.restore();
+      ctx.drawImage(t, 0, 0);
+      // The foot of the picture fades into the page.
+      const g = ctx.createLinearGradient(0, H * 0.82, 0, H);
+      g.addColorStop(0, 'rgb(11 11 11 / 0)');
+      g.addColorStop(1, 'rgb(11 11 11 / 0.85)');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, H * 0.82, W, H * 0.18);
+
+      const blob = await new Promise<Blob | null>((ok) => c.toBlob(ok, 'image/webp', 0.9));
+      if (!blob || !live) return;
+      const next = URL.createObjectURL(blob);
+      img.removeAttribute('srcset');
+      img.removeAttribute('sizes');
+      img.src = next;
+      await img.decode().catch(() => {});
+      if (url) URL.revokeObjectURL(url);
+      url = next;
+      stage.classList.add('is-baked');
+    };
+
+    const ro = new ResizeObserver(() => {
+      clearTimeout(timer);
+      timer = window.setTimeout(() => void bake(), 150);
+    });
+    ro.observe(stage);
+    return () => {
+      live = false;
+      ro.disconnect();
+      clearTimeout(timer);
+    };
+  });
 </script>
 
 <style>
@@ -158,7 +250,7 @@ const mailto = (subject: string) => `mailto:${site.email}?subject=${encodeURICom
   .ftr__ask {
     display: grid;
     gap: 2rem var(--gutter);
-    padding-block: clamp(3.5rem, 7vw, 5rem) clamp(1rem, 2vw, 1.5rem);
+    padding-block: clamp(3.5rem, 7vw, 5rem) clamp(2.5rem, 5vw, 4rem);
   }
   .ftr__title {
     font-size: clamp(3.5rem, 1rem + 9vw, 9.5rem);
@@ -194,42 +286,29 @@ const mailto = (subject: string) => `mailto:${site.email}?subject=${encodeURICom
       padding-bottom: 0.3rem;
     }
   }
-  /* The address as a giant marquee: it pauses under the pointer. */
-  .ftr__mail {
-    position: relative;
-    display: block;
-    overflow: clip;
-    font-size: clamp(2.75rem, 8vw, 7.5rem);
-    /* Room for the @ and the descenders: the marquee clips its box. */
-    line-height: 1.2;
-    padding-block: 0.02em 0.08em;
-    text-decoration: none;
-    text-transform: none;
-    white-space: nowrap;
-  }
-  .ftr__track {
-    display: inline-flex;
-    gap: 0.5em;
-    padding-right: 0.5em;
-  }
-  :global(html.motion) .ftr__track {
-    animation: ftr-marquee 26s linear infinite;
-  }
-  @media (hover: hover) {
-    :global(html.motion) .ftr__mail:hover .ftr__track {
-      animation-play-state: paused;
-    }
-  }
-  @keyframes ftr-marquee {
-    to {
-      translate: -50% 0;
-    }
-  }
-  .ftr__actions {
+  /* The address, quietly, for those who would rather write than pick. */
+  .ftr__direct {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
-    padding-block: 0.5rem clamp(2rem, 4vw, 3rem);
+    align-items: center;
+    gap: 0.25rem 0.6rem;
+    margin-top: 1.1rem;
+    font-size: var(--t-s);
+    color: var(--muted);
+  }
+  .ftr__direct a,
+  .ftr__direct button {
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-color: var(--line);
+    text-underline-offset: 0.25em;
+  }
+  .ftr__direct button {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    cursor: pointer;
   }
 
   /* The stage: the silhouette edge to edge, the whole figure in view, my name across its foot. */
@@ -280,6 +359,11 @@ const mailto = (subject: string) => `mailto:${site.email}?subject=${encodeURICom
   }
   .ftr__name span {
     display: inline-block;
+  }
+  /* Once the name is part of the picture, the text stays only for screen readers. */
+  .ftr__stage:global(.is-baked) .ftr__name {
+    clip-path: inset(50%);
+    opacity: 0;
   }
 
   /* Four short columns: the work, the rest of the site, elsewhere, and how to reach me. */

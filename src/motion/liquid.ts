@@ -33,10 +33,11 @@ o=vec4((L+R+B+T-texture(uDivergence,vUv).x)*.25,0.,0.,1.);}`,
 void main(){float L=texture(uPressure,vL).x,R=texture(uPressure,vR).x,T=texture(uPressure,vT).x,B=texture(uPressure,vB).x;
 o=vec4(texture(uVelocity,vUv).xy-vec2(R-L,T-B),0.,1.);}`,
   // The picture, pushed along the flow; where the flow is fast it catches light like mercury.
-  display: `${H}uniform sampler2D uImage,uVelocity;uniform vec2 uCover,texel;uniform float uAmt;
+  // uCover and uPos crop it exactly as the page does (object-fit: cover, at its object-position).
+  display: `${H}uniform sampler2D uImage,uVelocity;uniform vec2 uCover,uPos,texel;uniform float uAmt;
 void main(){vec2 v=texture(uVelocity,vUv).xy;
 vec2 g=vec2(length(texture(uVelocity,vR).xy)-length(texture(uVelocity,vL).xy),length(texture(uVelocity,vT).xy)-length(texture(uVelocity,vB).xy));
-vec2 t=(vUv-v*.0006*uAmt-.5)*uCover+.5;
+vec2 t=(vUv-v*.0006*uAmt)*uCover+(1.-uCover)*uPos;
 vec3 c=texture(uImage,t).rgb;
 float sheen=clamp(dot(normalize(g+1e-5),normalize(vec2(-.6,.8)))*length(g)*.004,-1.,1.)*uAmt;
 c+=sheen*.35;c*=1.-clamp(length(v)*.0006,0.,.25)*uAmt;
@@ -167,19 +168,22 @@ export function startLiquid() {
     unit = 0;
   };
 
-  const images = new WeakMap<HTMLImageElement, WebGLTexture>();
+  // One texture per picture, uploaded again if the picture's source changes (the footer redraws
+  // its poster when it resizes).
+  const images = new WeakMap<HTMLImageElement, { src: string; tex: WebGLTexture }>();
   const imageFor = (img: HTMLImageElement) => {
-    let t = images.get(img);
-    if (!t) {
-      t = gl.createTexture()!;
-      gl.bindTexture(gl.TEXTURE_2D, t);
+    let e = images.get(img);
+    if (!e || e.src !== img.currentSrc) {
+      const tex = e?.tex ?? gl.createTexture()!;
+      gl.bindTexture(gl.TEXTURE_2D, tex);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, img);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      images.set(img, t);
+      e = { src: img.currentSrc, tex };
+      images.set(img, e);
     }
-    return t;
+    return e.tex;
   };
 
   type Mode = 'pointer' | 'auto';
@@ -189,6 +193,7 @@ export function startLiquid() {
   let stop: (() => void) | null = null;
   let aspect = 1;
   let cover = [1, 1];
+  let pos = [0.5, 0.5];
   const st = { amt: 0, target: 0, x: 0.5, y: 0.5, px: 0.5, py: 0.5, moved: false, last: 0, t0: 0, quiet: 0 };
   const visible = new Set<HTMLElement>();
   let preferred: HTMLElement | null = null;
@@ -205,6 +210,9 @@ export function startLiquid() {
     aspect = r.width / r.height;
     const imgA = img.naturalWidth / img.naturalHeight;
     cover = [aspect > imgA ? 1 : aspect / imgA, aspect > imgA ? imgA / aspect : 1];
+    // The page's object-position, in percent (anything else is taken as centred).
+    const at = getComputedStyle(img).objectPosition.split(' ').map((v) => (v.endsWith('%') ? parseFloat(v) / 100 : 0.5));
+    pos = [at[0] ?? 0.5, 1 - (at[1] ?? 0.5)];
     resizeSim(aspect);
   };
 
@@ -287,6 +295,7 @@ export function startLiquid() {
     } else bind(u.uImage, image!);
     bind(u.uVelocity, velocity.read.tex);
     gl.uniform2f(u.uCover, cover[0], cover[1]);
+    gl.uniform2f(u.uPos, pos[0], pos[1]);
     gl.uniform1f(u.uAmt, st.amt);
     blit(null, canvas.width, canvas.height);
   };
@@ -296,7 +305,7 @@ export function startLiquid() {
     const img = next.querySelector('img');
     if (!img || !img.complete || !img.naturalWidth) return false;
     mode = m;
-    if (host !== next) {
+    if (host !== next || image !== imageFor(img)) {
       host = next;
       image = imageFor(img);
       next.append(canvas);
