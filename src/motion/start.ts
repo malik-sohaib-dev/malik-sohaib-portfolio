@@ -5,7 +5,7 @@ import { runLoader } from './loader';
 import { startTilt } from './tilt';
 
 type Cleanup = (() => void) | void;
-const inits: (() => Cleanup)[] = [initFields, initReveals, initVideos, initMenu, initScrolled];
+const inits: (() => Cleanup)[] = [initFields, initReveals, initVideos, initLoops, initMenu, initScrolled, initMark];
 let cleanups: Cleanup[] = [];
 
 /** Components register their page behaviour here; it runs on every page and is cleaned up on leave. */
@@ -119,6 +119,24 @@ function initVideos(): Cleanup {
   };
 }
 
+/** Play a poster loop and fade it in over its still; or pause it. Never under reduced motion. */
+export function playLoop(v: HTMLVideoElement | null | undefined, on: boolean) {
+  if (!v) return;
+  if (!on || !document.documentElement.classList.contains('motion')) return v.pause();
+  v.play()
+    .then(() => v.classList.add('is-playing'))
+    .catch(() => {});
+}
+
+// Poster loops on the page play while they are on screen.
+function initLoops(): Cleanup {
+  const vids = document.querySelectorAll<HTMLVideoElement>('video[data-loop]');
+  if (!vids.length) return;
+  const io = new IntersectionObserver((entries) => entries.forEach((e) => playLoop(e.target as HTMLVideoElement, e.isIntersecting)), { threshold: 0.25 });
+  vids.forEach((v) => io.observe(v));
+  return () => io.disconnect();
+}
+
 function initMenu(): Cleanup {
   const btn = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
   const menu = document.querySelector<HTMLElement>('[data-menu]');
@@ -142,6 +160,7 @@ function initMenu(): Cleanup {
       const hit = p.dataset.previewFor === slug;
       p.classList.toggle('is-on', hit);
       if (hit) on = p.querySelector<HTMLElement>('[data-liquid]');
+      playLoop(p.querySelector('video'), hit && !menu.hidden);
     });
     if (!menu.hidden) document.dispatchEvent(new CustomEvent('liquid:prefer', { detail: on }));
   };
@@ -159,6 +178,7 @@ function initMenu(): Cleanup {
       links[0]?.focus({ preventScroll: true });
     } else {
       document.dispatchEvent(new CustomEvent('liquid:prefer', { detail: null }));
+      previews.forEach((p) => playLoop(p.querySelector('video'), false));
       menu.classList.remove('is-open');
       // Hide once the wipe has played (at once under reduced motion).
       closing = window.setTimeout(() => (menu.hidden = true), html.classList.contains('motion') ? 700 : 0);
@@ -225,4 +245,23 @@ function initScrolled(): Cleanup {
   const io = new IntersectionObserver(([e]) => document.documentElement.classList.toggle('scrolled', !e.isIntersecting));
   io.observe(sentinel);
   return () => io.disconnect();
+}
+
+// The header ring starts to wobble once the page is idle and its sprite has decoded, so it never
+// competes with the hero for the network; under reduced motion the sprite is never fetched.
+function initMark(): Cleanup {
+  const mark = document.querySelector<HTMLElement>('[data-mark]');
+  if (!mark || !document.documentElement.classList.contains('motion')) return;
+  let live = true;
+  const go = () => {
+    const img = new Image();
+    img.src = '/brand/ring-spin.webp';
+    img.decode().then(() => live && mark.classList.add('is-spinning'), () => {});
+  };
+  // Safari has no requestIdleCallback: a short wait after the page has loaded does the same job here.
+  const id = window.setTimeout(go, document.readyState === 'complete' ? 1200 : 2400);
+  return () => {
+    live = false;
+    clearTimeout(id);
+  };
 }

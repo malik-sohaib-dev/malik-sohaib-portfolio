@@ -1,5 +1,7 @@
 # Grayscale poster scenes: liquid-chrome subjects on a glossy studio floor, lit as one picture.
-#   blender -b --factory-startup -P art/blender/poster.py -- <scene> <out.png> [width height]
+#   blender -b --factory-startup -P art/blender/poster.py -- <scene> <out.png> [width height [frames]]
+# With frames, it renders a seamless loop to <out>_0001.png onwards: the camera drifts and some
+# scenes move (beans hop, drops fall, dots type).
 # scenes: ezvenda, mini-havoc, gympaid, photon, vibe, pvsmith, hero
 import math
 import os
@@ -11,6 +13,9 @@ from mathutils import Vector
 argv = sys.argv[sys.argv.index('--') + 1:]
 scene_name, out = argv[0], argv[1]
 rx, ry = (int(argv[2]), int(argv[3])) if len(argv) > 3 else (1200, 1500)
+FRAMES = int(argv[4]) if len(argv) > 4 else 0
+ANIM = []  # functions of t in [0, 1): what moves in the loop
+CAM = {}
 FONT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'fonts', 'big-shoulders-900.ttf')
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -255,6 +260,7 @@ def camera(target=(0, 0, 1.0), dist=7.5, height=1.6, lens=60, yaw=0.0):
     scene.camera = co
     a = math.radians(yaw)
     co.location = (target[0] + dist * math.sin(a), target[1] - dist * math.cos(a), height)
+    CAM.update(obj=co, target=Vector(target), dist=dist, height=height, yaw=yaw)
     d = Vector(target) - co.location
     co.rotation_euler = d.to_track_quat('-Z', 'Y').to_euler()
     cam.dof.use_dof = True
@@ -409,9 +415,14 @@ elif scene_name == 'p-havoc':
     bpy.ops.object.shade_smooth()
     bpy.ops.mesh.primitive_torus_add(major_radius=1.55, minor_radius=0.025, location=(0, 0.8, 0.33), major_segments=128, minor_segments=12)
     bpy.context.active_object.data.materials.append(mat_plain(0.02, 0.4, 'line'))
-    bean((-0.55, 0.9, 0.32), 0.85, math.radians(-30))
-    bean((0.35, 0.55, 0.32), 0.7, math.radians(20))
-    bean((1.75, 0.2, 0.55), 0.62, math.radians(40), math.radians(-38))  # going over the edge
+    hoppers = [bean((-0.55, 0.9, 0.32), 0.85, math.radians(-30)), bean((0.35, 0.55, 0.32), 0.7, math.radians(20))]
+    edge = bean((1.75, 0.2, 0.55), 0.62, math.radians(40), math.radians(-38))  # going over the edge
+    base = [h.location.z for h in hoppers]
+    def hop(t):
+        for k, h in enumerate(hoppers):
+            h.location.z = base[k] + 0.22 * abs(math.sin(2 * math.pi * (t * 2 + k * 0.25)))
+        edge.rotation_euler.y = math.radians(-38 - 6 * math.sin(2 * math.pi * t))
+    ANIM.append(hop)
     camera(target=(0.2, 0.7, 0.8), dist=8.4, height=2.6, lens=54)
 elif scene_name == 'p-gympaid':
     # A tear-off calendar standing on 31, a dumbbell leaning on it.
@@ -469,8 +480,13 @@ elif scene_name == 'p-vibe':
     bubble((0.75, 0.2, 0.95), 1.45, 0.85, False)
     q = text('?', 0.85, (-0.55, -0.02, 2.02), extrude=0.06)
     q.location.y = -0.02
-    for i, x in enumerate((0.42, 0.75, 1.08)):
-        sphere((x, -0.38, 0.95), (0.12, 0.12, 0.12), EYE)
+    dots = [sphere((x, -0.38, 0.95), (0.12, 0.12, 0.12), EYE) for x in (0.42, 0.75, 1.08)]
+    def typing(t):
+        for k, d in enumerate(dots):
+            v = 0.12 * (1 + 0.35 * max(0.0, math.sin(2 * math.pi * (t * 2 - k * 0.18))))
+            d.scale = (v, v, v)
+            d.location.z = 0.95 + 0.06 * max(0.0, math.sin(2 * math.pi * (t * 2 - k * 0.18)))
+    ANIM.append(typing)
     camera(target=(0.05, 0.4, 1.6), dist=8.6, height=1.9, lens=56, yaw=-28)
 elif scene_name == 'p-solar':
     # Solar glass: near-black and glossy, with a lighter grid of cells.
@@ -544,12 +560,20 @@ elif scene_name == 'photon':
     mb.resolution = 0.03
     mb.render_resolution = 0.01
     mb.threshold = 0.6
+    drops = []
+    def place(e, k, x_top, u):
+        e.co = (x_top * max(0.0, 1 - u) ** 1.6, 0.2 * math.sin(k), 3.6 - 3.3 * u - (k % 2) * 0.25 * (1 - u))
+        e.radius = 0.13 + 0.1 * min(u, 1.0)
     for k, x_top in enumerate([-1.5, -0.75, 0.0, 0.75, 1.5]):
         for i in range(9):
-            t = i / 8
             e = mb.elements.new(type='BALL')
-            e.co = (x_top * (1 - t) ** 1.6, 0.2 * math.sin(k), 3.6 - 3.3 * t - (k % 2) * 0.25 * (1 - t))
-            e.radius = 0.13 + 0.1 * t
+            place(e, k, x_top, i / 8)
+            drops.append((e, k, x_top, i))
+    # Each drop slides one place along its stream per loop, so the stream keeps pouring.
+    def pour(t):
+        for e, k, x_top, i in drops:
+            place(e, k, x_top, (i + t) / 8)
+    ANIM.append(pour)
     pool = mb.elements.new(type='ELLIPSOID')
     pool.co = (0, 0, 0.12)
     pool.radius = 1.5
@@ -587,6 +611,27 @@ scene.view_settings.view_transform = 'AgX'
 scene.view_settings.look = 'AgX - High Contrast'
 scene.render.image_settings.file_format = 'PNG'
 scene.render.image_settings.color_mode = 'BW'
-scene.render.filepath = out
-bpy.ops.render.render(write_still=True)
-print('rendered', out)
+if FRAMES:
+    # A seamless loop: the camera swings a few degrees and back, and the scene's own motion runs.
+    def frame(sc, _=None):
+        t = (sc.frame_current - 1) / FRAMES
+        if CAM:
+            a = math.radians(CAM['yaw'] + 4 * math.sin(2 * math.pi * t))
+            tg = CAM['target']
+            CAM['obj'].location = (tg.x + CAM['dist'] * math.sin(a), tg.y - CAM['dist'] * math.cos(a), CAM['height'] + 0.08 * math.sin(4 * math.pi * t))
+            d = tg - CAM['obj'].location
+            CAM['obj'].rotation_euler = d.to_track_quat('-Z', 'Y').to_euler()
+        for f in ANIM:
+            f(t)
+    bpy.app.handlers.frame_change_pre.append(frame)
+    scene.frame_start = 1
+    scene.frame_end = FRAMES
+    scene.render.fps = 24
+    scene.cycles.samples = 48
+    scene.render.filepath = out + '_'
+    bpy.ops.render.render(animation=True)
+    print('rendered', FRAMES, 'frames to', out)
+else:
+    scene.render.filepath = out
+    bpy.ops.render.render(write_still=True)
+    print('rendered', out)

@@ -269,10 +269,22 @@ export function startLiquid() {
     velocity.swap();
   };
 
+  // A host whose poster loop is playing feeds the fluid its live frame instead of the still.
+  const videoTex = gl.createTexture()!;
+  gl.bindTexture(gl.TEXTURE_2D, videoTex);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
   const draw = () => {
     const u = use('display');
     gl.uniform2f(u.texel, 1 / simW, 1 / simH);
-    bind(u.uImage, image!);
+    const v = host?.querySelector<HTMLVideoElement>('video.is-playing');
+    if (v && v.readyState >= 2 && !v.paused) {
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, videoTex);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, v);
+      bind(u.uImage, videoTex);
+    } else bind(u.uImage, image!);
     bind(u.uVelocity, velocity.read.tex);
     gl.uniform2f(u.uCover, cover[0], cover[1]);
     gl.uniform1f(u.uAmt, st.amt);
@@ -376,7 +388,9 @@ export function startLiquid() {
     });
   }
 
-  const hostOf = (el: EventTarget | null) => (el as HTMLElement | null)?.closest?.<HTMLElement>('a[data-poster], [data-liquid]');
+  // A [data-liquid-surface] passes the pointer through its content to the [data-liquid] inside it
+  // (the hero: the name sits over the mercury, but moving across the name still stirs it).
+  const hostOf = (el: EventTarget | null) => (el as HTMLElement | null)?.closest?.<HTMLElement>('a[data-poster], [data-liquid], [data-liquid-surface]');
   const liquidIn = (el: HTMLElement) => (el.matches('[data-liquid]') ? el : el.querySelector<HTMLElement>('[data-liquid]'));
 
   const enter = (e: PointerEvent) => {

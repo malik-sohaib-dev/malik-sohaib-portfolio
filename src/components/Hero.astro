@@ -18,13 +18,13 @@ const services = [
 ];
 ---
 
-<section class="hs" data-field="base" aria-labelledby="hs-name" data-stage>
+<section class="hs" data-field="base" aria-labelledby="hs-name" data-stage data-liquid-surface>
   <div class="hs__wall" data-liquid="auto" aria-hidden="true">
     <Image src={wallpaper} alt="" widths={[800, 1280, 1920, 2400]} sizes="100vw" loading="eager" />
   </div>
 
   <div class="hs__top wrap">
-    <p class="hs__status"><span class="hs__dot" aria-hidden="true"></span>Open to new projects · Remote, worldwide</p>
+    <p class="hs__status">Open to new projects <span aria-hidden="true">/</span> Remote, worldwide</p>
     <div class="hs__intro">
       <h1 class="hs__name display" id="hs-name">
         Malik<br />Sohaib<span class="sr-only">, {hero.role.toLowerCase()}</span>
@@ -143,24 +143,15 @@ const services = [
     justify-self: start;
     display: inline-flex;
     align-items: center;
-    gap: 0.55rem;
-    font-size: var(--t-s);
+    gap: 0.6rem;
+    font-size: var(--t-xs);
     font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #c9c9c3;
   }
-  .hs__dot {
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-    background: #ededE7;
-    animation: pulse 2.2s ease-out infinite;
-  }
-  @keyframes pulse {
-    from {
-      box-shadow: 0 0 0 0 rgb(237 237 231 / 0.6);
-    }
-    to {
-      box-shadow: 0 0 0 9px rgb(237 237 231 / 0);
-    }
+  .hs__status span {
+    color: #6f6f6a;
   }
   .hs__intro {
     grid-column: 1 / 8;
@@ -172,7 +163,8 @@ const services = [
   .hs__name {
     margin: 0 0 0 -0.04em;
     font-size: clamp(4rem, 13vw, 12.5rem);
-    line-height: 0.8;
+    line-height: 0.9;
+    letter-spacing: -0.025em;
   }
   .hs__role {
     max-width: 30rem;
@@ -365,20 +357,17 @@ const services = [
     .hs__top {
       display: contents;
     }
-    .hs__status {
-      position: relative;
-      z-index: 2;
-      order: 1;
-      margin: 1.25rem var(--margin) 0;
-      font-size: 0.8125rem;
+    .hs__status,
+    .hs__build,
+    .hs__dock {
+      display: none;
     }
     .hs__intro {
       position: relative;
       z-index: 2;
-      order: 2;
       margin: auto var(--margin) 0;
-      padding: 2.5rem 0 1.5rem;
-      gap: 1rem;
+      padding: 2.5rem 0 0;
+      gap: 1.1rem;
     }
     .hs__name {
       font-size: clamp(3.75rem, 22vw, 6.5rem);
@@ -450,7 +439,7 @@ const services = [
 </style>
 
 <script>
-  import { onPage } from '../motion/start';
+  import { onPage, playLoop } from '../motion/start';
 
   onPage(() => {
     const stage = document.querySelector<HTMLElement>('[data-stage]');
@@ -465,8 +454,15 @@ const services = [
     // Light a project in the slide; when the slide itself is pointed at, lift its poster too.
     const show = (slug: string | null, x?: number, lift = false) => {
       apps.forEach((a) => a.classList.toggle('is-lit', !!slug && a.dataset.peek === slug));
-      if (!slug || !lift || !desktop()) return peek.classList.remove('is-on');
-      items.forEach((it) => it.classList.toggle('is-on', it.dataset.peekFor === slug));
+      if (!slug || !lift || !desktop()) {
+        items.forEach((it) => playLoop(it.querySelector('video'), false));
+        return peek.classList.remove('is-on');
+      }
+      items.forEach((it) => {
+        const on = it.dataset.peekFor === slug;
+        it.classList.toggle('is-on', on);
+        playLoop(it.querySelector('video'), on);
+      });
       const o = stage.getBoundingClientRect();
       const w = peek.offsetWidth;
       peek.style.setProperty('--px', `${Math.max(16, Math.min(o.width - w - 16, (x ?? 0) - o.left - w / 2))}px`);
