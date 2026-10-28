@@ -1,8 +1,9 @@
 // Renders a Wrapped film frame by frame, in both shapes, with its sound.
 //   node art/wrapped/render.mjs [film]            -> public/media/<name>-16x9.{webm,mp4,jpg} and <name>-9x16.*
 //   node art/wrapped/render.mjs [film] --preview 1.5 20.4 …   -> stills in art/out/wrapped/preview
-// Films: reel (index.html, the first cut, as wrapped-*), collage (wrapped-collage-*), blueprint
-// (wrapped-blueprint-*).
+// Films: collage (collage.html, the one on the site, as wrapped-*); the other two directions are
+// kept as sources: reel (index.html, the first cut) and blueprint (blueprint.html). Their renders
+// left the site at the collage's pick; they are in git history (commit 45da5da).
 // Run voice.py and sound.py first (art/out/voice). Needs Playwright and ffmpeg (or FFMPEG=/path).
 import { chromium } from 'playwright';
 import { execFileSync } from 'node:child_process';
@@ -17,8 +18,8 @@ const SHAPES = [
   { name: '9x16', width: 1080, height: 1920 },
 ];
 const previewAt = process.argv.includes('--preview') ? process.argv.slice(process.argv.indexOf('--preview') + 1).map(Number) : null;
-const FILMS = { reel: ['index.html', 'wrapped'], collage: ['collage.html', 'wrapped-collage'], blueprint: ['blueprint.html', 'wrapped-blueprint'] };
-const film = process.argv[2] && !process.argv[2].startsWith('--') ? process.argv[2] : 'reel';
+const FILMS = { collage: ['collage.html', 'wrapped'], reel: ['index.html', 'wrapped-reel'], blueprint: ['blueprint.html', 'wrapped-blueprint'] };
+const film = process.argv[2] && !process.argv[2].startsWith('--') ? process.argv[2] : 'collage';
 const [pageFile, outName] = FILMS[film];
 
 // The facts, from the site's own data, and the narration's timeline.

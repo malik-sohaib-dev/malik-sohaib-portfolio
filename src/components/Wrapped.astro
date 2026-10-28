@@ -1,5 +1,6 @@
 ---
-// Four years, wrapped: a 50-second film in my own voice, cut like a Reel (art/wrapped), landscape on wide screens and
+// Four years, wrapped: a 50-second film in my own voice, an editorial collage cut like a Reel
+// (art/wrapped/collage.html), landscape on wide screens and
 // portrait on phones. Scrolling to it pins it and grows it from a card to the whole screen; it plays
 // muted while in view, and a click starts it over with sound. Under reduced motion it stays a card
 // and waits to be played. The same facts are written out below it.
@@ -95,15 +96,7 @@ const nf = new Intl.NumberFormat('en-US');
 
     // The cut that fits the screen: portrait on tall screens.
     const portrait = innerHeight > innerWidth * 1.1;
-    // Comparing cuts: ?film=collage|blueprint|reel (remembered for the session); the first cut is the default.
-    const CUTS: Record<string, string> = { reel: '', collage: '-collage', blueprint: '-blueprint' };
-    let cut = '';
-    try {
-      const q = new URLSearchParams(location.search).get('film');
-      if (q && q in CUTS) sessionStorage.setItem('film', q);
-      cut = CUTS[sessionStorage.getItem('film') ?? 'reel'] ?? '';
-    } catch {}
-    const base = `${video.dataset.filmBase}${cut}-${portrait ? '9x16' : '16x9'}`;
+    const base = `${video.dataset.filmBase}-${portrait ? '9x16' : '16x9'}`;
     video.poster = `${base}.jpg`;
     video.innerHTML = `<source src="${base}.webm" type="video/webm"><source src="${base}.mp4" type="video/mp4">`;
     video.width = portrait ? 1080 : 1920;

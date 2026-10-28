@@ -1,3 +1,12 @@
 {
-  "redirects": [{ "source": "/projects/:slug", "destination": "/work/:slug", "permanent": true }]
+  "framework": "astro",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "redirects": [
+    {
+      "source": "/projects/:slug",
+      "destination": "/work/:slug",
+      "permanent": true
+    }
+  ]
 }
