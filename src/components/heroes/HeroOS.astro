@@ -1,31 +1,41 @@
 ---
 // Hero 4, Liquid OS: the hero is a workstation. Windows float over a mercury wallpaper you stir.
+// Below 900px the same pieces become a phone home screen: widgets, app icons and a dock.
 import { Image } from 'astro:assets';
-import { hero, site } from '../../data/site';
+import Poster from '../Poster.astro';
+import { activityData, hero, site } from '../../data/site';
 import { posters } from '../../data/posters';
 import wallpaper from '../../assets/hero/mercury.webp';
-const dock = ['ezvenda', 'mini-havoc', 'gympaid', 'photon-elixir-phoenix'].map((s) => posters[s]);
-// Real entries from the products' decision logs.
-const log = [
-  ['D-201', 'Custom domains through Cloudflare for SaaS'],
-  ['D-268', 'Count a sale when the merchant confirms it'],
-  ['D-249', 'The AI connector uses the API’s own routes'],
-  ['D-3', 'Renewals anchored to the join day'],
-  ['D-14', 'Membership status is computed, never stored'],
-  ['D-46', 'A door that holds no fingerprints'],
+
+const apps = ['ezvenda', 'mini-havoc', 'gympaid', 'photon-elixir-phoenix', 'arthur-vibe', 'bh-group'].map((s) => posters[s]);
+const services = [
+  { name: 'Products and web apps', example: 'EzVenda: a commerce platform, from the first commit to merchants trading on it. 51 screens.' },
+  { name: 'Real-time apps and games', example: 'Mini Havoc: 23 multiplayer games on a 30 Hz server, load-tested to 480 players.' },
+  { name: 'AI agents and integrations', example: 'An MCP server with 39 tools for EzVenda, and AI-led interviews with RAG reports at Arthur.' },
+  { name: 'Tools for a business', example: 'GymPaid: renewals and WhatsApp reminders for a gym, built against a two-day deadline.' },
+];
+const nf = new Intl.NumberFormat('en-US');
+// What the terminal types. Every answer is a fact on record.
+const session = [
+  ['whoami', `${site.name}, ${hero.role.toLowerCase()}`],
+  ['ls ~/products', 'ezvenda/   mini-havoc/   gympaid/'],
+  ['cat stack.txt', 'TypeScript  Go  Elixir  Postgres  AWS  GCP  OpenAI  Claude'],
+  ['git log --since=2024 | wc -l', `${nf.format(activityData.total)} contributions`],
+  ['status', 'open to new projects'],
 ];
 ---
 
 <section class="ho" data-field="base" data-hero-variant="4" aria-labelledby="ho-name" data-os>
   <div class="ho__wall" data-liquid="auto" aria-hidden="true">
-    <Image src={wallpaper} alt="" widths={[1280, 1920, 2400]} sizes="100vw" loading="lazy" />
+    <Image src={wallpaper} alt="" widths={[800, 1280, 1920, 2400]} sizes="100vw" loading="eager" />
   </div>
 
-  <article class="ho__win ho__win--about" data-win style="--x: 4%; --y: 7%">
+  <article class="ho__win ho__win--about" data-win style="--x: 3.5%; --y: 6%">
     <header class="ho__bar" data-drag><i></i><i></i><i></i><span>about.txt</span></header>
     <div class="ho__body">
       <h1 class="ho__name display" id="ho-name">Malik<br />Sohaib</h1>
-      <p class="ho__lede">{hero.role}. {hero.lede}</p>
+      <p class="ho__role">{hero.role}</p>
+      <p class="ho__lede">{hero.lede}</p>
       <div class="ho__actions">
         <a class="btn" href={`mailto:${site.email}`}>Email me <span class="btn__arrow" aria-hidden="true">↗</span></a>
         <a class="btn btn--ghost" href={site.whatsapp.href} rel="noopener">WhatsApp <span class="btn__arrow" aria-hidden="true">↗</span></a>
@@ -33,23 +43,82 @@ const log = [
     </div>
   </article>
 
-  <article class="ho__win ho__win--log" data-win style="--x: 58%; --y: 12%">
-    <header class="ho__bar" data-drag><i></i><i></i><i></i><span>decisions.log</span></header>
-    <ol class="ho__log" data-log>
-      {log.map(([id, t]) => <li><b>{id}</b> <span>{t}</span></li>)}
-    </ol>
+  <article class="ho__win ho__win--status" data-win style="--x: calc(100% - 16.25rem); --y: 6%" aria-label="Status">
+    <div class="ho__status">
+      <p class="ho__open"><span class="ho__dot" aria-hidden="true"></span>Open to new projects</p>
+      <p><span>Works</span>Remote, worldwide</p>
+      <p><span>Now</span>Senior engineer, Arthur</p>
+      <p><span>Since</span>2022</p>
+    </div>
+  </article>
+
+  <article class="ho__win ho__win--build" data-win style="--x: 47%; --y: 6%">
+    <header class="ho__bar" data-drag><i></i><i></i><i></i><span>What I build</span></header>
+    <ul class="ho__services">
+      {
+        services.map((sv, i) => (
+          <li>
+            <details name="services" open={i === 0}>
+              <summary>
+                <span class="ho__sn num">0{i + 1}</span>
+                {sv.name}
+                <span class="ho__plus" aria-hidden="true" />
+              </summary>
+              <p>{sv.example}</p>
+            </details>
+          </li>
+        ))
+      }
+    </ul>
+  </article>
+
+  <article class="ho__win ho__win--term" data-win style="--x: 47%; --y: 49%">
+    <header class="ho__bar" data-drag><i></i><i></i><i></i><span>~ zsh</span></header>
+    <div class="ho__term" data-term aria-label="Terminal">
+      {
+        session.map(([cmd, out]) => (
+          <p class="ho__line">
+            <span class="ho__prompt" aria-hidden="true">❯</span> <span class="ho__cmd" data-cmd={cmd}>{cmd}</span>
+            <span class="ho__out">{out}</span>
+          </p>
+        ))
+      }
+    </div>
   </article>
 
   <nav class="ho__dock" aria-label="Selected work" data-dock>
     {
-      dock.map((p) => (
-        <a class="ho__app" href={p.href} data-cursor="View">
-          <Image src={p.art} alt="" widths={[240]} sizes="120px" loading="lazy" />
-          <span>{p.title}</span>
+      apps.map((p) => (
+        <a class="ho__app" href={p.href} data-cursor="View" data-peek={p.slug}>
+          <span class="ho__icon">
+            <Image src={p.art} alt="" widths={[160, 240]} sizes="80px" loading="lazy" />
+          </span>
+          <span class="ho__label">{p.title}</span>
         </a>
       ))
     }
-    <a class="ho__app ho__app--all" href="#work"><span>All work →</span></a>
+    <a class="ho__app ho__app--all" href="#work">
+      <span class="ho__icon"><span>All</span></span>
+      <span class="ho__label">All work</span>
+    </a>
+  </nav>
+
+  <!-- The dock's preview: the hovered app's full poster, lifted above the pointer. -->
+  <div class="ho__peek" data-peek-box aria-hidden="true">
+    {
+      apps.map((p) => (
+        <div class="ho__peek-item" data-peek-for={p.slug}>
+          <Poster poster={p} sizes="300px" decorative />
+        </div>
+      ))
+    }
+  </div>
+
+  <!-- Phones: the contact actions sit in a dock, like a home screen. -->
+  <nav class="ho__phonedock" aria-label="Contact">
+    <a href={`mailto:${site.email}`}>Email</a>
+    <a href={site.whatsapp.href} rel="noopener">WhatsApp</a>
+    <a href={site.resume} rel="noopener">Résumé</a>
   </nav>
 </section>
 
@@ -57,10 +126,14 @@ const log = [
   .ho {
     position: relative;
     height: calc(100svh - 4rem);
-    min-height: 560px;
+    min-height: 640px;
     overflow: hidden;
     color: #ededE7;
     background: #0b0b0b;
+    --ink: #ededE7;
+    --ground: #0b0b0b;
+    --muted: #a9a9a3;
+    --line: rgb(237 237 231 / 0.14);
   }
   .ho__wall,
   .ho__wall :global(img),
@@ -75,14 +148,24 @@ const log = [
     opacity: 0;
     transition: opacity 300ms linear;
   }
+  /* Without the live fluid (low-power device, no WebGL), the wallpaper still drifts a little. */
+  @keyframes drift {
+    to {
+      transform: scale(1.08) translate(-1.5%, 1%);
+    }
+  }
+  :global(html.motion:not(.liquid-on)) .ho__wall :global(img) {
+    animation: drift 18s ease-in-out infinite alternate;
+  }
+
   .ho__win {
     position: absolute;
     left: var(--x);
     top: var(--y);
     z-index: 2;
-    background: rgb(14 14 14 / 0.8);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
+    background: rgb(14 14 14 / 0.78);
+    backdrop-filter: blur(18px) saturate(1.2);
+    -webkit-backdrop-filter: blur(18px) saturate(1.2);
     border-radius: 14px;
     box-shadow:
       inset 0 0 0 1px rgb(255 255 255 / 0.16),
@@ -90,10 +173,16 @@ const log = [
     overflow: hidden;
   }
   .ho__win--about {
-    width: min(40rem, 92vw);
+    width: min(38rem, 41%);
   }
-  .ho__win--log {
-    width: min(30rem, 92vw);
+  .ho__win--build {
+    width: min(26rem, 28%);
+  }
+  .ho__win--status {
+    width: 14.5rem;
+  }
+  .ho__win--term {
+    width: min(31rem, 36%);
   }
   .ho__win.is-front {
     z-index: 3;
@@ -126,11 +215,15 @@ const log = [
     padding: 1.5rem 1.75rem 1.75rem;
   }
   .ho__name {
-    font-size: clamp(3.5rem, 8vw, 7.5rem);
+    font-size: clamp(3.5rem, 7.4vw, 7.5rem);
     line-height: 0.82;
   }
-  .ho__lede {
+  .ho__role {
     margin-top: 1rem;
+    font-weight: 600;
+  }
+  .ho__lede {
+    margin-top: 0.35rem;
     color: #c9c9c3;
   }
   .ho__actions {
@@ -138,93 +231,359 @@ const log = [
     flex-wrap: wrap;
     gap: 0.75rem;
     margin-top: 1.25rem;
-    --ink: #ededE7;
-    --ground: #0b0b0b;
   }
-  .ho__log {
-    margin: 0;
-    padding: 1.1rem 1.25rem 1.25rem;
+
+  .ho__status {
     display: grid;
-    gap: 0.6rem;
+    gap: 0.55rem;
+    padding: 1rem 1.1rem;
     font-size: var(--t-s);
-    line-height: 1.4;
-    min-height: 13rem;
   }
-  .ho__log li span {
+  .ho__status p {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .ho__status p span {
+    color: #8f8f89;
+  }
+  .ho__status .ho__open {
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.55rem;
+    font-weight: 600;
+    padding-bottom: 0.55rem;
+    border-bottom: 1px solid rgb(255 255 255 / 0.08);
+  }
+  .ho__dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #ededE7;
+    box-shadow: 0 0 0 0 rgb(237 237 231 / 0.6);
+    animation: pulse 2.2s ease-out infinite;
+  }
+  @keyframes pulse {
+    to {
+      box-shadow: 0 0 0 9px rgb(237 237 231 / 0);
+    }
+  }
+
+  .ho__services {
+    padding: 0.4rem 0;
+  }
+  .ho__services li + li {
+    border-top: 1px solid rgb(255 255 255 / 0.07);
+  }
+  .ho__services summary {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+    transition: background-color var(--d-s) var(--ease);
+  }
+  .ho__services summary::-webkit-details-marker {
+    display: none;
+  }
+  @media (hover: hover) {
+    .ho__services summary:hover {
+      background: rgb(255 255 255 / 0.05);
+    }
+  }
+  .ho__sn {
+    color: #8f8f89;
+    font-size: 1.05rem;
+  }
+  .ho__plus {
+    position: relative;
+    margin-left: auto;
+    width: 12px;
+    height: 12px;
+  }
+  .ho__plus::before,
+  .ho__plus::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 5px;
+    height: 2px;
+    background: currentColor;
+    transition: rotate var(--d-m) var(--ease);
+  }
+  .ho__plus::after {
+    rotate: 90deg;
+  }
+  details[open] .ho__plus::after {
+    rotate: 0deg;
+  }
+  .ho__services p {
+    padding: 0 1.1rem 0.95rem 2.85rem;
+    color: #b9b9b3;
+    font-size: var(--t-s);
+  }
+
+  .ho__term {
+    padding: 0.9rem 1.1rem 1.1rem;
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    min-height: 10.5rem;
+  }
+  .ho__line {
+    margin-bottom: 0.45rem;
+  }
+  .ho__prompt {
+    color: #8f8f89;
+  }
+  .ho__out {
+    display: block;
     color: #a9a9a3;
   }
-  .ho__log li:not(.is-typed) {
+  :global(html.js.motion) .ho__line:not(.is-shown) {
     visibility: hidden;
   }
-  .ho__log li.is-typing::after {
-    content: '▍';
-    margin-left: 2px;
+  :global(html.js.motion) .ho__line:not(.is-done) .ho__out {
+    visibility: hidden;
   }
+  .ho__line.is-typing .ho__cmd::after {
+    content: '▍';
+  }
+
   .ho__dock {
     position: absolute;
     left: 50%;
-    bottom: 1.25rem;
-    z-index: 2;
+    bottom: 1.1rem;
+    z-index: 4;
     translate: -50% 0;
     display: flex;
     align-items: flex-end;
     gap: 10px;
-    padding: 10px;
-    background: rgb(14 14 14 / 0.6);
+    padding: 10px 12px;
+    background: rgb(14 14 14 / 0.55);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border-radius: 18px;
+    border-radius: 20px;
     box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.14);
-    max-width: 94vw;
-    overflow-x: auto;
   }
   .ho__app {
     position: relative;
     flex: none;
-    width: 76px;
-    aspect-ratio: 4 / 5;
-    border-radius: 9px;
-    overflow: hidden;
-    transform-origin: 50% 100%;
-    transition: scale 200ms var(--ease);
+    width: 60px;
     text-decoration: none;
+    transform-origin: 50% 100%;
+    transition: scale 180ms var(--ease);
   }
-  .ho__app :global(img) {
+  .ho__icon {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #161616;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.14);
+  }
+  .ho__icon :global(img) {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: 50% 62%;
   }
-  .ho__app span {
-    position: absolute;
-    left: 6px;
-    right: 6px;
-    bottom: 5px;
-    font-size: 10px;
+  .ho__app--all .ho__icon span {
     font-weight: 600;
-    line-height: 1.1;
+    font-size: 0.8rem;
   }
-  .ho__app--all {
-    display: grid;
-    place-items: center;
-    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.18);
-  }
-  .ho__app--all span {
-    position: static;
+  .ho__label {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 8px);
+    translate: -50% 4px;
+    white-space: nowrap;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgb(14 14 14 / 0.85);
     font-size: 11px;
-    text-align: center;
+    font-weight: 600;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity var(--d-s) var(--ease),
+      translate var(--d-s) var(--ease);
   }
+  .ho__app--all:hover .ho__label,
+  .ho__app:focus-visible .ho__label {
+    opacity: 1;
+    translate: -50% 0;
+  }
+
+  /* The peek: a full poster that rises above the hovered app and follows the pointer along the dock. */
+  .ho__peek {
+    position: absolute;
+    left: 0;
+    bottom: 7.4rem;
+    z-index: 5;
+    width: 17rem;
+    aspect-ratio: 4 / 5;
+    pointer-events: none;
+    opacity: 0;
+    translate: var(--px, 0) 16px;
+    scale: 0.92;
+    transform-origin: 50% 100%;
+    transition:
+      opacity 260ms var(--ease),
+      scale 420ms var(--ease),
+      translate 420ms var(--ease);
+    filter: drop-shadow(0 30px 50px rgb(0 0 0 / 0.6));
+  }
+  .ho__peek.is-on {
+    opacity: 1;
+    scale: 1;
+    translate: var(--px, 0) 0;
+  }
+  .ho__peek-item {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 200ms linear;
+  }
+  .ho__peek-item.is-on {
+    opacity: 1;
+  }
+
+  .ho__phonedock {
+    display: none;
+  }
+
+  /* Phones: a home screen. Widgets stack, the work becomes app icons, contact sits in a dock. */
   @media (max-width: 899px) {
     .ho {
       height: auto;
+      min-height: calc(100svh - 4rem);
       display: grid;
-      gap: 1rem;
-      padding: 1rem var(--margin) 7rem;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      align-content: start;
+      gap: 12px;
+      padding: 14px var(--margin) 6.5rem;
     }
     .ho__win {
       position: relative;
       left: auto;
       top: auto;
       width: auto;
+      border-radius: 22px;
+    }
+    .ho__bar,
+    .ho__win--term,
+    .ho__peek,
+    .ho__actions {
+      display: none;
+    }
+    .ho__win--about {
+      grid-column: 1 / -1;
+    }
+    .ho__body {
+      padding: 1.25rem 1.25rem 1.35rem;
+    }
+    .ho__name {
+      font-size: clamp(3.25rem, 17vw, 5.5rem);
+    }
+    .ho__lede {
+      font-size: var(--t-s);
+    }
+    .ho__win--status {
+      grid-column: 1 / 3;
+    }
+    .ho__status {
+      font-size: 0.8125rem;
+      gap: 0.35rem;
+    }
+    .ho__status p:not(.ho__open) {
+      display: grid;
+      gap: 0;
+    }
+    .ho__win--build {
+      grid-column: 3 / -1;
+    }
+    .ho__services summary {
+      padding: 0.55rem 0.8rem;
+      font-size: 0.8125rem;
+    }
+    .ho__sn {
+      display: none;
+    }
+    .ho__services p {
+      padding: 0 0.8rem 0.6rem;
+      font-size: 0.75rem;
+    }
+    .ho__dock {
+      position: relative;
+      left: auto;
+      bottom: auto;
+      translate: none;
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px 14px;
+      padding: 10px 4px;
+      background: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      box-shadow: none;
+    }
+    .ho__app {
+      width: auto;
+      display: grid;
+      justify-items: center;
+      gap: 6px;
+    }
+    .ho__icon {
+      border-radius: 18px;
+    }
+    .ho__label {
+      position: static;
+      translate: none;
+      opacity: 1;
+      padding: 0;
+      background: none;
+      font-size: 11px;
+      font-weight: 500;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .ho__phonedock {
+      position: absolute;
+      left: var(--margin);
+      right: var(--margin);
+      bottom: 14px;
+      z-index: 4;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      padding: 8px;
+      border-radius: 26px;
+      background: rgb(14 14 14 / 0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.14);
+    }
+    .ho__phonedock a {
+      display: grid;
+      place-items: center;
+      min-height: 48px;
+      border-radius: 18px;
+      font-weight: 600;
+      font-size: var(--t-s);
+      text-decoration: none;
+      background: rgb(255 255 255 / 0.08);
+    }
+    .ho__phonedock a:first-child {
+      background: #ededE7;
+      color: #0b0b0b;
     }
   }
 </style>
@@ -236,15 +595,17 @@ const log = [
     const os = document.querySelector<HTMLElement>('[data-os]');
     if (!os || !os.offsetParent) return;
     const offs: (() => void)[] = [];
+    const desktop = () => matchMedia('(min-width: 900px)').matches;
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     // Windows drag by their title bars, and come to the front when touched.
     const wins = [...os.querySelectorAll<HTMLElement>('[data-win]')];
     for (const win of wins) {
-      const bar = win.querySelector<HTMLElement>('[data-drag]')!;
+      const bar = win.querySelector<HTMLElement>('[data-drag]') ?? win;
       let start: { x: number; y: number; l: number; t: number } | null = null;
       const down = (e: PointerEvent) => {
-        if (matchMedia('(max-width: 899px)').matches) return;
         wins.forEach((w) => w.classList.toggle('is-front', w === win));
+        if (!desktop() || !win.querySelector('[data-drag]')?.contains(e.target as Node)) return;
         const r = win.getBoundingClientRect();
         const o = os.getBoundingClientRect();
         start = { x: e.clientX, y: e.clientY, l: r.left - o.left, t: r.top - o.top };
@@ -253,72 +614,83 @@ const log = [
       const move = (e: PointerEvent) => {
         if (!start) return;
         const o = os.getBoundingClientRect();
-        const l = Math.max(0, Math.min(o.width - 120, start.l + e.clientX - start.x));
-        const t = Math.max(0, Math.min(o.height - 60, start.t + e.clientY - start.y));
-        win.style.setProperty('--x', `${l}px`);
-        win.style.setProperty('--y', `${t}px`);
+        win.style.setProperty('--x', `${Math.max(0, Math.min(o.width - 120, start.l + e.clientX - start.x))}px`);
+        win.style.setProperty('--y', `${Math.max(0, Math.min(o.height - 60, start.t + e.clientY - start.y))}px`);
       };
       const up = () => (start = null);
-      bar.addEventListener('pointerdown', down);
+      win.addEventListener('pointerdown', down);
       bar.addEventListener('pointermove', move);
       bar.addEventListener('pointerup', up);
       offs.push(() => {
-        bar.removeEventListener('pointerdown', down);
+        win.removeEventListener('pointerdown', down);
         bar.removeEventListener('pointermove', move);
         bar.removeEventListener('pointerup', up);
       });
     }
 
-    // The log types itself out, a line at a time, then starts over.
-    const lines = [...os.querySelectorAll<HTMLElement>('[data-log] li')];
-    const texts = lines.map((l) => l.querySelector('span')!.textContent!);
+    // The terminal types each command, prints its answer, then starts the session over.
+    const lines = [...os.querySelectorAll<HTMLElement>('.ho__line')];
     let timer = 0;
-    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduce) lines.forEach((l) => l.classList.add('is-typed'));
-    else {
+    if (!reduce && desktop()) {
       let li = 0;
       let ch = 0;
       const tick = () => {
         if (li >= lines.length) {
           timer = window.setTimeout(() => {
-            lines.forEach((l) => l.classList.remove('is-typed', 'is-typing'));
-            li = 0;
-            ch = 0;
+            lines.forEach((l) => l.classList.remove('is-shown', 'is-done', 'is-typing'));
+            li = ch = 0;
             tick();
-          }, 3500);
+          }, 4200);
           return;
         }
         const line = lines[li];
-        const span = line.querySelector('span')!;
-        line.classList.add('is-typed', 'is-typing');
-        span.textContent = texts[li].slice(0, ch);
-        ch++;
-        if (ch > texts[li].length) {
+        const cmd = line.querySelector<HTMLElement>('[data-cmd]')!;
+        const full = cmd.dataset.cmd!;
+        line.classList.add('is-shown', 'is-typing');
+        cmd.textContent = full.slice(0, ch++);
+        if (ch > full.length) {
           line.classList.remove('is-typing');
-          li++;
-          ch = 0;
-          timer = window.setTimeout(tick, 420);
-        } else timer = window.setTimeout(tick, 22);
+          timer = window.setTimeout(() => {
+            line.classList.add('is-done');
+            li++;
+            ch = 0;
+            timer = window.setTimeout(tick, 650);
+          }, 260);
+        } else timer = window.setTimeout(tick, 45 + Math.random() * 50);
       };
-      tick();
-    }
+      timer = window.setTimeout(tick, 900);
+    } else lines.forEach((l) => l.classList.add('is-shown', 'is-done'));
     offs.push(() => clearTimeout(timer));
 
-    // The dock magnifies the apps near the pointer.
+    // The dock magnifies apps near the pointer, and lifts the hovered one's poster above it.
     const dock = os.querySelector<HTMLElement>('[data-dock]')!;
     const apps = [...dock.querySelectorAll<HTMLElement>('.ho__app')];
-    const mag = (e: PointerEvent) => {
+    const peek = os.querySelector<HTMLElement>('[data-peek-box]')!;
+    const items = [...peek.querySelectorAll<HTMLElement>('[data-peek-for]')];
+    const over = (e: PointerEvent) => {
+      if (!desktop() || e.pointerType !== 'mouse') return;
       for (const a of apps) {
         const r = a.getBoundingClientRect();
         const d = Math.abs(e.clientX - (r.left + r.width / 2));
-        a.style.scale = String(1 + 0.55 * Math.max(0, 1 - d / 140));
+        a.style.scale = String(1 + 0.45 * Math.max(0, 1 - d / 130));
       }
+      const app = (e.target as HTMLElement).closest<HTMLElement>('[data-peek]');
+      if (!app) return peek.classList.remove('is-on');
+      items.forEach((it) => it.classList.toggle('is-on', it.dataset.peekFor === app.dataset.peek));
+      const o = os.getBoundingClientRect();
+      const w = peek.offsetWidth;
+      const x = Math.max(16, Math.min(o.width - w - 16, e.clientX - o.left - w / 2));
+      peek.style.setProperty('--px', `${x}px`);
+      peek.classList.add('is-on');
     };
-    const rest = () => apps.forEach((a) => (a.style.scale = '1'));
-    dock.addEventListener('pointermove', mag);
+    const rest = () => {
+      apps.forEach((a) => (a.style.scale = '1'));
+      peek.classList.remove('is-on');
+    };
+    dock.addEventListener('pointermove', over);
     dock.addEventListener('pointerleave', rest);
     offs.push(() => {
-      dock.removeEventListener('pointermove', mag);
+      dock.removeEventListener('pointermove', over);
       dock.removeEventListener('pointerleave', rest);
     });
     return () => offs.forEach((o) => o());

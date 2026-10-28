@@ -46,7 +46,14 @@ o=vec4(c,1.);}`,
 let started = false;
 const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 const finePointer = () => matchMedia('(hover: hover) and (pointer: fine)').matches;
-const SIM = 128; // simulation cells on the long side: the fluid is smooth, so it can be coarse
+// Quality tiers. The fluid is soft, so it can be simulated and drawn far below screen resolution;
+// a device that can't hold the frame rate steps down a tier, and below the last one the glass is off.
+//   sim: cells on the long side, iters: pressure solves, px: most pixels the canvas draws
+const TIERS = [
+  { sim: 128, iters: 14, px: 1_600_000 },
+  { sim: 96, iters: 8, px: 700_000 },
+  { sim: 64, iters: 5, px: 300_000 },
+];
 
 type Target = { tex: WebGLTexture; fbo: WebGLFramebuffer };
 type Double = { read: Target; write: Target; swap(): void };
@@ -60,6 +67,10 @@ export function startLiquid() {
   const ctx = canvas.getContext('webgl2', { alpha: false, antialias: false, depth: false, stencil: false });
   if (!ctx || !ctx.getExtension('EXT_color_buffer_float')) return;
   const gl = ctx;
+  // Data Saver: no live glass at all. A small device starts on the lightest tier.
+  const nav = navigator as Navigator & { connection?: { saveData?: boolean }; deviceMemory?: number };
+  if (nav.connection?.saveData) return;
+  let tier = (nav.deviceMemory ?? 8) <= 2 || (navigator.hardwareConcurrency ?? 8) <= 2 ? 2 : 0;
 
   const programs: Record<string, { p: WebGLProgram; u: Record<string, WebGLUniformLocation | null> }> = {};
   const vs = gl.createShader(gl.VERTEX_SHADER)!;
@@ -119,6 +130,7 @@ export function startLiquid() {
   };
   let velocity: Double, pressure: Double, divergence: Target, curl: Target;
   const resizeSim = (aspect: number) => {
+    const SIM = TIERS[tier].sim;
     const w = aspect >= 1 ? SIM : Math.round(SIM * aspect);
     const h = aspect >= 1 ? Math.round(SIM / aspect) : SIM;
     if (w === simW && h === simH) return clearSim();
@@ -185,7 +197,9 @@ export function startLiquid() {
     if (!host) return;
     const img = host.querySelector('img')!;
     const r = host.getBoundingClientRect();
-    const dpr = Math.min(devicePixelRatio, finePointer() ? 1.5 : 1);
+    // Draw at screen density, capped by the tier's pixel budget; CSS scales the canvas up.
+    let dpr = Math.min(devicePixelRatio, finePointer() ? 1.5 : 1);
+    dpr = Math.min(dpr, Math.sqrt(TIERS[tier].px / Math.max(1, r.width * r.height)));
     canvas.width = Math.max(1, Math.round(r.width * dpr));
     canvas.height = Math.max(1, Math.round(r.height * dpr));
     aspect = r.width / r.height;
@@ -231,7 +245,7 @@ export function startLiquid() {
 
     u = use('pressure');
     gl.uniform2f(u.texel, tx, ty);
-    for (let i = 0; i < 14; i++) {
+    for (let i = 0; i < TIERS[tier].iters; i++) {
       bind(u.uDivergence, divergence.tex);
       bind(u.uPressure, pressure.read.tex);
       blit(pressure.write, simW, simH);
@@ -266,6 +280,7 @@ export function startLiquid() {
   };
 
   function attach(next: HTMLElement, m: Mode) {
+    if (disabled) return false;
     const img = next.querySelector('img');
     if (!img || !img.complete || !img.naturalWidth) return false;
     mode = m;
@@ -290,10 +305,41 @@ export function startLiquid() {
     if (next) attach(next, 'auto');
   }
 
+  // Frame-time watch: after a warm-up, a run of slow frames (under ~45 fps) drops a tier.
+  const perf = { n: 0, sum: 0 };
+  const watch = (ms: number) => {
+    if (tier >= TIERS.length || document.hidden) return;
+    perf.n++;
+    if (perf.n <= 20) return; // warm-up: shader compiles, first uploads
+    perf.sum += ms;
+    if (perf.n < 80) return;
+    const avg = perf.sum / 60;
+    perf.n = 0;
+    perf.sum = 0;
+    if (avg <= 22) return;
+    tier++;
+    if (tier >= TIERS.length) return disable();
+    simW = simH = 0; // force new targets at the new size
+    size();
+  };
+  // The last resort: no live glass. Posters fall back to their CSS push-in, the hero to a drift.
+  function disable() {
+    stop?.();
+    stop = null;
+    canvas.remove();
+    host = null;
+    disabled = true;
+    document.documentElement.classList.remove('liquid-on');
+    document.documentElement.classList.add('liquid-off');
+  }
+  let disabled = false;
+
   function run() {
+    if (disabled) return;
     stop ??= onFrame((now) => {
       st.t0 ||= now;
       const dt = Math.min(0.033, (now - (st.last || now)) / 1000) || 0.016;
+      if (st.last) watch(now - st.last);
       st.last = now;
       const t = (now - st.t0) / 1000;
       if (mode === 'auto') {
