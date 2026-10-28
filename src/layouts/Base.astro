@@ -30,24 +30,26 @@ const {
   close = 'talk',
 } = Astro.props;
 const fullTitle = title ? `${title} | ${site.name}` : `${site.name} | ${site.role}`;
-const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
-const ogImage = new URL(image, Astro.site ?? site.url).href;
+// Absolute addresses on the host the site is served from (astro.config.mjs).
+const origin = (Astro.site ?? new URL(site.url)).origin;
+const canonical = new URL(Astro.url.pathname, origin).href;
+const ogImage = new URL(image, origin).href;
 // Structured data: who I am on every page, the site on the home page, the work on a case study.
 const person = {
   '@type': 'Person',
-  '@id': `${site.url}/#person`,
+  '@id': `${origin}/#person`,
   name: site.fullName,
   alternateName: site.name,
   jobTitle: site.role,
-  url: site.url,
-  image: new URL('/og/about.jpg', site.url).href,
+  url: origin,
+  image: new URL('/og/about.jpg', origin).href,
   email: `mailto:${site.email}`,
   worksFor: { '@type': 'Organization', name: 'Arthur' },
   knowsAbout: ['Full-stack development', 'TypeScript', 'React', 'Node.js', 'Elixir', 'Go', 'AI agents', 'MCP', 'Real-time systems', 'Product engineering'],
   sameAs: site.socials.map((s) => s.href),
 };
 const graph: Record<string, unknown>[] = [person];
-if (Astro.url.pathname === '/') graph.push({ '@type': 'WebSite', '@id': `${site.url}/#website`, url: site.url, name: site.name, inLanguage: 'en', publisher: { '@id': person['@id'] } });
+if (Astro.url.pathname === '/') graph.push({ '@type': 'WebSite', '@id': `${origin}/#website`, url: origin, name: site.name, inLanguage: 'en', publisher: { '@id': person['@id'] } });
 if (type === 'article') graph.push({ '@type': 'CreativeWork', name: title, description, url: canonical, image: ogImage, author: { '@id': person['@id'] }, inLanguage: 'en' });
 const jsonLd = { '@context': 'https://schema.org', '@graph': graph };
 ---
