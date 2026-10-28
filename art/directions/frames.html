@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wrapped: style frames for four directions</title>
+<!--
+  Key stills for four directions of the Wrapped film. One frame shows at a time: frames.html#A1 etc.
+  art/directions/render.mjs screenshots each at its size (16:9 at 1920x1080, 9:16 at 1080x1920).
+  The chrome-type frames (C*) put type and captions over Blender renders (art/blender/chrome_type.py).
+-->
+<style>
+@font-face { font-family: D; src: url(../../public/fonts/display.woff2); font-weight: 100 900; }
+@font-face { font-family: T; src: url(../../public/fonts/text.woff2); font-weight: 300 800; }
+* { box-sizing: border-box; margin: 0; }
+:root { --u: calc(min(100vw, 100vh) / 100); --ink: #0c0c0c; --paper: #e9e8e2; --white: #ededE7; }
+html, body { width: 100vw; height: 100vh; overflow: hidden; background: #000; }
+body { font-family: T, sans-serif; color: var(--white); -webkit-font-smoothing: antialiased; }
+.f { position: absolute; inset: 0; overflow: hidden; display: none; }
+.f:target { display: block; }
+.d { font-family: D; font-weight: 900; text-transform: uppercase; line-height: 0.82; letter-spacing: -0.01em; }
+.k { font-size: calc(var(--u) * 1.9); font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; }
+.gray { filter: grayscale(1) contrast(1.05); }
+/* Print grain over everything in a frame. */
+.grain::after { content: ''; position: absolute; inset: -50%; pointer-events: none; opacity: 0.16; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+/* Reel captions: three words, the one being said lit. */
+.cap { position: absolute; left: 6%; right: 6%; bottom: 6%; text-align: center; font-family: D; font-weight: 800; text-transform: uppercase; font-size: calc(var(--u) * 5.6); line-height: 1; text-shadow: 0 0.06em 0.3em rgb(0 0 0 / 0.6); z-index: 20; }
+.cap span { color: rgb(237 237 231 / 0.4); }
+.cap b { color: #fff; font-weight: 800; }
+.port .cap { bottom: 13%; font-size: calc(var(--u) * 8); }
+.tc { position: absolute; top: 3.4%; left: 3%; z-index: 20; font-size: calc(var(--u) * 1.6); font-weight: 600; letter-spacing: 0.12em; opacity: 0.75; }
+
+/* ---------- A: Editorial collage ---------- */
+.A { background: var(--paper); color: var(--ink); }
+.A .tc { color: var(--ink); }
+.A .big { position: absolute; font-size: calc(var(--u) * 34); }
+.A .panel { position: absolute; overflow: hidden; box-shadow: 0 calc(var(--u) * 2) calc(var(--u) * 5) rgb(0 0 0 / 0.35); }
+.A .panel img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.tape { position: absolute; padding: 0.35em 0.8em; background: rgb(237 237 231 / 0.9); color: var(--ink); font-family: D; font-weight: 800; text-transform: uppercase; font-size: calc(var(--u) * 2.6); box-shadow: 0 2px 8px rgb(0 0 0 / 0.25); z-index: 12; }
+.tape.dark { background: var(--ink); color: var(--white); }
+.print { position: absolute; padding: calc(var(--u) * 0.8); background: #f4f3ee; box-shadow: 0 calc(var(--u) * 1) calc(var(--u) * 3) rgb(0 0 0 / 0.35); }
+.print img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.halftone { position: absolute; inset: 0; background: radial-gradient(circle, rgb(0 0 0 / 0.22) 30%, transparent 32%) 0 0 / calc(var(--u) * 0.6) calc(var(--u) * 0.6); mix-blend-mode: multiply; }
+.A .cap { color: var(--ink); text-shadow: none; }
+.A .cap span { color: rgb(12 12 12 / 0.3); }
+.A .cap b { color: var(--paper); background: var(--ink); padding: 0 0.12em; }
+
+/* ---------- B: Product theatre ---------- */
+.B { background: radial-gradient(60% 70% at 55% 40%, #2a2a2a, #070707 70%); }
+.phone { position: absolute; border-radius: calc(var(--u) * 4.2); background: #0d0d0d; padding: calc(var(--u) * 1); box-shadow: inset 0 0 0 calc(var(--u) * 0.25) #3a3a3a, 0 calc(var(--u) * 4) calc(var(--u) * 8) rgb(0 0 0 / 0.7); }
+.phone img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; border-radius: calc(var(--u) * 3.3); }
+.screen { position: absolute; border-radius: calc(var(--u) * 1.2); background: #0d0d0d; padding: calc(var(--u) * 0.8); box-shadow: inset 0 0 0 calc(var(--u) * 0.2) #3a3a3a, 0 calc(var(--u) * 4) calc(var(--u) * 8) rgb(0 0 0 / 0.7); }
+.screen img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: calc(var(--u) * 0.6); }
+.floor { position: absolute; left: 0; right: 0; bottom: 0; height: 26%; background: linear-gradient(#0a0a0a, #050505); }
+.refl { -webkit-box-reflect: below calc(var(--u) * 1) linear-gradient(transparent 60%, rgb(255 255 255 / 0.18)); }
+.B .title { position: absolute; z-index: 10; }
+.B .title .d { font-size: calc(var(--u) * 11); }
+.B .title .k { color: #a9a9a3; margin-bottom: calc(var(--u) * 1.6); }
+.stamp { position: absolute; z-index: 15; padding: 0.2em 0.45em 0.1em; border: calc(var(--u) * 0.45) solid var(--white); color: var(--white); font-family: D; font-weight: 900; text-transform: uppercase; font-size: calc(var(--u) * 7); line-height: 1; transform: rotate(-8deg); }
+.pill { display: inline-flex; align-items: center; gap: 0.6em; padding: 0.55em 1.1em; border-radius: 999px; background: var(--white); color: var(--ink); font-weight: 600; font-size: calc(var(--u) * 2.6); }
+
+/* ---------- C: Liquid chrome type ---------- */
+.C img.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.C .label { position: absolute; z-index: 10; }
+
+/* ---------- D: Blueprint to launch ---------- */
+.D { background: #070707; }
+.D .grid { position: absolute; inset: 0; background:
+  linear-gradient(rgb(255 255 255 / 0.1) 1px, transparent 1px) 0 0 / calc(var(--u) * 10) calc(var(--u) * 10),
+  linear-gradient(90deg, rgb(255 255 255 / 0.1) 1px, transparent 1px) 0 0 / calc(var(--u) * 10) calc(var(--u) * 10),
+  linear-gradient(rgb(255 255 255 / 0.04) 1px, transparent 1px) 0 0 / calc(var(--u) * 2) calc(var(--u) * 2),
+  linear-gradient(90deg, rgb(255 255 255 / 0.04) 1px, transparent 1px) 0 0 / calc(var(--u) * 2) calc(var(--u) * 2); }
+.D svg { position: absolute; overflow: visible; }
+.D .note { position: absolute; font-size: calc(var(--u) * 1.7); font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #cfcfca; }
+.block { position: absolute; right: 3%; bottom: 4%; border: 1px solid rgb(255 255 255 / 0.5); font-size: calc(var(--u) * 1.4); letter-spacing: 0.1em; text-transform: uppercase; color: #cfcfca; display: grid; grid-template-columns: auto auto; }
+.block span { padding: 0.5em 0.9em; border: 1px solid rgb(255 255 255 / 0.25); }
+.steps { position: absolute; display: flex; gap: calc(var(--u) * 1.2); align-items: center; font-family: D; font-weight: 800; text-transform: uppercase; font-size: calc(var(--u) * 3); color: rgb(237 237 231 / 0.3); }
+.steps i { width: calc(var(--u) * 5); height: 2px; background: rgb(237 237 231 / 0.3); }
+.steps b { color: var(--white); font-weight: 800; }
+.steps i.on { background: var(--white); }
+.browser { position: absolute; border-radius: calc(var(--u) * 1.2); background: #0e0e0e; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.18), 0 calc(var(--u) * 4) calc(var(--u) * 10) rgb(0 0 0 / 0.8); overflow: hidden; }
+.browser .bar { display: flex; align-items: center; gap: calc(var(--u) * 1.4); padding: calc(var(--u) * 1.2) calc(var(--u) * 1.6); border-bottom: 1px solid rgb(255 255 255 / 0.12); }
+.browser .dots { display: flex; gap: calc(var(--u) * 0.7); }
+.browser .dots i { width: calc(var(--u) * 1.1); height: calc(var(--u) * 1.1); border-radius: 50%; background: rgb(255 255 255 / 0.25); }
+.browser .url { flex: 1; padding: 0.45em 0.9em; border-radius: 999px; background: rgb(255 255 255 / 0.08); font-size: calc(var(--u) * 2.2); color: var(--white); }
+.caret { display: inline-block; width: 2px; height: 1.05em; background: var(--white); vertical-align: -0.15em; margin-left: 2px; }
+</style>
+</head>
+<body>
+
+<!-- ================= A: EDITORIAL COLLAGE ================= -->
+<section class="f A grain" id="A1">
+  <span class="tc">01 / 12 · 00:00:01</span>
+  <div class="big d" style="left:3%;top:4%">Malik</div>
+  <div class="panel" style="left:46%;top:9%;width:34%;height:80%;z-index:5;transform:rotate(1.5deg)">
+    <img class="gray" src="../../src/assets/portrait/profile-coat.webp" alt="">
+    <div class="halftone" style="opacity:.35"></div>
+  </div>
+  <div class="big d" style="right:3%;top:44%;z-index:8;color:var(--ink);-webkit-text-stroke:calc(var(--u)*.3) var(--paper)">Sohaib</div>
+  <span class="tape" style="left:6%;top:47%;transform:rotate(-3deg)">Full-stack &amp; AI engineer</span>
+  <div class="print" style="left:8%;bottom:9%;width:15%;height:22%;transform:rotate(-6deg);z-index:9"><img class="gray" src="../../src/assets/posters/mini-havoc-art.webp" alt=""></div>
+  <div class="cap"><span>I’m</span> <span>Malik</span> <b>Sohaib.</b></div>
+</section>
+
+<section class="f A grain" id="A2" style="background:var(--ink);color:var(--white)">
+  <span class="tc" style="color:var(--white)">06 / 12 · 00:00:21</span>
+  <div class="panel" style="left:5%;top:16%;width:26%;height:72%;transform:translateY(-4%)"><img class="gray" src="../../src/assets/work/ezvenda-home.webp" alt="" style="object-position:top"></div>
+  <div class="panel" style="left:37%;top:16%;width:26%;height:72%;transform:translateY(5%)"><img class="gray" src="../../src/assets/work/mini-havoc-sumo.jpg" alt=""></div>
+  <div class="panel" style="left:69%;top:16%;width:26%;height:72%;transform:translateY(-2%)"><img class="gray" src="../../src/assets/work/gympaid-card.png" alt="" style="object-position:20% 50%"></div>
+  <div class="d" style="position:absolute;left:3%;top:30%;z-index:10;font-size:calc(var(--u)*22);mix-blend-mode:difference">Products</div>
+  <span class="tape" style="left:42%;top:58%;transform:rotate(2deg);font-size:calc(var(--u)*5)">of my own</span>
+  <span class="tape dark" style="left:6%;bottom:9%;transform:rotate(-2deg);background:var(--white);color:var(--ink)">01 EzVenda · a real merchant</span>
+  <span class="tape dark" style="left:40%;bottom:6%;transform:rotate(1deg);background:var(--white);color:var(--ink)">02 Mini Havoc · 100s of sessions</span>
+  <span class="tape dark" style="left:73%;bottom:9%;transform:rotate(-1deg);background:var(--white);color:var(--ink)">03 GymPaid · 2 days</span>
+</section>
+
+<section class="f A grain" id="A3" style="background:#000;color:var(--white)">
+  <img class="gray" src="../../src/assets/portrait/profile-glow.webp" alt="" style="position:absolute;left:44%;top:0;width:56%;height:100%;object-fit:cover;object-position:46% 40%">
+  <!-- The words cut out of a black panel: the photo shows through them. -->
+  <div style="position:absolute;left:0;top:0;bottom:0;width:48%;background:#0b0b0b;z-index:4"></div>
+  <div class="d" style="position:absolute;left:4%;top:18%;z-index:5;font-size:calc(var(--u)*27);line-height:.8;background:url(../../src/assets/portrait/profile-glow.webp) 55% 40% / 220% auto;-webkit-background-clip:text;background-clip:text;color:transparent;filter:grayscale(1) brightness(1.5)">Let’s<br>talk.</div>
+  <div style="position:absolute;left:4.4%;top:74%;z-index:6">
+    <span class="pill">maliksohaib.official@gmail.com
+      <svg width="34" height="34" viewBox="0 0 24 24" style="margin-left:.2em;transform:translate(14px,18px)"><path d="M4 2l15 9-6.5 1.6L10 19z" fill="#0c0c0c" stroke="#ededE7" stroke-width="1.4"/></svg>
+    </span>
+    <p class="k" style="margin-top:calc(var(--u)*2.4);color:#a9a9a3">Projects · Roles · Advice · Just hi</p>
+  </div>
+  <span class="tc" style="color:var(--white);z-index:6">12 / 12 · 00:00:48</span>
+</section>
+
+<section class="f A grain port" id="A4">
+  <span class="tc">01 / 12</span>
+  <div class="big d" style="left:4%;top:7%;font-size:calc(var(--u)*30)">Malik</div>
+  <div class="panel" style="left:12%;top:20%;width:76%;height:54%;z-index:5;transform:rotate(-1.5deg)"><img class="gray" src="../../src/assets/portrait/profile-coat.webp" alt=""><div class="halftone" style="opacity:.3"></div></div>
+  <div class="big d" style="left:4%;top:62%;z-index:8;font-size:calc(var(--u)*30);-webkit-text-stroke:calc(var(--u)*.3) var(--paper)">Sohaib</div>
+  <span class="tape" style="right:6%;top:18%;transform:rotate(4deg);z-index:9">AI engineer</span>
+  <div class="cap"><span>I’m</span> <span>Malik</span> <b>Sohaib.</b></div>
+</section>
+
+<!-- ================= B: PRODUCT THEATRE ================= -->
+<section class="f B grain" id="B1">
+  <span class="tc">05 / 12 · 00:00:24</span>
+  <div class="floor"></div>
+  <div style="position:absolute;inset:0;perspective:1600px">
+    <div class="phone refl gray" style="left:56%;top:12%;width:19%;height:72%;transform:rotateY(-24deg) rotateX(4deg);z-index:3"><img src="../../src/assets/work/ezvenda-product.webp" alt=""></div>
+    <div class="phone refl gray" style="left:73%;top:20%;width:15%;height:57%;transform:rotateY(-30deg) rotateX(4deg) translateZ(-200px);z-index:2;opacity:.85"><img src="../../src/assets/work/ezvenda-checkout.webp" alt=""></div>
+  </div>
+  <div class="title" style="left:6%;top:26%"><p class="k">01 — EzVenda</p><p class="d">A real<br>merchant<br>sells here.</p></div>
+  <div class="cap"><span>with</span> <b>a real merchant</b> <span>selling</span></div>
+</section>
+
+<section class="f B grain" id="B2">
+  <span class="tc">07 / 12 · 00:00:30</span>
+  <div class="floor"></div>
+  <div class="screen refl gray" style="left:22%;top:10%;width:56%;height:56%;z-index:2"><img src="../../src/assets/work/mini-havoc-sumo.jpg" alt=""></div>
+  <div style="position:absolute;inset:0;perspective:1400px">
+    <div class="phone gray" style="left:10%;top:52%;width:9%;height:36%;transform:rotateY(18deg) rotateZ(-6deg);z-index:4"><img src="../../src/assets/work/mini-havoc-hexdrop.jpg" alt="" style="object-position:40% 50%"></div>
+    <div class="phone gray" style="left:80%;top:50%;width:9%;height:36%;transform:rotateY(-18deg) rotateZ(7deg);z-index:4"><img src="../../src/assets/work/mini-havoc-floor.jpg" alt="" style="object-position:55% 50%"></div>
+  </div>
+  <span class="stamp" style="left:62%;top:58%">100s of sessions</span>
+  <div class="cap"><span>party games, with</span> <b>hundreds</b> <span>of sessions</span></div>
+</section>
+
+<section class="f B grain" id="B3">
+  <span class="tc">12 / 12 · 00:00:48</span>
+  <div class="floor"></div>
+  <div style="position:absolute;inset:0;perspective:1600px">
+    <div class="screen refl gray" style="left:44%;top:16%;width:40%;height:40%;transform:rotateY(-16deg);z-index:2"><img src="../../src/assets/work/mini-havoc-hexdrop.jpg" alt=""></div>
+    <div class="screen refl gray" style="left:57%;top:46%;width:30%;height:16%;transform:rotateY(-12deg) rotateX(8deg);z-index:3"><img src="../../src/assets/work/gympaid-card.png" alt=""></div>
+    <div class="phone refl gray" style="left:40%;top:30%;width:12%;height:46%;transform:rotateY(14deg);z-index:4"><img src="../../src/assets/work/ezvenda-home.webp" alt=""></div>
+  </div>
+  <div class="title" style="left:6%;top:24%"><p class="k">What’s next</p><p class="d">Let’s build<br>yours.</p>
+    <p style="margin-top:calc(var(--u)*4)"><span class="pill">maliksohaib.official@gmail.com</span></p></div>
+</section>
+
+<section class="f B grain port" id="B4">
+  <span class="tc">05 / 12</span>
+  <div class="floor" style="height:22%"></div>
+  <div style="position:absolute;inset:0;perspective:1600px">
+    <div class="phone refl gray" style="left:22%;top:20%;width:56%;height:52%;transform:rotateY(-16deg) rotateX(6deg);z-index:3"><img src="../../src/assets/work/ezvenda-product.webp" alt=""></div>
+  </div>
+  <div class="title" style="left:6%;top:6%"><p class="k">01 — EzVenda</p><p class="d" style="font-size:calc(var(--u)*13)">A real merchant</p></div>
+  <div class="cap"><span>with</span> <b>a real merchant</b></div>
+</section>
+
+<!-- ================= C: LIQUID CHROME TYPE ================= -->
+<section class="f C" id="C1">
+  <img class="bg" src="../out/directions/c1.png" alt="">
+  <span class="tc">02 / 12 · 00:00:03</span>
+  <div class="cap"><span>Give me an</span> <b>idea,</b></div>
+</section>
+<section class="f C" id="C2" style="color:var(--ink)">
+  <img class="bg" src="../out/directions/c2.png" alt="">
+  <span class="tc" style="color:var(--ink)">04 / 12 · 00:00:09</span>
+  <p class="label k" style="left:6%;top:12%;color:#3a3a38">Contributions · 2022 to 2026</p>
+  <div class="cap" style="color:var(--ink);text-shadow:none"><span style="color:rgb(12 12 12 / .35)">over five</span> <b style="color:var(--ink)">thousand</b></div>
+</section>
+<section class="f C" id="C3">
+  <img class="bg" src="../out/directions/c3.png" alt="">
+  <span class="tc">12 / 12 · 00:00:48</span>
+  <div class="label" style="left:0;right:0;bottom:9%;text-align:center"><span class="pill" style="background:transparent;color:var(--white);box-shadow:inset 0 0 0 2px rgb(237 237 231 / .7)">maliksohaib.official@gmail.com</span></div>
+</section>
+<section class="f C port" id="C4">
+  <img class="bg" src="../out/directions/c4.png" alt="">
+  <span class="tc">03 / 12</span>
+  <p class="label d" style="left:0;right:0;top:8%;text-align:center;font-size:calc(var(--u)*12)">Years</p>
+  <div class="cap"><b>Four</b> <span>years of shipping</span></div>
+</section>
+
+<!-- ================= D: BLUEPRINT TO LAUNCH ================= -->
+<section class="f D" id="D1">
+  <div class="grid"></div>
+  <span class="tc">02 / 12 · 00:00:03</span>
+  <svg viewBox="0 0 400 820" style="left:39%;top:7%;width:22%;height:86%" fill="none" stroke="#ededE7" stroke-width="2">
+    <rect x="2" y="2" width="396" height="816" rx="46"/>
+    <rect x="30" y="40" width="340" height="30" rx="6" stroke-dasharray="6 6"/>
+    <rect x="30" y="90" width="340" height="300" rx="10"/><path d="M30 90L370 390M370 90L30 390" stroke-opacity=".35"/>
+    <path d="M30 420h240M30 450h170" stroke-width="10" stroke-linecap="round" stroke-opacity=".7"/>
+    <path d="M30 495h110" stroke-width="14" stroke-linecap="round"/>
+    <rect x="30" y="540" width="340" height="64" rx="32"/>
+    <path d="M30 640h340M30 670h300M30 700h320" stroke-opacity=".35"/>
+    <circle cx="330" cy="760" r="30"/>
+  </svg>
+  <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="inset:0;width:100%;height:100%" stroke="#ededE7" stroke-width=".12" fill="none">
+    <path d="M41 30 L28 22 L18 22"/><path d="M58 58 L70 50 L82 50"/><path d="M58 78 L70 72 L82 72"/>
+  </svg>
+  <span class="note" style="left:7%;top:18.5%">Product photo</span>
+  <span class="note" style="left:83%;top:46.5%">Cash on delivery</span>
+  <span class="note" style="left:83%;top:68.5%">WhatsApp</span>
+  <div class="block" style="top:4%;bottom:auto"><span>Project</span><span>EzVenda</span><span>Drawn by</span><span>M. Sohaib</span><span>Sheet</span><span>01 of 03</span></div>
+  <div class="cap"><span>Give me an</span> <b>idea,</b></div>
+</section>
+
+<section class="f D" id="D2">
+  <div class="grid"></div>
+  <span class="tc">03 / 12 · 00:00:05</span>
+  <div style="position:absolute;left:40%;top:5%;width:19.5%;height:76%">
+    <svg viewBox="0 0 400 820" style="inset:0;width:100%;height:100%" fill="none" stroke="#ededE7" stroke-width="2">
+      <rect x="2" y="2" width="396" height="816" rx="46"/>
+      <rect x="30" y="90" width="340" height="300" rx="10"/><path d="M30 90L370 390M370 90L30 390" stroke-opacity=".35"/>
+      <path d="M30 420h240M30 450h170" stroke-width="10" stroke-linecap="round" stroke-opacity=".7"/>
+      <rect x="30" y="540" width="340" height="64" rx="32"/>
+    </svg>
+    <div class="gray" style="position:absolute;inset:0;border-radius:11%/5.4%;overflow:hidden;clip-path:polygon(62% 0,100% 0,100% 100%,22% 100%);box-shadow:inset 0 0 0 2px #ededE7">
+      <img src="../../src/assets/work/ezvenda-product.webp" alt="" style="width:100%;height:100%;object-fit:cover;object-position:top">
+    </div>
+    <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="inset:0;width:100%;height:100%"><path d="M62 0 L22 100" stroke="#fff" stroke-width=".6"/></svg>
+  </div>
+  <div class="steps" style="left:6%;top:44%;flex-direction:column;align-items:flex-start;gap:calc(var(--u)*1.4)">
+    <b>Design</b><b>Frontend</b><b>Backend</b><span>AI</span><span>Launch</span>
+  </div>
+  <p class="note" style="right:7%;top:44%;font-size:calc(var(--u)*2.4);color:var(--white)">Building · 72%</p>
+  <div style="position:absolute;right:7%;top:50%;width:18%;height:3px;background:rgb(255 255 255 / .2)"><i style="display:block;width:72%;height:100%;background:#fff"></i></div>
+  <div class="cap"><span>I’ll hand you back</span> <b>a product.</b></div>
+</section>
+
+<section class="f D" id="D3">
+  <div class="grid" style="mask-image:radial-gradient(70% 70% at 50% 50%, transparent 30%, #000 80%)"></div>
+  <span class="tc">12 / 12 · 00:00:48</span>
+  <div class="browser" style="left:14%;top:12%;width:72%;height:72%">
+    <div class="bar"><span class="dots"><i></i><i></i><i></i></span><span class="url">maliksohaib.com<span class="caret"></span></span></div>
+    <div style="position:relative;height:calc(100% - var(--u) * 5.6)">
+      <img class="gray" src="../../src/assets/portrait/profile-coat.webp" alt="" style="position:absolute;right:0;top:0;width:46%;height:100%;object-fit:cover;object-position:50% 30%">
+      <div style="position:absolute;inset:0;background:linear-gradient(90deg,#0e0e0e 50%,transparent 75%)"></div>
+      <div style="position:relative;padding:calc(var(--u)*7) calc(var(--u)*5)">
+        <p class="k" style="color:#a9a9a3">Malik Sohaib · Full-stack &amp; AI engineer</p>
+        <p class="d" style="font-size:calc(var(--u)*17);margin-top:calc(var(--u)*2)">Let’s<br>talk.</p>
+        <p style="margin-top:calc(var(--u)*4)"><span class="pill">maliksohaib.official@gmail.com</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="f D port" id="D4">
+  <div class="grid"></div>
+  <span class="tc">03 / 12</span>
+  <div style="position:absolute;left:24%;top:10%;width:52%;height:56%">
+    <svg viewBox="0 0 400 820" style="inset:0;width:100%;height:100%" fill="none" stroke="#ededE7" stroke-width="2.4">
+      <rect x="2" y="2" width="396" height="816" rx="46"/>
+      <rect x="30" y="90" width="340" height="300" rx="10"/><path d="M30 90L370 390M370 90L30 390" stroke-opacity=".35"/>
+      <path d="M30 420h240M30 450h170" stroke-width="10" stroke-linecap="round" stroke-opacity=".7"/>
+      <rect x="30" y="540" width="340" height="64" rx="32"/>
+    </svg>
+    <div class="gray" style="position:absolute;inset:0;border-radius:11%/5.4%;overflow:hidden;clip-path:polygon(62% 0,100% 0,100% 100%,22% 100%);box-shadow:inset 0 0 0 2px #ededE7">
+      <img src="../../src/assets/work/ezvenda-product.webp" alt="" style="width:100%;height:100%;object-fit:cover;object-position:top">
+    </div>
+  </div>
+  <div class="steps" style="left:6%;right:6%;top:71%;justify-content:center;font-size:calc(var(--u)*4)"><b>Design</b><i class="on"></i><b>Build</b><i></i><span>Launch</span></div>
+  <div class="cap"><span>I’ll hand you back</span> <b>a product.</b></div>
+</section>
+
+</body>
+</html>
