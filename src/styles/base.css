@@ -251,9 +251,9 @@ html.cur-own * {
 }
 .cur__dot {
   position: absolute;
-  width: 10px;
-  height: 10px;
-  margin: -5px 0 0 -5px;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
   border-radius: 50%;
   background: #fff;
   transition:
@@ -275,17 +275,17 @@ html.cur-own * {
 }
 /* Over a link: a bigger dot. Over a poster: a point in a ring, and where it goes. */
 .cur.is-link .cur__dot {
-  scale: 4.4;
+  scale: 3;
 }
 .cur.is-lens .cur__dot {
-  scale: 0.5;
+  scale: 0.4;
 }
 .cur.is-lens .cur__ring {
   opacity: 1;
   scale: 1;
 }
 .cur.is-down .cur__dot {
-  scale: 0.7;
+  scale: 0.75;
 }
 .cur.is-lens.is-down .cur__ring {
   scale: 0.85;
@@ -346,7 +346,7 @@ html.cur-own * {
   margin: -32px 0 0 -32px;
   border-radius: 50%;
   background: #fff;
-  scale: 0.16;
+  scale: 0.25;
   opacity: 0;
   transition:
     scale 560ms var(--ease),
