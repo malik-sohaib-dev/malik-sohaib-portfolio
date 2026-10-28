@@ -145,7 +145,7 @@ export const products: Product[] = [
     stats: [
       { value: '2 days', label: 'from first commit to hand-over' }, // REQUIREMENTS: 26 to 28 Sep
       { value: '154', label: 'tests green' }, // CLAUDE.md status
-      { value: '0', label: 'fingerprints stored by the door integration' }, // feat/door, D-46
+      { value: 'Paid only', label: 'members the fingerprint door lets in' }, // feat/door: the door asks GymPaid, which stores no fingerprints (D-46)
     ],
     stack: ['TypeScript', 'Fastify', 'Drizzle', 'Postgres', 'React', 'ZKTeco ADMS'],
     media: {
