@@ -10,7 +10,7 @@ const previews = [...new Set(nav.map((n) => n.preview))];
 <header class="hdr">
   <div class="wrap hdr__in">
     <a class="hdr__name" href="/" aria-label={`${site.name}, home`}>
-      <Image class="hdr__mark" src={ring} alt="" width={26} densities={[1, 2]} loading="eager" />{site.name}
+      <span class="hdr__logo" data-mark><Image class="hdr__mark" src={ring} alt="" width={26} densities={[1, 2]} loading="eager" /></span>{site.name}
     </a>
     <a class="btn hdr__cta" href={`mailto:${site.email}`}>Email me <span class="btn__arrow" aria-hidden="true">↗</span></a>
     <button class="hdr__menu" type="button" aria-expanded="false" aria-controls="menu" data-menu-toggle>
@@ -19,7 +19,7 @@ const previews = [...new Set(nav.map((n) => n.preview))];
     </button>
   </div>
 
-  <!-- The index: an orange panel wipes down, the links rise, a poster previews the hovered link. -->
+  <!-- The index: a black glass panel wipes down, the links rise, a poster previews the hovered link. -->
   <div class="menu" id="menu" hidden data-menu>
     <div class="wrap menu__in">
       <nav class="menu__nav" aria-label="Main">
@@ -92,16 +92,30 @@ const previews = [...new Set(nav.map((n) => n.preview))];
     min-height: 44px;
     white-space: nowrap;
   }
-  /* The mark: the mercury ring. It turns a little when you point at the name. */
+  /* The mark: the mercury ring. Once the page is idle (and only with motion on) it swaps to a
+     48-frame sprite of the ring wobbling in 3D, played by CSS; until then it is the still ring. */
+  .hdr__logo {
+    display: block;
+    flex: none;
+    width: 26px;
+    height: 26px;
+    background: 0 0 / 1248px 26px no-repeat;
+  }
   .hdr__name :global(.hdr__mark) {
     width: 26px;
     height: 26px;
     object-fit: contain;
-    transition: rotate var(--d-l) var(--ease);
   }
-  @media (hover: hover) {
-    .hdr__name:hover :global(.hdr__mark) {
-      rotate: 90deg;
+  .hdr__logo.is-spinning {
+    background-image: url('/brand/ring-spin.webp');
+    animation: ring-wobble 4.8s steps(48) infinite;
+  }
+  .hdr__logo.is-spinning :global(.hdr__mark) {
+    opacity: 0;
+  }
+  @keyframes ring-wobble {
+    to {
+      background-position: -1248px 0;
     }
   }
   .hdr__cta {
@@ -201,10 +215,12 @@ const previews = [...new Set(nav.map((n) => n.preview))];
     line-height: 0.88;
     text-decoration: none;
   }
+  /* The mask clips the rise, not the hover slide: room on the right for the word to move into. */
   .menu__mask {
     display: block;
     overflow: clip;
-    padding-bottom: 0.04em;
+    padding: 0 0.3em 0.04em 0;
+    margin-right: -0.3em;
   }
   .menu__word {
     display: block;
