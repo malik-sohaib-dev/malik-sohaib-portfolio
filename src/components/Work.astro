@@ -30,7 +30,7 @@ const fmt = (iso: string) => {
                 <span class:list={['chip', { 'chip--live': p.status === 'Live' }]}>{p.status}</span>
                 <span class="band__since">Since {fmt(p.started)}</span>
                 {p.url && (
-                  <a class="band__url ul" href={p.url} rel="noopener">
+                  <a class="band__url ul" href={p.url} target="_blank" rel="noopener">
                     {p.urlLabel} <span aria-hidden="true">↗</span>
                   </a>
                 )}

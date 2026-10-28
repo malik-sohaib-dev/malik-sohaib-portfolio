@@ -27,7 +27,7 @@ const postersFor = (name: string, cases?: { slug: string }[]) =>
             <div class="co__main">
               <h3 class="co__name display">
                 {c.url ? (
-                  <a href={c.url} rel="noopener" class="co__link">
+                  <a href={c.url} target="_blank" rel="noopener" class="co__link">
                     {c.name} <span aria-hidden="true">↗</span>
                   </a>
                 ) : (

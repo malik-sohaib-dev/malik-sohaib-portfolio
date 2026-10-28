@@ -32,7 +32,7 @@ const services = [
       <p class="hs__role">{hero.role}. Idea to production, for companies, clients and products of my own.</p>
       <div class="hs__actions">
         <a class="btn" href={`mailto:${site.email}`}>Email me <span class="btn__arrow" aria-hidden="true">↗</span></a>
-        <a class="btn btn--ghost" href={site.whatsapp.href} rel="noopener">WhatsApp <span class="btn__arrow" aria-hidden="true">↗</span></a>
+        <a class="btn btn--ghost" href={site.whatsapp.href} target="_blank" rel="noopener">WhatsApp <span class="btn__arrow" aria-hidden="true">↗</span></a>
       </div>
     </div>
     <div class="hs__build">
@@ -57,7 +57,7 @@ const services = [
   <nav class="hs__dock" aria-label="Selected work" data-dock>
     {
       apps.map((p) => (
-        <a class="hs__app" href={p.href} data-cursor={/^https?:/.test(p.href) ? 'Visit site' : 'Case study'} data-peek={p.slug}>
+        <a class="hs__app" href={p.href} data-cursor={/^https?:/.test(p.href) ? 'Visit site' : 'Case study'} data-peek={p.slug} {.../^https?:/.test(p.href) ? { target: '_blank', rel: 'noopener' } : {}}>
           <span class="hs__icon">
             <Image src={p.art} alt="" widths={[160, 320]} sizes="(min-width: 900px) 60px, 34vw" loading="lazy" />
           </span>

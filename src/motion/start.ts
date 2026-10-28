@@ -5,7 +5,7 @@ import { runLoader } from './loader';
 import { startTilt } from './tilt';
 
 type Cleanup = (() => void) | void;
-const inits: (() => Cleanup)[] = [initFields, initReveals, initVideos, initLoops, initMenu, initScrolled, initMark];
+const inits: (() => Cleanup)[] = [initFields, initReveals, initVideos, initLoops, initMenu, initScrolled, initMark, initOutside];
 let cleanups: Cleanup[] = [];
 
 /** Components register their page behaviour here; it runs on every page and is cleaned up on leave. */
@@ -261,4 +261,13 @@ function initMark(): Cleanup {
     live = false;
     clearTimeout(id);
   };
+}
+
+// Links that leave the site open in a new tab, wherever they were written.
+function initOutside(): Cleanup {
+  for (const a of document.querySelectorAll<HTMLAnchorElement>('a[href^="http"]')) {
+    if (a.origin === location.origin || a.target) continue;
+    a.target = '_blank';
+    a.rel = 'noopener';
+  }
 }

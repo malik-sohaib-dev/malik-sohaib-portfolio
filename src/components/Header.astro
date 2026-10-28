@@ -52,9 +52,9 @@ const previews = [...new Set(nav.map((n) => n.preview))];
           <span data-copy-label>{site.email}</span>
           <span class="menu__copy-hint" aria-hidden="true">Copy</span>
         </button>
-        <a class="ul" href={site.whatsapp.href} rel="noopener">WhatsApp</a>
-        <a class="ul" href={site.resume} rel="noopener">Résumé</a>
-        {site.socials.map((s) => <a class="ul" href={s.href} rel="noopener">{s.label}</a>)}
+        <a class="ul" href={site.whatsapp.href} target="_blank" rel="noopener">WhatsApp</a>
+        <a class="ul" href={site.resume} target="_blank" rel="noopener">Résumé</a>
+        {site.socials.map((s) => <a class="ul" href={s.href} target="_blank" rel="noopener">{s.label}</a>)}
       </div>
     </div>
   </div>

@@ -22,7 +22,7 @@ const Tag = decorative ? 'div' : 'a';
 
 <Tag
   class="poster"
-  {...decorative ? { 'aria-hidden': 'true' } : { href: p.href, 'data-cursor': external ? 'Visit site' : 'Case study', ...(external ? { rel: 'noopener' } : {}) }}
+  {...decorative ? { 'aria-hidden': 'true' } : { href: p.href, 'data-cursor': external ? 'Visit site' : 'Case study', ...(external ? { target: '_blank', rel: 'noopener' } : {}) }}
   data-poster
   style={morph ? `view-transition-name: poster-${p.slug}` : undefined}
 >
