@@ -1,0 +1,122 @@
+---
+// Four years, wrapped: a 33-second film (art/wrapped) about what I have done and what I build.
+// It plays muted while it is on screen, pauses off screen and under reduced motion, and the same
+// facts are written out below it for anyone who cannot or does not want to watch.
+import { activityData } from '../data/site';
+
+const nf = new Intl.NumberFormat('en-US');
+---
+
+<section class="wr" id="wrapped" data-field="contrast" aria-labelledby="wr-title">
+  <div class="wrap">
+    <div class="wr__head">
+      <h2 class="wr__title display" id="wr-title">Four years,<br />wrapped</h2>
+      <p class="wr__intro">The short version, in 33 seconds: the teams, the products, what I build and what I build it with.</p>
+    </div>
+    <figure class="wr__film" data-video>
+      <video data-autoplay muted loop playsinline preload="none" poster="/media/wrapped.jpg" width="1280" height="720" aria-describedby="wr-text">
+        <source src="/media/wrapped.webm" type="video/webm" />
+        <source src="/media/wrapped.mp4" type="video/mp4" />
+      </video>
+      <button class="wr__toggle" type="button" data-video-toggle aria-pressed="false">
+        <span data-video-label>Play</span><span class="sr-only"> the film</span>
+      </button>
+    </figure>
+    <details class="wr__text" id="wr-text">
+      <summary>Read it instead</summary>
+      <ul>
+        <li>Shipping software since 2022: in product teams, for clients, and on products of my own.</li>
+        <li>{nf.format(activityData.total)} contributions on GitHub since 2022, across my work and personal accounts, more every year.</li>
+        <li>Three teams: Council for Education (USA, remote), BH Group (Lahore), and Arthur (Germany, remote), where I’m a senior engineer.</li>
+        <li>Three products of my own, in use: EzVenda, with a real merchant selling through it; Mini Havoc, with hundreds of game sessions; GymPaid, built in two days.</li>
+        <li>What I build: products and web apps, real-time apps and games, AI agents and integrations, tools for a business.</li>
+        <li>Built with TypeScript, React, Node, Go, Elixir, Postgres, Redis, AWS, GCP, three.js, WebSockets, OpenAI, Claude and MCP.</li>
+      </ul>
+    </details>
+  </div>
+</section>
+
+<style>
+  .wr {
+    padding-block: clamp(5rem, 11vw, 8rem);
+  }
+  .wr__head {
+    display: grid;
+    gap: 1.25rem;
+    margin-bottom: clamp(2rem, 4vw, 3rem);
+  }
+  .wr__title {
+    font-size: var(--t-xl);
+    line-height: 0.95;
+    margin-left: -0.04em;
+  }
+  .wr__intro {
+    max-width: 30rem;
+    color: var(--muted);
+  }
+  @media (min-width: 900px) {
+    .wr__head {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--gutter);
+      align-items: end;
+    }
+    .wr__title {
+      grid-column: 1 / 8;
+    }
+    .wr__intro {
+      grid-column: 8 / -1;
+      padding-bottom: 0.4rem;
+    }
+  }
+  .wr__film {
+    position: relative;
+    overflow: hidden;
+    border-radius: 14px;
+    background: #0b0b0b;
+    box-shadow: inset 0 0 0 1px var(--line);
+  }
+  .wr__film video {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+  }
+  .wr__toggle {
+    /* Top right: the film keeps its words on the left. */
+    position: absolute;
+    right: 14px;
+    top: 14px;
+    min-height: 36px;
+    padding: 0 1rem;
+    border: 0;
+    border-radius: 999px;
+    background: rgb(14 14 14 / 0.7);
+    backdrop-filter: blur(10px);
+    color: #ededE7;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.2);
+    font-size: var(--t-xs);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .wr__text {
+    margin-top: 1.25rem;
+    font-size: var(--t-s);
+    color: var(--muted);
+  }
+  .wr__text summary {
+    display: inline-flex;
+    min-height: 32px;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .wr__text ul {
+    display: grid;
+    gap: 0.4rem;
+    max-width: 52rem;
+    margin-top: 0.75rem;
+    padding-left: 1.1rem;
+    list-style: disc;
+  }
+</style>

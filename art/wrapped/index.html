@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Malik Sohaib, wrapped</title>
+<!--
+  The "Wrapped" film, as a page. Every frame is a pure function of time: window.render(t) with t in
+  seconds. art/wrapped/render.mjs steps through it and encodes the frames. Every fact is on record:
+  contributions come from src/data/activity.json, the rest from src/data/site.ts.
+-->
+<style>
+@font-face { font-family: D; src: url(../../public/fonts/display.woff2); font-weight: 100 900; }
+@font-face { font-family: T; src: url(../../public/fonts/text.woff2); font-weight: 300 800; }
+* { box-sizing: border-box; margin: 0; }
+html, body { width: 1280px; height: 720px; overflow: hidden; background: #0b0b0b; }
+body { font-family: T, sans-serif; color: #ededE7; -webkit-font-smoothing: antialiased; }
+#stage { position: relative; width: 1280px; height: 720px; overflow: hidden; }
+#bg { position: absolute; inset: -6%; background: url(../../src/assets/hero/mercury.webp) center / cover; filter: grayscale(1) brightness(0.55); }
+#shade { position: absolute; inset: 0; background: radial-gradient(80% 80% at 30% 50%, rgb(0 0 0 / 0.55), rgb(0 0 0 / 0.85)); }
+.scene { position: absolute; inset: 0; padding: 72px 88px; opacity: 0; }
+.d { font-family: D; font-weight: 900; text-transform: uppercase; line-height: 0.86; letter-spacing: -0.02em; }
+.chrome { background: linear-gradient(180deg, #fff 0%, #d9d9d3 38%, #6d6d68 52%, #f0f0ea 72%, #a9a9a3 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.kick { font-size: 18px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #a9a9a3; }
+.line { overflow: hidden; }
+.line > * { display: block; }
+.muted { color: #a9a9a3; }
+.row { display: flex; gap: 28px; align-items: flex-end; }
+.bars { display: flex; gap: 26px; align-items: flex-end; height: 260px; }
+.bar { width: 120px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 10px; height: 100%; }
+.bar i { display: block; width: 100%; background: linear-gradient(180deg, #f5f5f0, #8d8d88); border-radius: 4px 4px 0 0; transform-origin: bottom; }
+.bar b { font-family: D; font-weight: 800; font-size: 26px; }
+.bar span { font-size: 15px; color: #a9a9a3; }
+.card { flex: 1; padding: 24px; border-radius: 14px; background: rgb(14 14 14 / 0.7); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.14); }
+.card h3 { font-family: D; font-weight: 900; font-size: 46px; line-height: 0.9; text-transform: uppercase; }
+.card p { margin-top: 10px; font-size: 17px; line-height: 1.4; color: #c9c9c3; }
+.card small { display: block; margin-top: 14px; font-size: 14px; color: #8f8f89; }
+.prod { flex: 1; display: grid; gap: 14px; }
+.prod img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; object-position: 50% 60%; border-radius: 10px; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1); }
+.prod h3 { font-family: D; font-weight: 900; font-size: 44px; line-height: 0.9; text-transform: uppercase; }
+.prod p { font-size: 17px; color: #c9c9c3; }
+.svc { font-family: D; font-weight: 800; font-size: 76px; line-height: 0.95; text-transform: uppercase; }
+.svc span { color: #6f6f6a; margin-right: 22px; font-size: 40px; vertical-align: 18px; }
+.stack { display: flex; flex-wrap: wrap; gap: 16px 18px; max-width: 1000px; }
+.stack b { padding: 14px 24px; border-radius: 999px; font-size: 30px; font-weight: 600; box-shadow: inset 0 0 0 1.5px rgb(255 255 255 / 0.3); background: rgb(14 14 14 / 0.6); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="bg"></div>
+  <div id="shade"></div>
+
+  <section class="scene" id="s1" style="display:grid;align-content:center;gap:26px">
+    <p class="kick" data-a>Wrapped · 2022 to 2026</p>
+    <div class="line"><span class="d chrome" style="font-size:210px" data-up>Malik</span></div>
+    <div class="line"><span class="d chrome" style="font-size:210px" data-up>Sohaib</span></div>
+  </section>
+
+  <section class="scene" id="s2" style="display:grid;align-content:center;gap:18px">
+    <p class="kick" data-a>Shipping software since 2022</p>
+    <div class="row"><span class="d chrome" style="font-size:330px" id="years">0</span><span class="d" style="font-size:120px;padding-bottom:28px" data-a>years</span></div>
+    <p style="font-size:26px;max-width:760px;color:#c9c9c3" data-a>In product teams, for clients, and on products of my own. From the idea to production, every layer.</p>
+  </section>
+
+  <section class="scene" id="s3" style="display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:40px">
+    <div style="display:grid;gap:16px">
+      <p class="kick" data-a>On GitHub, work and personal</p>
+      <span class="d chrome" style="font-size:170px" id="contrib">0</span>
+      <span class="d" style="font-size:64px" data-a>contributions</span>
+      <p style="font-size:20px;color:#a9a9a3;max-width:440px" data-a>Most of it in private repositories. More every year.</p>
+    </div>
+    <div class="bars" id="bars"></div>
+  </section>
+
+  <section class="scene" id="s4" style="display:grid;align-content:center;gap:34px">
+    <p class="kick" data-a>Three teams</p>
+    <div class="row" style="align-items:stretch;gap:22px">
+      <div class="card" data-in><h3>Council for Education</h3><p>Campaign and donation pages, Stripe payments.</p><small>USA, remote · 2022</small></div>
+      <div class="card" data-in><h3>BH Group</h3><p>A solar design tool, its reports and diagrams. Ran intern hiring.</p><small>Lahore · 2022 to 2023</small></div>
+      <div class="card" data-in style="box-shadow:inset 0 0 0 1.5px rgb(255 255 255 / 0.55)"><h3>Arthur</h3><p>Real-time sync on Elixir, AI interviews, two clouds. Promoted to senior.</p><small>Germany, remote · 2023 to now</small></div>
+    </div>
+  </section>
+
+  <section class="scene" id="s5" style="display:grid;align-content:center;gap:28px">
+    <p class="kick" data-a>Three products of my own, in use</p>
+    <div class="row" style="align-items:stretch;gap:28px">
+      <div class="prod" data-in><img src="../../src/assets/posters/ezvenda-art.webp" alt=""><h3>EzVenda</h3><p>A real merchant selling through it.</p></div>
+      <div class="prod" data-in><img src="../../src/assets/posters/mini-havoc-art.webp" alt=""><h3>Mini Havoc</h3><p>Hundreds of game sessions. 23 games.</p></div>
+      <div class="prod" data-in><img src="../../src/assets/posters/gympaid-art.webp" alt=""><h3>GymPaid</h3><p>Built against a two-day deadline.</p></div>
+    </div>
+  </section>
+
+  <section class="scene" id="s6" style="display:grid;align-content:center;gap:14px">
+    <p class="kick" data-a style="margin-bottom:12px">What I build</p>
+    <div class="line"><p class="svc" data-up><span>01</span>Products and web apps</p></div>
+    <div class="line"><p class="svc" data-up><span>02</span>Real-time apps and games</p></div>
+    <div class="line"><p class="svc" data-up><span>03</span>AI agents and integrations</p></div>
+    <div class="line"><p class="svc" data-up><span>04</span>Tools for a business</p></div>
+  </section>
+
+  <section class="scene" id="s7" style="display:grid;align-content:center;gap:30px">
+    <p class="kick" data-a>Built with</p>
+    <div class="stack">
+      <b data-pop>TypeScript</b><b data-pop>React</b><b data-pop>Node</b><b data-pop>Go</b><b data-pop>Elixir</b><b data-pop>Postgres</b><b data-pop>Redis</b><b data-pop>AWS</b><b data-pop>GCP</b><b data-pop>three.js</b><b data-pop>WebSockets</b><b data-pop>OpenAI</b><b data-pop>Claude</b><b data-pop>MCP</b>
+    </div>
+  </section>
+
+  <section class="scene" id="s8" style="display:grid;align-content:center;gap:26px">
+    <div class="line"><span class="d chrome" style="font-size:170px" data-up>Let’s build</span></div>
+    <div class="line"><span class="d chrome" style="font-size:170px" data-up>something.</span></div>
+    <p style="font-size:26px;color:#c9c9c3" data-a>Projects, roles, advice, collaborations, or just to talk. maliksohaib.official@gmail.com</p>
+  </section>
+</div>
+
+<script>
+// Facts, filled in by render.mjs from the site's data before the first frame.
+window.FACTS = window.FACTS || { years: 4, total: 5582, perYear: { 2022: 95, 2023: 616, 2024: 615, 2025: 1009, 2026: 3247 } };
+
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const ease = (t) => 1 - Math.pow(1 - clamp(t), 4);
+const within = (t, a, b) => clamp((t - a) / (b - a));
+// [start, end] of each scene in seconds; scenes overlap by 0.5 s for a cross-fade.
+const S = { s1: [0, 3.6], s2: [3.4, 7.6], s3: [7.4, 12.8], s4: [12.6, 17.4], s5: [17.2, 22.6], s6: [22.4, 26.8], s7: [26.6, 29.8], s8: [29.6, 33] };
+const DURATION = 33;
+const nf = new Intl.NumberFormat('en-US');
+
+// Build the bars once.
+const bars = document.getElementById('bars');
+const years = Object.keys(FACTS.perYear);
+const max = Math.max(...Object.values(FACTS.perYear));
+for (const y of years) bars.insertAdjacentHTML('beforeend', `<div class="bar"><b data-v>0</b><i></i><span>${y}</span></div>`);
+
+window.render = (t) => {
+  // The backdrop drifts slowly the whole time.
+  document.getElementById('bg').style.transform = `scale(${1.05 + 0.04 * Math.sin(t / 6)}) translate(${Math.sin(t / 9) * 1.2}%, ${Math.cos(t / 11) * 1}%)`;
+  for (const [id, [a, b]] of Object.entries(S)) {
+    const el = document.getElementById(id);
+    const local = t - a;
+    const fade = Math.min(within(t, a, a + 0.5), 1 - within(t, b - 0.5, b));
+    el.style.opacity = id === 's8' ? within(t, a, a + 0.5) : fade;
+    el.style.visibility = fade > 0 || (id === 's8' && t >= a) ? 'visible' : 'hidden';
+    // Lines rise from a mask, one after another.
+    el.querySelectorAll('[data-up]').forEach((n, i) => {
+      const p = ease(within(local, 0.15 + i * 0.12, 0.95 + i * 0.12));
+      n.style.transform = `translateY(${(1 - p) * 105}%)`;
+    });
+    el.querySelectorAll('[data-a]').forEach((n, i) => {
+      const p = ease(within(local, 0.35 + i * 0.15, 1.1 + i * 0.15));
+      n.style.opacity = p;
+      n.style.transform = `translateY(${(1 - p) * 14}px)`;
+    });
+    el.querySelectorAll('[data-in]').forEach((n, i) => {
+      const p = ease(within(local, 0.4 + i * 0.35, 1.3 + i * 0.35));
+      n.style.opacity = p;
+      n.style.transform = `translateY(${(1 - p) * 40}px)`;
+    });
+    el.querySelectorAll('[data-pop]').forEach((n, i) => {
+      const p = ease(within(local, 0.3 + i * 0.09, 0.9 + i * 0.09));
+      n.style.opacity = p;
+      n.style.transform = `scale(${0.6 + 0.4 * p})`;
+    });
+  }
+  // Scene 2: the years count up.
+  document.getElementById('years').textContent = Math.round(FACTS.years * ease(within(t - S.s2[0], 0.2, 1.6)));
+  // Scene 3: the total counts and the bars grow, year by year.
+  const l3 = t - S.s3[0];
+  document.getElementById('contrib').textContent = nf.format(Math.round(FACTS.total * ease(within(l3, 0.3, 2.6))));
+  bars.querySelectorAll('.bar').forEach((bar, i) => {
+    const v = FACTS.perYear[years[i]];
+    const p = ease(within(l3, 0.5 + i * 0.3, 1.8 + i * 0.3));
+    bar.querySelector('i').style.height = `${Math.max(2, (v / max) * 210 * p)}px`;
+    bar.querySelector('[data-v]').textContent = nf.format(Math.round(v * p));
+  });
+};
+window.DURATION = DURATION;
+render(0);
+</script>
+</body>
+</html>
