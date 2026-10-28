@@ -27,8 +27,7 @@ const nf = new Intl.NumberFormat('en-US');
           width="1920"
           height="1080"
           aria-describedby="wr-text"
-          data-landscape="/media/wrapped-16x9"
-          data-portrait="/media/wrapped-9x16"
+          data-film-base="/media/wrapped"
         >
           <source src="/media/wrapped-16x9.webm" type="video/webm" />
           <source src="/media/wrapped-16x9.mp4" type="video/mp4" />
@@ -96,7 +95,15 @@ const nf = new Intl.NumberFormat('en-US');
 
     // The cut that fits the screen: portrait on tall screens.
     const portrait = innerHeight > innerWidth * 1.1;
-    const base = portrait ? video.dataset.portrait! : video.dataset.landscape!;
+    // Comparing cuts: ?film=collage|blueprint|reel (remembered for the session); the first cut is the default.
+    const CUTS: Record<string, string> = { reel: '', collage: '-collage', blueprint: '-blueprint' };
+    let cut = '';
+    try {
+      const q = new URLSearchParams(location.search).get('film');
+      if (q && q in CUTS) sessionStorage.setItem('film', q);
+      cut = CUTS[sessionStorage.getItem('film') ?? 'reel'] ?? '';
+    } catch {}
+    const base = `${video.dataset.filmBase}${cut}-${portrait ? '9x16' : '16x9'}`;
     video.poster = `${base}.jpg`;
     video.innerHTML = `<source src="${base}.webm" type="video/webm"><source src="${base}.mp4" type="video/mp4">`;
     video.width = portrait ? 1080 : 1920;
