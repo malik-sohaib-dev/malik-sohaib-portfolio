@@ -2,11 +2,11 @@
 // First visit only: a black screen, a real progress counter, and the chrome monogram pouring into
 // place, then flying past the camera as the page appears (src/motion/loader.ts).
 import { Image } from 'astro:assets';
-import mark from '../assets/loader-mark.webp';
+import mark from '../assets/brand/ring.webp';
 ---
 
 <div class="loader" id="loader" aria-hidden="true" transition:persist>
-  <Image class="loader__mark" src={mark} alt="" width={745} height={480} loading="eager" fetchpriority="high" />
+  <Image class="loader__mark" src={mark} alt="" width={160} height={mark.height} loading="eager" fetchpriority="high" />
   <span class="loader__count num" data-loader-count>000</span>
   <span class="loader__name">Malik Sohaib</span>
 </div>
@@ -36,7 +36,7 @@ import mark from '../assets/loader-mark.webp';
     display: grid;
   }
   .loader__mark {
-    width: min(46vw, 22rem);
+    width: min(34vw, 11rem);
     height: auto;
     animation: pour 1400ms var(--ease) both;
   }

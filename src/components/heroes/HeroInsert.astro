@@ -1,0 +1,227 @@
+---
+// Hero 3, The Insert: the name on one line with a mercury capsule wedged in, cycling the work.
+import { Image } from 'astro:assets';
+import { hero, site } from '../../data/site';
+import { posters } from '../../data/posters';
+const slides = Object.values(posters);
+---
+
+<section class="hi" data-field="base" data-hero-variant="3" aria-labelledby="hi-name">
+  <div class="wrap hi__in">
+    <div class="hi__top">
+      <p class="hi__role display">{hero.role}</p>
+      <p class="hi__lede">{hero.lede}</p>
+    </div>
+    <h1 class="hi__name display" id="hi-name" data-insert>
+      <span class="hi__word hi__word--l">Malik</span>
+      <span class="hi__cap" data-insert-cap>
+        {
+          slides.map((p, i) => (
+            <a class:list={['hi__slide', { 'is-on': i === 0 }]} href={p.href} data-poster data-cursor="View" tabindex={i === 0 ? 0 : -1} aria-label={`${p.title}: ${p.caption}`}>
+              <span class="hi__art" data-liquid>
+                <Image src={p.art} alt="" widths={[480, 960]} sizes="40vw" loading={i < 2 ? 'eager' : 'lazy'} />
+              </span>
+            </a>
+          ))
+        }
+        <span class="hi__gloss" aria-hidden="true"></span>
+      </span>
+      <span class="hi__word hi__word--r">Sohaib</span>
+    </h1>
+    <div class="hi__bar">
+      <b class="hi__count num" data-insert-count>01 / {String(slides.length).padStart(2, '0')}</b>
+      <span class="hi__title" data-insert-title>{slides[0].title}</span>
+      <span class="hi__cap-text" data-insert-caption>{slides[0].caption}</span>
+      <span class="hi__nav">
+        <button type="button" class="hi__btn" data-insert-step="-1" aria-label="Previous project">←</button>
+        <button type="button" class="hi__btn" data-insert-step="1" aria-label="Next project">→</button>
+      </span>
+      <a class="btn" href={`mailto:${site.email}`}>Email me <span class="btn__arrow" aria-hidden="true">↗</span></a>
+    </div>
+    <script type="application/json" data-insert-data set:html={JSON.stringify(slides.map((s) => ({ title: s.title, caption: s.caption })))} />
+  </div>
+</section>
+
+<style>
+  .hi__in {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: 1.5rem;
+    min-height: calc(100svh - 4rem);
+    padding-block: 1.5rem 2rem;
+  }
+  .hi__top {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem 3rem;
+  }
+  .hi__role {
+    font-size: clamp(1.75rem, 1rem + 2.4vw, 3rem);
+    line-height: 0.92;
+    max-width: 14ch;
+  }
+  .hi__lede {
+    max-width: 26rem;
+    color: var(--muted);
+  }
+  .hi__name {
+    align-self: center;
+    display: flex;
+    align-items: center;
+    gap: 0.06em;
+    margin: 0;
+    font-size: clamp(3rem, 11vw, 12.5rem);
+    line-height: 0.8;
+  }
+  .hi__word {
+    transition: scale var(--d-l) var(--ease);
+  }
+  .hi__word--l {
+    transform-origin: 0 50%;
+  }
+  .hi__word--r {
+    transform-origin: 100% 50%;
+  }
+  /* The capsule: a pill of mercury glass, holding the current poster. */
+  .hi__cap {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 1.6em;
+    height: 0.8em;
+    border-radius: 999px;
+    overflow: hidden;
+    isolation: isolate;
+    background: #050505;
+    box-shadow:
+      inset 0 0 0 2px rgb(255 255 255 / 0.55),
+      0 30px 60px rgb(0 0 0 / 0.5);
+    transition: flex-grow var(--d-l) var(--ease);
+  }
+  .hi__slide {
+    position: absolute;
+    inset: 0;
+    clip-path: inset(0 0 0 100%);
+    transition: clip-path 900ms var(--ease);
+    pointer-events: none;
+  }
+  .hi__slide.is-on {
+    clip-path: inset(0 0 0 0);
+    pointer-events: auto;
+    z-index: 1;
+  }
+  .hi__slide.is-out {
+    clip-path: inset(0 100% 0 0);
+  }
+  .hi__art,
+  .hi__art :global(img),
+  .hi__art :global(canvas) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 58%;
+  }
+  .hi__art :global(canvas) {
+    opacity: 0;
+    transition: opacity 250ms linear;
+  }
+  .hi__gloss {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.3), rgb(255 255 255 / 0) 45%, rgb(0 0 0 / 0) 70%, rgb(255 255 255 / 0.12));
+  }
+  @media (hover: hover) {
+    .hi__name:has(.hi__cap:hover) .hi__cap {
+      flex-grow: 2.2;
+    }
+    .hi__name:has(.hi__cap:hover) .hi__word {
+      scale: 0.82 1;
+    }
+  }
+  .hi__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+    font-size: var(--t-s);
+  }
+  .hi__count {
+    font-size: 1.5rem;
+  }
+  .hi__title {
+    font-weight: 600;
+  }
+  .hi__cap-text {
+    color: var(--muted);
+    flex: 1 1 18rem;
+  }
+  .hi__nav {
+    display: flex;
+    gap: 0.4rem;
+  }
+  .hi__btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: none;
+    cursor: pointer;
+    transition: background-color var(--d-s) var(--ease);
+  }
+  @media (hover: hover) {
+    .hi__btn:hover {
+      background: color-mix(in srgb, var(--ink) 12%, transparent);
+    }
+  }
+</style>
+
+<script>
+  import { onPage } from '../../motion/start';
+
+  // Cycle the capsule: the next poster wipes in from the right while the old one leaves left.
+  onPage(() => {
+    const cap = document.querySelector<HTMLElement>('[data-insert-cap]');
+    if (!cap || !cap.offsetParent) return;
+    const slides = [...cap.querySelectorAll<HTMLElement>('.hi__slide')];
+    const data: { title: string; caption: string }[] = JSON.parse(document.querySelector('[data-insert-data]')!.textContent!);
+    const count = document.querySelector('[data-insert-count]')!;
+    const title = document.querySelector('[data-insert-title]')!;
+    const caption = document.querySelector('[data-insert-caption]')!;
+    let i = 0;
+    let timer = 0;
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const go = (to: number) => {
+      const from = slides[i];
+      i = (to + slides.length) % slides.length;
+      if (from === slides[i]) return;
+      from.classList.remove('is-on');
+      from.classList.add('is-out');
+      from.tabIndex = -1;
+      setTimeout(() => from.classList.remove('is-out'), 950);
+      slides[i].classList.add('is-on');
+      slides[i].tabIndex = 0;
+      count.textContent = `${String(i + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
+      title.textContent = data[i].title;
+      caption.textContent = data[i].caption;
+      schedule();
+    };
+    const schedule = () => {
+      clearTimeout(timer);
+      if (!reduce) timer = window.setTimeout(() => (cap.matches(':hover') ? schedule() : go(i + 1)), 3600);
+    };
+    const onStep = (e: Event) => go(i + Number((e.currentTarget as HTMLElement).dataset.insertStep));
+    const btns = [...document.querySelectorAll<HTMLElement>('[data-insert-step]')];
+    btns.forEach((b) => b.addEventListener('click', onStep));
+    schedule();
+    return () => {
+      clearTimeout(timer);
+      btns.forEach((b) => b.removeEventListener('click', onStep));
+    };
+  });
+</script>

@@ -1,0 +1,326 @@
+---
+// Hero 4, Liquid OS: the hero is a workstation. Windows float over a mercury wallpaper you stir.
+import { Image } from 'astro:assets';
+import { hero, site } from '../../data/site';
+import { posters } from '../../data/posters';
+import wallpaper from '../../assets/hero/mercury.webp';
+const dock = ['ezvenda', 'mini-havoc', 'gympaid', 'photon-elixir-phoenix'].map((s) => posters[s]);
+// Real entries from the products' decision logs.
+const log = [
+  ['D-201', 'Custom domains through Cloudflare for SaaS'],
+  ['D-268', 'Count a sale when the merchant confirms it'],
+  ['D-249', 'The AI connector uses the API’s own routes'],
+  ['D-3', 'Renewals anchored to the join day'],
+  ['D-14', 'Membership status is computed, never stored'],
+  ['D-46', 'A door that holds no fingerprints'],
+];
+---
+
+<section class="ho" data-field="base" data-hero-variant="4" aria-labelledby="ho-name" data-os>
+  <div class="ho__wall" data-liquid="auto" aria-hidden="true">
+    <Image src={wallpaper} alt="" widths={[1280, 1920, 2400]} sizes="100vw" loading="lazy" />
+  </div>
+
+  <article class="ho__win ho__win--about" data-win style="--x: 4%; --y: 7%">
+    <header class="ho__bar" data-drag><i></i><i></i><i></i><span>about.txt</span></header>
+    <div class="ho__body">
+      <h1 class="ho__name display" id="ho-name">Malik<br />Sohaib</h1>
+      <p class="ho__lede">{hero.role}. {hero.lede}</p>
+      <div class="ho__actions">
+        <a class="btn" href={`mailto:${site.email}`}>Email me <span class="btn__arrow" aria-hidden="true">↗</span></a>
+        <a class="btn btn--ghost" href={site.whatsapp.href} rel="noopener">WhatsApp <span class="btn__arrow" aria-hidden="true">↗</span></a>
+      </div>
+    </div>
+  </article>
+
+  <article class="ho__win ho__win--log" data-win style="--x: 58%; --y: 12%">
+    <header class="ho__bar" data-drag><i></i><i></i><i></i><span>decisions.log</span></header>
+    <ol class="ho__log" data-log>
+      {log.map(([id, t]) => <li><b>{id}</b> <span>{t}</span></li>)}
+    </ol>
+  </article>
+
+  <nav class="ho__dock" aria-label="Selected work" data-dock>
+    {
+      dock.map((p) => (
+        <a class="ho__app" href={p.href} data-cursor="View">
+          <Image src={p.art} alt="" widths={[240]} sizes="120px" loading="lazy" />
+          <span>{p.title}</span>
+        </a>
+      ))
+    }
+    <a class="ho__app ho__app--all" href="#work"><span>All work →</span></a>
+  </nav>
+</section>
+
+<style>
+  .ho {
+    position: relative;
+    height: calc(100svh - 4rem);
+    min-height: 560px;
+    overflow: hidden;
+    color: #ededE7;
+    background: #0b0b0b;
+  }
+  .ho__wall,
+  .ho__wall :global(img),
+  .ho__wall :global(canvas) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .ho__wall :global(canvas) {
+    opacity: 0;
+    transition: opacity 300ms linear;
+  }
+  .ho__win {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    z-index: 2;
+    background: rgb(14 14 14 / 0.8);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-radius: 14px;
+    box-shadow:
+      inset 0 0 0 1px rgb(255 255 255 / 0.16),
+      0 30px 80px rgb(0 0 0 / 0.55);
+    overflow: hidden;
+  }
+  .ho__win--about {
+    width: min(40rem, 92vw);
+  }
+  .ho__win--log {
+    width: min(30rem, 92vw);
+  }
+  .ho__win.is-front {
+    z-index: 3;
+  }
+  .ho__bar {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 11px 14px;
+    border-bottom: 1px solid rgb(255 255 255 / 0.08);
+    font-size: var(--t-xs);
+    color: #8f8f89;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+  }
+  .ho__bar:active {
+    cursor: grabbing;
+  }
+  .ho__bar i {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #3a3a38;
+  }
+  .ho__bar span {
+    margin-left: 8px;
+  }
+  .ho__body {
+    padding: 1.5rem 1.75rem 1.75rem;
+  }
+  .ho__name {
+    font-size: clamp(3.5rem, 8vw, 7.5rem);
+    line-height: 0.82;
+  }
+  .ho__lede {
+    margin-top: 1rem;
+    color: #c9c9c3;
+  }
+  .ho__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+    --ink: #ededE7;
+    --ground: #0b0b0b;
+  }
+  .ho__log {
+    margin: 0;
+    padding: 1.1rem 1.25rem 1.25rem;
+    display: grid;
+    gap: 0.6rem;
+    font-size: var(--t-s);
+    line-height: 1.4;
+    min-height: 13rem;
+  }
+  .ho__log li span {
+    color: #a9a9a3;
+  }
+  .ho__log li:not(.is-typed) {
+    visibility: hidden;
+  }
+  .ho__log li.is-typing::after {
+    content: '▍';
+    margin-left: 2px;
+  }
+  .ho__dock {
+    position: absolute;
+    left: 50%;
+    bottom: 1.25rem;
+    z-index: 2;
+    translate: -50% 0;
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    padding: 10px;
+    background: rgb(14 14 14 / 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 18px;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.14);
+    max-width: 94vw;
+    overflow-x: auto;
+  }
+  .ho__app {
+    position: relative;
+    flex: none;
+    width: 76px;
+    aspect-ratio: 4 / 5;
+    border-radius: 9px;
+    overflow: hidden;
+    transform-origin: 50% 100%;
+    transition: scale 200ms var(--ease);
+    text-decoration: none;
+  }
+  .ho__app :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .ho__app span {
+    position: absolute;
+    left: 6px;
+    right: 6px;
+    bottom: 5px;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.1;
+  }
+  .ho__app--all {
+    display: grid;
+    place-items: center;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.18);
+  }
+  .ho__app--all span {
+    position: static;
+    font-size: 11px;
+    text-align: center;
+  }
+  @media (max-width: 899px) {
+    .ho {
+      height: auto;
+      display: grid;
+      gap: 1rem;
+      padding: 1rem var(--margin) 7rem;
+    }
+    .ho__win {
+      position: relative;
+      left: auto;
+      top: auto;
+      width: auto;
+    }
+  }
+</style>
+
+<script>
+  import { onPage } from '../../motion/start';
+
+  onPage(() => {
+    const os = document.querySelector<HTMLElement>('[data-os]');
+    if (!os || !os.offsetParent) return;
+    const offs: (() => void)[] = [];
+
+    // Windows drag by their title bars, and come to the front when touched.
+    const wins = [...os.querySelectorAll<HTMLElement>('[data-win]')];
+    for (const win of wins) {
+      const bar = win.querySelector<HTMLElement>('[data-drag]')!;
+      let start: { x: number; y: number; l: number; t: number } | null = null;
+      const down = (e: PointerEvent) => {
+        if (matchMedia('(max-width: 899px)').matches) return;
+        wins.forEach((w) => w.classList.toggle('is-front', w === win));
+        const r = win.getBoundingClientRect();
+        const o = os.getBoundingClientRect();
+        start = { x: e.clientX, y: e.clientY, l: r.left - o.left, t: r.top - o.top };
+        bar.setPointerCapture(e.pointerId);
+      };
+      const move = (e: PointerEvent) => {
+        if (!start) return;
+        const o = os.getBoundingClientRect();
+        const l = Math.max(0, Math.min(o.width - 120, start.l + e.clientX - start.x));
+        const t = Math.max(0, Math.min(o.height - 60, start.t + e.clientY - start.y));
+        win.style.setProperty('--x', `${l}px`);
+        win.style.setProperty('--y', `${t}px`);
+      };
+      const up = () => (start = null);
+      bar.addEventListener('pointerdown', down);
+      bar.addEventListener('pointermove', move);
+      bar.addEventListener('pointerup', up);
+      offs.push(() => {
+        bar.removeEventListener('pointerdown', down);
+        bar.removeEventListener('pointermove', move);
+        bar.removeEventListener('pointerup', up);
+      });
+    }
+
+    // The log types itself out, a line at a time, then starts over.
+    const lines = [...os.querySelectorAll<HTMLElement>('[data-log] li')];
+    const texts = lines.map((l) => l.querySelector('span')!.textContent!);
+    let timer = 0;
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) lines.forEach((l) => l.classList.add('is-typed'));
+    else {
+      let li = 0;
+      let ch = 0;
+      const tick = () => {
+        if (li >= lines.length) {
+          timer = window.setTimeout(() => {
+            lines.forEach((l) => l.classList.remove('is-typed', 'is-typing'));
+            li = 0;
+            ch = 0;
+            tick();
+          }, 3500);
+          return;
+        }
+        const line = lines[li];
+        const span = line.querySelector('span')!;
+        line.classList.add('is-typed', 'is-typing');
+        span.textContent = texts[li].slice(0, ch);
+        ch++;
+        if (ch > texts[li].length) {
+          line.classList.remove('is-typing');
+          li++;
+          ch = 0;
+          timer = window.setTimeout(tick, 420);
+        } else timer = window.setTimeout(tick, 22);
+      };
+      tick();
+    }
+    offs.push(() => clearTimeout(timer));
+
+    // The dock magnifies the apps near the pointer.
+    const dock = os.querySelector<HTMLElement>('[data-dock]')!;
+    const apps = [...dock.querySelectorAll<HTMLElement>('.ho__app')];
+    const mag = (e: PointerEvent) => {
+      for (const a of apps) {
+        const r = a.getBoundingClientRect();
+        const d = Math.abs(e.clientX - (r.left + r.width / 2));
+        a.style.scale = String(1 + 0.55 * Math.max(0, 1 - d / 140));
+      }
+    };
+    const rest = () => apps.forEach((a) => (a.style.scale = '1'));
+    dock.addEventListener('pointermove', mag);
+    dock.addEventListener('pointerleave', rest);
+    offs.push(() => {
+      dock.removeEventListener('pointermove', mag);
+      dock.removeEventListener('pointerleave', rest);
+    });
+    return () => offs.forEach((o) => o());
+  });
+</script>

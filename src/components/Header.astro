@@ -1,5 +1,7 @@
 ---
+import { Image } from 'astro:assets';
 import Poster from './Poster.astro';
+import ring from '../assets/brand/ring.webp';
 import { nav, site } from '../data/site';
 import { posters } from '../data/posters';
 const previews = [...new Set(nav.map((n) => n.preview))];
@@ -8,7 +10,7 @@ const previews = [...new Set(nav.map((n) => n.preview))];
 <header class="hdr">
   <div class="wrap hdr__in">
     <a class="hdr__name" href="/" aria-label={`${site.name}, home`}>
-      <span class="hdr__mark" aria-hidden="true"></span>{site.name}
+      <Image class="hdr__mark" src={ring} alt="" width={26} densities={[1, 2]} loading="eager" />{site.name}
     </a>
     <a class="btn hdr__cta" href={`mailto:${site.email}`}>Email me <span class="btn__arrow" aria-hidden="true">↗</span></a>
     <button class="hdr__menu" type="button" aria-expanded="false" aria-controls="menu" data-menu-toggle>
@@ -89,18 +91,16 @@ const previews = [...new Set(nav.map((n) => n.preview))];
     margin-right: auto;
     min-height: 44px;
   }
-  /* The mark is one bar of a chart; it grows when you point at the name. */
-  .hdr__mark {
-    width: 6px;
-    height: 18px;
-    background: var(--ink);
-    box-shadow: inset 0 -7px 0 var(--signal);
-    transform-origin: 50% 100%;
-    transition: scale var(--d-m) var(--ease);
+  /* The mark: the mercury ring. It turns a little when you point at the name. */
+  .hdr__name :global(.hdr__mark) {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+    transition: rotate var(--d-l) var(--ease);
   }
   @media (hover: hover) {
-    .hdr__name:hover .hdr__mark {
-      scale: 1 1.35;
+    .hdr__name:hover :global(.hdr__mark) {
+      rotate: 90deg;
     }
   }
   .hdr__cta {
@@ -145,10 +145,6 @@ const previews = [...new Set(nav.map((n) => n.preview))];
     backdrop-filter: none;
     border-bottom-color: transparent;
     color: #ededE7;
-  }
-  :global(html.menu-open) .hdr__mark {
-    background: #ededE7;
-    box-shadow: inset 0 -7px 0 #8f8f89;
   }
   :global(html.menu-open) .hdr__cta {
     visibility: hidden;

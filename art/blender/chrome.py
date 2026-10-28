@@ -121,6 +121,38 @@ elif kind == 'merge':
     blob.data.materials.append(chrome())
     subjects = [blob]
 
+elif kind == 'torus':
+    # A ring of mercury, slightly poured, to stand in for a letter O.
+    bpy.ops.mesh.primitive_torus_add(major_radius=1.0, minor_radius=0.42, major_segments=96, minor_segments=48)
+    ring = bpy.context.active_object
+    ring.rotation_euler = (math.radians(90), 0, math.radians(18))
+    melt(ring, voxel=0.012, strength=0.05, scale=0.5, smooth=16)
+    ring.data.materials.append(chrome())
+    subjects = [ring]
+
+elif kind == 'ico':
+    # A geodesic model, either as an engineer's wireframe or poured in chrome (arg: wire | chrome).
+    bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=2, radius=1.25)
+    ico = bpy.context.active_object
+    ico.rotation_euler = (math.radians(20), math.radians(10), math.radians(30))
+    if arg == 'wire':
+        w = ico.modifiers.new('wire', 'WIREFRAME')
+        w.thickness = 0.018
+        m = bpy.data.materials.new('wire')
+        m.use_nodes = True
+        nt = m.node_tree
+        nt.nodes.remove(nt.nodes['Principled BSDF'])
+        em = nt.nodes.new('ShaderNodeEmission')
+        em.inputs['Strength'].default_value = 3.0
+        nt.links.new(em.outputs['Emission'], nt.nodes['Material Output'].inputs['Surface'])
+        ico.data.materials.append(m)
+    else:
+        sub = ico.modifiers.new('sub', 'SUBSURF')
+        sub.levels = sub.render_levels = 3
+        melt(ico, voxel=0.014, strength=0.12, scale=0.6, smooth=10)
+        ico.data.materials.append(chrome())
+    subjects = [ico]
+
 else:
     raise SystemExit(f'unknown kind {kind}')
 
@@ -165,6 +197,9 @@ for s in subjects:
         zs.append(w.z)
 cx, cz = (min(xs) + max(xs)) / 2, (min(zs) + max(zs)) / 2
 width, height = max(xs) - min(xs), max(zs) - min(zs)
+if kind == 'ico':
+    # Both versions of the geodesic share one fixed frame, so they line up when layered.
+    cx, cz, width, height = 0.0, 0.0, 2.7, 2.7
 cam = bpy.data.cameras.new('c')
 cam.lens = 85
 cam.sensor_width = cam.sensor_height = 36

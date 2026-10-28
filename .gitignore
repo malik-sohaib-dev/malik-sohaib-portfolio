@@ -29,3 +29,6 @@ skills-lock.json
 # Astro
 .astro
 .shots
+
+# Blender working renders (sources for src/assets)
+art/out
