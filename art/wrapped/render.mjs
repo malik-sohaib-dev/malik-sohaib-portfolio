@@ -1,6 +1,7 @@
-// Renders the Wrapped film (art/wrapped/index.html) frame by frame and encodes it for the web.
-//   node art/wrapped/render.mjs            -> public/media/wrapped.webm, .mp4 and a poster frame
-// Needs Playwright (dev dependency) and ffmpeg on PATH (or FFMPEG=/path/to/ffmpeg).
+// Renders the Wrapped film (art/wrapped/index.html) frame by frame, in both shapes, with its sound.
+//   node art/wrapped/render.mjs              -> public/media/wrapped-16x9.{webm,mp4,jpg} and wrapped-9x16.*
+//   node art/wrapped/render.mjs --preview 1.5 20.4 …   -> stills at those times in art/out/wrapped/preview
+// Run voice.py and sound.py first (art/out/voice). Needs Playwright and ffmpeg (or FFMPEG=/path).
 import { chromium } from 'playwright';
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, rmSync } from 'node:fs';
@@ -9,11 +10,13 @@ import path from 'node:path';
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
 const FPS = 30;
 const ffmpeg = process.env.FFMPEG ?? 'ffmpeg';
-const out = path.join(root, 'art/out/wrapped');
-rmSync(out, { recursive: true, force: true });
-mkdirSync(out, { recursive: true });
+const SHAPES = [
+  { name: '16x9', width: 1920, height: 1080 },
+  { name: '9x16', width: 1080, height: 1920 },
+];
+const previewAt = process.argv.includes('--preview') ? process.argv.slice(process.argv.indexOf('--preview') + 1).map(Number) : null;
 
-// The facts, from the site's own data.
+// The facts, from the site's own data, and the narration's timeline.
 const act = JSON.parse(readFileSync(path.join(root, 'src/data/activity.json'), 'utf8'));
 const perYear = {};
 const start = Date.parse(`${act.from}T00:00:00Z`);
@@ -22,23 +25,44 @@ act.days.forEach((c, i) => {
   perYear[y] = (perYear[y] ?? 0) + c;
 });
 const facts = { years: new Date().getUTCFullYear() - 2022, total: act.total, perYear };
+const timeline = JSON.parse(readFileSync(path.join(root, 'art/wrapped/timeline.json'), 'utf8'));
 
+const voice = path.join(root, 'art/out/voice');
+const media = path.join(root, 'public/media');
 const browser = await chromium.launch();
-const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
-await page.addInitScript((f) => (window.FACTS = f), facts);
-await page.goto('file://' + path.join(root, 'art/wrapped/index.html'));
-await page.evaluate(() => document.fonts.ready);
-await page.waitForTimeout(300);
-const total = Math.round((await page.evaluate(() => window.DURATION)) * FPS);
-for (let i = 0; i < total; i++) {
-  await page.evaluate((t) => window.render(t), i / FPS);
-  await page.screenshot({ path: path.join(out, `f_${String(i).padStart(4, '0')}.png`) });
+
+for (const shape of SHAPES) {
+  const page = await browser.newPage({ viewport: { width: shape.width, height: shape.height } });
+  await page.addInitScript(([f, tl]) => ((window.FACTS = f), (window.TIMELINE = tl)), [facts, timeline]);
+  await page.goto('file://' + path.join(root, 'art/wrapped/index.html'));
+  await page.evaluate(() => document.fonts.ready);
+  await page.evaluate(() => Promise.all([...document.querySelectorAll('video')].map((v) => (v.readyState >= 2 ? 0 : new Promise((ok) => v.addEventListener('loadeddata', ok, { once: true }))))));
+  const out = path.join(root, 'art/out/wrapped', previewAt ? 'preview' : shape.name);
+  if (!previewAt) rmSync(out, { recursive: true, force: true });
+  mkdirSync(out, { recursive: true });
+
+  const times = previewAt ?? Array.from({ length: Math.round(timeline.duration * FPS) }, (_, i) => i / FPS);
+  for (const [i, t] of times.entries()) {
+    await page.evaluate((t) => window.render(t), t);
+    const file = previewAt ? `${shape.name}-${t}.png` : `f_${String(i).padStart(5, '0')}.png`;
+    await page.screenshot({ path: path.join(out, file) });
+  }
+  await page.close();
+  if (previewAt) continue;
+
+  // Sound: the narration over the bed, at the loudness Reels play at.
+  const mix = path.join(voice, 'mix.wav');
+  execFileSync(ffmpeg, ['-v', 'error', '-y', '-i', path.join(voice, 'narration.wav'), '-i', path.join(voice, 'sfx.wav'), '-filter_complex', '[0]aresample=48000,pan=stereo|c0=c0|c1=c0[v];[1]volume=0.3[s];[v][s]amix=inputs=2:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=9[a]', '-map', '[a]', '-ar', '48000', mix]);
+
+  const frames = path.join(out, 'f_%05d.png');
+  const base = path.join(media, `wrapped-${shape.name}`);
+  const vin = ['-framerate', String(FPS), '-i', frames, '-i', mix, '-shortest'];
+  // Sharp type needs bits: a low CRF, and 4:2:0 kept clean by rendering at full size.
+  execFileSync(ffmpeg, ['-v', 'error', '-y', ...vin, '-c:v', 'libx264', '-crf', '19', '-preset', 'slow', '-tune', 'animation', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '160k', '-movflags', '+faststart', `${base}.mp4`]);
+  execFileSync(ffmpeg, ['-v', 'error', '-y', ...vin, '-c:v', 'libvpx-vp9', '-b:v', '0', '-crf', '30', '-row-mt', '1', '-deadline', 'good', '-cpu-used', '2', '-pix_fmt', 'yuv420p', '-c:a', 'libopus', '-b:a', '128k', `${base}.webm`]);
+  // The poster: the name, landed.
+  const still = Math.round(1.6 * FPS);
+  execFileSync(ffmpeg, ['-v', 'error', '-y', '-i', path.join(out, `f_${String(still).padStart(5, '0')}.png`), '-q:v', '3', `${base}.jpg`]);
+  console.log(`wrapped ${shape.name}: ${times.length} frames`);
 }
 await browser.close();
-
-const media = path.join(root, 'public/media');
-const frames = path.join(out, 'f_%04d.png');
-execFileSync(ffmpeg, ['-v', 'error', '-y', '-framerate', String(FPS), '-i', frames, '-c:v', 'libvpx-vp9', '-b:v', '0', '-crf', '38', '-row-mt', '1', '-pix_fmt', 'yuv420p', '-an', path.join(media, 'wrapped.webm')]);
-execFileSync(ffmpeg, ['-v', 'error', '-y', '-framerate', String(FPS), '-i', frames, '-c:v', 'libx264', '-crf', '25', '-preset', 'slow', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', '-an', path.join(media, 'wrapped.mp4')]);
-execFileSync(ffmpeg, ['-v', 'error', '-y', '-i', path.join(out, `f_${String(Math.round(1.6 * FPS)).padStart(4, '0')}.png`), '-q:v', '4', path.join(media, 'wrapped.jpg')]);
-console.log(`wrapped: ${total} frames`, facts);
