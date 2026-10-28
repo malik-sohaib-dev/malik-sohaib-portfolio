@@ -377,3 +377,12 @@ html.cur-own * {
 .cur.is-film.is-down .cur__lens {
   scale: 0.86;
 }
+
+/* The mercury's canvas lies exactly over the picture it distorts (src/motion/liquid.ts), wherever
+   that picture is; components may add their own fades on top. */
+[data-liquid] > canvas.liquid {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
