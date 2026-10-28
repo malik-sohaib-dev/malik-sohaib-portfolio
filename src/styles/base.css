@@ -141,33 +141,57 @@ button {
   isolation: isolate;
   transition: color var(--d-s) var(--ease);
 }
+.btn {
+  /* The fill sweeps in from the left; the text inverts as it passes. */
+  --fill: var(--ground);
+  --on-fill: var(--ink);
+  transition:
+    color 420ms var(--ease),
+    border-color 420ms var(--ease);
+}
 .btn::before {
   content: '';
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: var(--flood);
-  translate: 0 101%;
-  transition: translate var(--d-m) var(--ease);
+  border-radius: inherit;
+  background: var(--fill);
+  translate: -101% 0;
+  transition: translate 560ms var(--ease);
 }
 .btn--ghost {
+  --fill: var(--ink);
+  --on-fill: var(--ground);
   background: transparent;
   color: var(--ink);
 }
 .btn__arrow {
   display: inline-block;
-  transition: translate var(--d-m) var(--ease);
+}
+/* The arrow leaves to the right and comes back from the left. */
+@keyframes arrow-through {
+  45% {
+    translate: 0.9em -0.9em;
+    opacity: 0;
+  }
+  46% {
+    translate: -0.9em 0.9em;
+    opacity: 0;
+  }
+  100% {
+    translate: 0 0;
+    opacity: 1;
+  }
 }
 @media (hover: hover) {
   .btn:hover {
-    color: var(--on-flood);
-    border-color: var(--on-flood);
+    color: var(--on-fill);
   }
   .btn:hover::before {
     translate: 0 0;
   }
   .btn:hover .btn__arrow {
-    translate: 0.25em -0.25em;
+    animation: arrow-through 560ms var(--ease);
   }
 }
 .btn:active {
@@ -204,7 +228,7 @@ html.motion [data-reveal].is-in {
   translate: 0 0;
 }
 
-/* The contextual cursor (src/motion/cursor.ts). It sits on top of everything and never takes clicks. */
+/* The mercury drop cursor (src/motion/cursor.ts). It sits on top of everything and never takes clicks. */
 .cursor {
   position: fixed;
   top: 0;
@@ -213,29 +237,45 @@ html.motion [data-reveal].is-in {
   pointer-events: none;
   width: 0;
   height: 0;
+  opacity: 0;
+  transition: opacity 300ms var(--ease);
+}
+.cursor.is-in {
+  opacity: 1;
+}
+/* A 14px chrome drop, offset below-right of the pointer so it never covers what you aim at. */
+.cursor__drop {
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffffff 0%, #d9d9d3 22%, #6d6d68 52%, #1a1a19 70%, #b9b9b3 100%);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.35);
+  will-change: transform;
 }
 .cursor__label {
   position: absolute;
-  left: 0;
-  top: 0;
-  display: grid;
-  place-items: center;
-  width: 5.25rem;
-  height: 5.25rem;
-  margin: 0.75rem 0 0 0.75rem;
-  border-radius: 50%;
-  background: #f0f0ec;
-  color: #111110;
-  box-shadow: 0 0 0 1px rgb(17 17 16 / 0.35);
+  left: 14px;
+  top: 14px;
+  translate: -50% -50%;
   font-family: var(--f-text);
-  font-size: 0.8125rem;
-  font-weight: 600;
-  scale: 0;
-  transition: scale 420ms var(--ease);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #0b0b0b;
+  white-space: nowrap;
+  opacity: 0;
+  scale: 0.6;
+  transition:
+    opacity 220ms var(--ease),
+    scale 420ms var(--ease);
 }
 .cursor.is-on .cursor__label {
+  opacity: 1;
   scale: 1;
 }
 .cursor.is-on.is-down .cursor__label {
-  scale: 0.86;
+  scale: 0.9;
 }
