@@ -268,13 +268,14 @@ const nf = new Intl.NumberFormat('en-US');
       --card: 0.86;
     }
   }
-  /* Letterboxed, never cropped: the captions and type sit near the edges of the frame. */
+  /* The film fills the screen. Each cut is near the shape it plays in (16:9 on wide screens, 9:16 on
+     phones), so cover trims only a sliver, and the films keep their words inside a safe margin. */
   .wr__film video {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
   }
   .wr__hit {
     position: absolute;

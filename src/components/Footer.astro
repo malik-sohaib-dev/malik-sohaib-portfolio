@@ -1,11 +1,15 @@
 ---
-// The close, on every page: the invitation (pick what it is about and the email starts itself, or
-// take the address), then my silhouette in soft light with my full name drawn into it as part of
-// the picture (art/portrait.py; the mercury stirs both), then four short columns.
+// The close: the invitation (pick what it is about and the email starts itself), or on About the
+// address running as a headline; then my silhouette in soft light with my full name drawn into it
+// as part of the picture (art/portrait.py; the mercury stirs both), then four short columns.
 import { Image } from 'astro:assets';
 import glow from '../assets/portrait/profile-glow.webp';
 import { site } from '../data/site';
 import { posters } from '../data/posters';
+interface Props {
+  close?: 'talk' | 'mail';
+}
+const { close = 'talk' } = Astro.props;
 const year = new Date().getFullYear();
 const work = Object.values(posters).filter((p) => p.href.startsWith('/work/'));
 const outside = { target: '_blank', rel: 'noopener' };
@@ -15,6 +19,17 @@ const mailto = (subject: string) => `mailto:${site.email}?subject=${encodeURICom
 ---
 
 <footer class="ftr" id="contact" data-field="base">
+  {
+    close === 'mail' && (
+      <a class="ftr__mail display" href={`mailto:${site.email}`} data-cursor="Write to me">
+        <span class="ftr__track" aria-hidden="true">
+          {Array.from({ length: 4 }, () => <span>{site.email}</span>)}
+        </span>
+        <span class="sr-only">{site.email}</span>
+      </a>
+    )
+  }
+  {close === 'talk' && (
   <div class="wrap ftr__ask">
     <h2 class="ftr__title display">
       Let’s talk.
@@ -32,14 +47,9 @@ const mailto = (subject: string) => `mailto:${site.email}?subject=${encodeURICom
           ))
         }
       </ul>
-      <p class="ftr__direct">
-        Or write to <a href={`mailto:${site.email}`}>{site.email}</a>
-        <button type="button" data-copy={site.email}><span data-copy-label>Copy</span></button>
-        <span aria-hidden="true">/</span>
-        <a href={site.whatsapp.href} {...outside}>WhatsApp ↗</a>
-      </p>
     </div>
   </div>
+  )}
   <!-- The end, one screen tall: the silhouette takes what the links leave. -->
   <div class="ftr__end">
   <div class="ftr__stage" data-liquid-surface>
@@ -110,24 +120,6 @@ const mailto = (subject: string) => `mailto:${site.email}?subject=${encodeURICom
 
 <script>
   import { onPage } from '../motion/start';
-
-  // Copy the address; where the clipboard is refused, open the mail app instead.
-  onPage(() => {
-    const btn = document.querySelector<HTMLButtonElement>('.ftr [data-copy]');
-    if (!btn) return;
-    const out = btn.querySelector('[data-copy-label]')!;
-    const copy = async () => {
-      try {
-        await navigator.clipboard.writeText(btn.dataset.copy!);
-        out.textContent = 'Copied';
-        setTimeout(() => (out.textContent = 'Copy'), 1600);
-      } catch {
-        location.href = `mailto:${btn.dataset.copy}`;
-      }
-    };
-    btn.addEventListener('click', copy);
-    return () => btn.removeEventListener('click', copy);
-  });
 
   // The name fills the width exactly, on one line, at any size: measured at 100px and scaled.
   onPage(() => {
@@ -286,29 +278,36 @@ const mailto = (subject: string) => `mailto:${site.email}?subject=${encodeURICom
       padding-bottom: 0.3rem;
     }
   }
-  /* The address, quietly, for those who would rather write than pick. */
-  .ftr__direct {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.25rem 0.6rem;
-    margin-top: 1.1rem;
-    font-size: var(--t-s);
-    color: var(--muted);
+  /* About closes on the address running as a headline; it pauses under the pointer. */
+  .ftr__mail {
+    position: relative;
+    display: block;
+    overflow: clip;
+    padding-block: clamp(3rem, 6vw, 4.5rem) clamp(2rem, 4vw, 3rem);
+    font-size: clamp(3.5rem, 12vw, 11rem);
+    /* Room for the @ and the descenders: the marquee clips its box. */
+    line-height: 1.2;
+    text-decoration: none;
+    text-transform: none;
+    white-space: nowrap;
   }
-  .ftr__direct a,
-  .ftr__direct button {
-    color: var(--ink);
-    text-decoration: underline;
-    text-decoration-color: var(--line);
-    text-underline-offset: 0.25em;
+  .ftr__track {
+    display: inline-flex;
+    gap: 0.5em;
+    padding-right: 0.5em;
   }
-  .ftr__direct button {
-    padding: 0;
-    border: 0;
-    background: none;
-    font: inherit;
-    cursor: pointer;
+  :global(html.motion) .ftr__track {
+    animation: ftr-marquee 26s linear infinite;
+  }
+  @media (hover: hover) {
+    :global(html.motion) .ftr__mail:hover .ftr__track {
+      animation-play-state: paused;
+    }
+  }
+  @keyframes ftr-marquee {
+    to {
+      translate: -50% 0;
+    }
   }
 
   /* The stage: the silhouette edge to edge, the whole figure in view, my name across its foot. */
