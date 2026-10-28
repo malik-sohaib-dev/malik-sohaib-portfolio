@@ -15,7 +15,7 @@ const previews = [...new Set(nav.map((n) => n.preview))];
     <a class="btn hdr__cta" href={`mailto:${site.email}`}>Email me <span class="btn__arrow" aria-hidden="true">↗</span></a>
     <button class="hdr__menu" type="button" aria-expanded="false" aria-controls="menu" data-menu-toggle>
       <span class="hdr__burger" aria-hidden="true"><i></i><i></i></span>
-      <span data-menu-label>Menu</span>
+      <span class="sr-only" data-menu-label>Open menu</span>
     </button>
   </div>
 
@@ -127,22 +127,24 @@ const previews = [...new Set(nav.map((n) => n.preview))];
       display: none;
     }
   }
+  /* The toggle is the icon alone: a 44px target, its name kept for screen readers. */
   .hdr__menu {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-    min-height: 44px;
-    padding: 0 0.25rem 0 0.5rem;
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin-right: -10px;
+    padding: 0;
     border: 0;
     background: none;
-    font-weight: 600;
+    color: inherit;
     cursor: pointer;
   }
   /* Two bars that cross into an X when open. */
   .hdr__burger {
     display: grid;
     gap: 5px;
-    width: 22px;
+    width: 24px;
   }
   .hdr__burger i {
     display: block;
@@ -177,15 +179,13 @@ const previews = [...new Set(nav.map((n) => n.preview))];
     }
   }
 
-  /* Black glass: the page blurs behind it. */
+  /* Solid black: the page goes away while the index is open. */
   .menu {
     position: fixed;
     inset: 0;
     z-index: 1;
     padding-top: 4rem;
-    background: rgb(8 8 8 / 0.86);
-    backdrop-filter: blur(24px) saturate(1.1);
-    -webkit-backdrop-filter: blur(24px) saturate(1.1);
+    background: #080808;
     color: #ededE7;
     overflow-y: auto;
     overscroll-behavior: contain;

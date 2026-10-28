@@ -165,7 +165,7 @@ function initMenu(): Cleanup {
   const set = (open: boolean) => {
     clearTimeout(closing);
     btn.setAttribute('aria-expanded', String(open));
-    label.textContent = open ? 'Close' : 'Menu';
+    label.textContent = open ? 'Close menu' : 'Open menu';
     html.classList.toggle('menu-open', open);
     html.style.overflow = open ? 'hidden' : '';
     if (open) {
