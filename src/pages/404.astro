@@ -4,7 +4,7 @@ import Base from '../layouts/Base.astro';
 import chrome from '../assets/posters/not-found-chrome.webp';
 ---
 
-<Base title="Not found" description="This page does not exist. The rest of Malik Sohaib’s site does.">
+<Base title="Not found" noindex description="This page does not exist. The rest of Malik Sohaib’s site does.">
   <section class="nf" data-field="base" aria-labelledby="nf-title">
     <div class="wrap nf__in">
       <Image class="nf__chrome" src={chrome} alt="" widths={[480, 900]} sizes="(min-width: 900px) 40vw, 80vw" loading="eager" />

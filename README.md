@@ -23,7 +23,7 @@ npm run activity          # GitHub contributions from both accounts -> src/data/
 sh art/posters.sh         # Blender poster scenes -> src/assets/posters/*-art.webp
 sh art/loops.sh           # the posters' three-second loops -> public/media/loops/
 node art/ring.mjs         # the header ring's wobble sprite -> public/brand/ring-spin.webp
-node art/og.mjs           # share card -> public/og.png
+node art/og.mjs           # share cards -> public/og/*.jpg, and the home-screen icons
 ```
 
 The portraits and the film need a Python environment in `art/out/venv` (see the top of

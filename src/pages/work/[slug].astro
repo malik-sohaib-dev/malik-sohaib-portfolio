@@ -17,7 +17,7 @@ const poster = posters[c.slug];
 const nextPoster = posters[next.slug];
 ---
 
-<Base title={c.title} description={c.description}>
+<Base title={c.title} description={c.description} type="article" image={`/og/${c.slug}.jpg`} imageAlt={`${c.title}: ${c.oneLiner}`}>
   <article>
     <header class="cs-hero" data-field="base">
       <div class="wrap cs-hero__in">
