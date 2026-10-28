@@ -1,6 +1,7 @@
 ---
-// A project poster: one grayscale Blender scene (art/blender/poster.py) with real type on top.
-// On hover, src/motion/liquid.ts lays a WebGL canvas over the art and runs liquid glass through it.
+// A project poster. Three bands that never overlap: a meta line, the art in its own window
+// (a grayscale Blender sculpture of the product, stirred by src/motion/liquid.ts on hover),
+// and the type: title, one plain sentence, status.
 import { Image } from 'astro:assets';
 import type { Poster } from '../data/posters';
 
@@ -25,44 +26,64 @@ const Tag = decorative ? 'div' : 'a';
   data-poster
   style={morph ? `view-transition-name: poster-${p.slug}` : undefined}
 >
-  <span class="poster__bg" aria-hidden="true" data-liquid>
-    <Image src={p.art} alt="" widths={[480, 720, 1200]} sizes={sizes} loading={eager ? 'eager' : 'lazy'} />
+  <span class="poster__head" aria-hidden="true">
+    <span><b class="num">{p.index}</b> {p.kind}</span>
+    <span>{p.meta.join(' · ')}</span>
   </span>
-  <span class="poster__meta poster__tl" aria-hidden="true"><span class="poster__num num">{p.index}</span>{p.kind}</span>
-  <span class="poster__meta poster__tr" aria-hidden="true">{p.meta.map((m) => <span>{m}</span>)}</span>
-  <span class="poster__title display">{p.title}</span>
-  <span class="sr-only">: {p.caption}</span>
-  <span class="poster__meta poster__bl" aria-hidden="true">{p.caption}</span>
-  <span class="poster__meta poster__br" aria-hidden="true">
-    {p.live && <span class="poster__dot" />}{p.status}{external && ' ↗'}
+  <span class="poster__window">
+    <span class="poster__bg" aria-hidden="true" data-liquid>
+      <Image src={p.art} alt="" widths={[480, 720, 1200]} sizes={sizes} loading={eager ? 'eager' : 'lazy'} />
+    </span>
   </span>
-  <span class="poster__frame" aria-hidden="true"></span>
+  <span class="poster__foot">
+    <span class="poster__title display">{p.title}</span>
+    <span class="poster__line">{p.caption}</span>
+    <span class="poster__status" aria-hidden="true">
+      {p.live && <span class="poster__dot" />}{p.status}{external && ' ↗'}
+    </span>
+  </span>
 </Tag>
 
 <style>
   .poster {
-    --pad: clamp(14px, 4.5cqi, 28px);
+    --pad: clamp(10px, 4cqi, 18px);
     position: relative;
-    display: block;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: calc(var(--pad) * 0.75);
     aspect-ratio: 4 / 5;
+    padding: var(--pad);
     overflow: hidden;
     isolation: isolate;
     container-type: inline-size;
-    color: #f0f0ec;
+    color: #ededE7;
     text-decoration: none;
+    background: #0d0d0d;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
+  }
+  .poster__head {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font-size: clamp(0.625rem, 3.4cqi, 0.8125rem);
+    color: #a9a9a3;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .poster__head b {
+    color: #ededE7;
+    font-size: 1.15em;
+  }
+  /* The art sits in its own window: nothing is printed over it. */
+  .poster__window {
+    position: relative;
+    overflow: hidden;
+    border-radius: 3px;
     background: #050505;
   }
   .poster__bg {
     position: absolute;
     inset: 0;
-  }
-  /* The tilt (src/motion/tilt.ts) eases the art itself; the CSS push-in is only the fallback. */
-  :global(html:not(.liquid-on)) .poster__bg {
-    transition: scale var(--d-l) var(--ease);
-  }
-  .poster {
-    transform-style: flat;
-    will-change: transform;
   }
   .poster__bg :global(img),
   .poster__bg :global(canvas) {
@@ -76,90 +97,58 @@ const Tag = decorative ? 'div' : 'a';
     opacity: 0;
     transition: opacity 200ms linear;
   }
-
-  .poster__meta {
-    position: absolute;
-    z-index: 3;
+  :global(html:not(.liquid-on)) .poster__bg {
+    transition: scale var(--d-l) var(--ease);
+  }
+  .poster__foot {
     display: grid;
-    font-size: clamp(0.6875rem, 3.2cqi, 0.875rem);
-    line-height: 1.3;
-    font-weight: 500;
+    gap: 0.3em;
   }
-  .poster__tl {
-    top: var(--pad);
-    left: var(--pad);
+  .poster__title {
+    font-size: min(13cqi, 4.5rem);
+    line-height: 0.86;
+    transition: translate var(--d-m) var(--ease);
   }
-  .poster__num {
-    font-size: 1.6em;
-    line-height: 1;
+  .poster__line {
+    font-size: clamp(0.6875rem, 3.8cqi, 0.9375rem);
+    line-height: 1.35;
+    color: #c9c9c3;
   }
-  .poster__tr {
-    top: var(--pad);
-    right: var(--pad);
-    text-align: right;
-  }
-  .poster__bl {
-    bottom: var(--pad);
-    left: var(--pad);
-    max-width: 62%;
-    color: rgb(240 240 236 / 0.75);
-  }
-  .poster__br {
-    bottom: var(--pad);
-    right: var(--pad);
+  .poster__status {
     display: flex;
     align-items: center;
     gap: 0.45em;
+    margin-top: 0.15em;
+    font-size: clamp(0.625rem, 3.2cqi, 0.8125rem);
+    color: #a9a9a3;
   }
   .poster__dot {
     width: 0.6em;
     height: 0.6em;
     border-radius: 50%;
-    background: currentColor;
-    box-shadow: 0 0 0 0.25em rgb(240 240 236 / 0.2);
+    background: #ededE7;
   }
-  /* The title sits in the dark space the scenes leave above their subject. */
-  .poster__title {
-    position: absolute;
-    z-index: 3;
-    top: calc(var(--pad) + 12cqi);
-    left: calc(var(--pad) - 0.04em);
-    right: var(--pad);
-    font-size: min(17cqi, 8rem);
-    line-height: 0.84;
-    transition: translate var(--d-l) var(--ease);
+  .poster {
+    transform-style: flat;
+    will-change: transform;
   }
-  .poster__frame {
-    position: absolute;
-    z-index: 4;
-    inset: calc(var(--pad) / 2);
-    border: 1px solid currentColor;
-    opacity: 0.22;
-    pointer-events: none;
-    transition:
-      inset var(--d-m) var(--ease),
-      opacity var(--d-m) var(--ease);
-  }
-  @container (max-width: 280px) {
-    .poster__bl {
+  /* Small posters keep the title and the line, and drop the meta and status. */
+  @container (max-width: 240px) {
+    .poster__head,
+    .poster__status {
       display: none;
     }
   }
   @media (hover: hover) {
     .poster:hover .poster__title,
     .poster:focus-visible .poster__title {
-      translate: 0 -0.06em;
+      translate: 0.06em 0;
     }
-    .poster:hover .poster__frame,
-    .poster:focus-visible .poster__frame {
-      opacity: 0.5;
+    .poster:hover {
+      box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.28);
     }
-    /* Without the WebGL glass (reduced motion, no WebGL), the art still answers: a slow push in. */
     :global(html:not(.liquid-on)) .poster:hover .poster__bg {
       scale: 1.04;
     }
-  }
-  .poster:active .poster__frame {
-    inset: calc(var(--pad) / 2 + 3px);
   }
 </style>

@@ -5,7 +5,7 @@ set -e
 BLENDER=${1:-/Applications/Blender.app/Contents/MacOS/Blender}
 cd "$(dirname "$0")/.."
 TMP=$(mktemp -d)
-for pair in ezvenda:ezvenda mini-havoc:mini-havoc gympaid:gympaid photon:photon-elixir-phoenix vibe:arthur-vibe pvsmith:bh-group; do
+for pair in p-ezvenda:ezvenda p-havoc:mini-havoc p-gympaid:gympaid photon:photon-elixir-phoenix p-vibe:arthur-vibe p-solar:bh-group; do
   scene=${pair%%:*}
   slug=${pair#*:}
   "$BLENDER" -b --factory-startup -P art/blender/poster.py -- "$scene" "$TMP/$slug.png" 1200 1500 | grep '^rendered'

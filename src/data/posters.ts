@@ -1,5 +1,6 @@
-// The project posters: grayscale Blender scenes (art/blender/poster.py, rendered by art/posters.sh)
-// with real type on top. Representations, not screenshots: the real screens live on the case pages.
+// The project posters: a grayscale Blender scene that depicts each product as a sculpture
+// (art/blender/poster.py, rendered by art/posters.sh), with the type in its own band below it.
+// Representations, not screenshots: the real screens live on the case pages.
 import type { ImageMetadata } from 'astro';
 import ezArt from '../assets/posters/ezvenda-art.webp';
 import mhArt from '../assets/posters/mini-havoc-art.webp';
@@ -33,7 +34,7 @@ export const posters: Record<string, Poster> = {
     index: '01',
     kind: 'Commerce platform',
     meta: ['2026', 'Founder, design, code'],
-    caption: 'Hosted shops with cash on delivery for small merchants in Pakistan.',
+    caption: 'Online shops for small sellers in Pakistan, paid cash on delivery.',
     status: 'Live',
     live: true,
     art: ezArt,
@@ -45,7 +46,7 @@ export const posters: Record<string, Poster> = {
     index: '02',
     kind: 'Multiplayer party games',
     meta: ['2026', 'Founder, design, code'],
-    caption: 'Party games on everyone’s phone. 23 games, up to 24 players.',
+    caption: 'Party games for friends, played on everyone’s phone.',
     status: 'Live',
     live: true,
     art: mhArt,
@@ -57,7 +58,7 @@ export const posters: Record<string, Poster> = {
     index: '03',
     kind: 'Gym memberships',
     meta: ['2026', 'Built in two days'],
-    caption: 'A member who pays on the 31st stays on the 31st, even through February.',
+    caption: 'Memberships and renewals for a gym that ran on paper.',
     status: 'In hand-over',
     art: gpArt,
   },
@@ -68,7 +69,7 @@ export const posters: Record<string, Poster> = {
     index: '04',
     kind: 'Real-time sync',
     meta: ['Arthur', 'Under NDA'],
-    caption: 'Many long-lived streams on Node, moved to channels on the BEAM.',
+    caption: 'Real-time room and file sync, moved from Node to Elixir.',
     status: 'Shipped',
     art: phArt,
   },
@@ -79,7 +80,7 @@ export const posters: Record<string, Poster> = {
     index: '05',
     kind: 'AI interviews',
     meta: ['Arthur', 'Under NDA'],
-    caption: 'An AI that runs the interviews, then writes the report you can question.',
+    caption: 'An AI that interviews your team, then writes the report.',
     status: 'Shipped',
     art: viArt,
   },
@@ -90,7 +91,7 @@ export const posters: Record<string, Poster> = {
     index: '06',
     kind: 'Solar design tool',
     meta: ['BH Group', '2022 to 2023'],
-    caption: 'Design and simulate a solar system, then print a 24-page report.',
+    caption: 'Design a solar system, simulate it, print the report.',
     status: 'pvx.ai',
     art: bhArt,
   },

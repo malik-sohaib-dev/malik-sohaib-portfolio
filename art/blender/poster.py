@@ -244,7 +244,8 @@ def studio(floor_grey=0.004, wall_top=0.0, wall_horizon=0.03, light=False):
             lo.visible_glossy = False
 
 
-def camera(target=(0, 0, 1.0), dist=7.5, height=1.6, lens=60):
+def camera(target=(0, 0, 1.0), dist=7.5, height=1.6, lens=60, yaw=0.0):
+    """yaw swings the camera around the target (degrees; positive looks from the right)."""
     cam = bpy.data.cameras.new('c')
     cam.lens = lens
     cam.sensor_fit = 'VERTICAL'
@@ -252,7 +253,8 @@ def camera(target=(0, 0, 1.0), dist=7.5, height=1.6, lens=60):
     co = bpy.data.objects.new('c', cam)
     col.objects.link(co)
     scene.camera = co
-    co.location = (target[0], -dist, height)
+    a = math.radians(yaw)
+    co.location = (target[0] + dist * math.sin(a), target[1] - dist * math.cos(a), height)
     d = Vector(target) - co.location
     co.rotation_euler = d.to_track_quat('-Z', 'Y').to_euler()
     cam.dof.use_dof = True
@@ -360,6 +362,149 @@ elif scene_name == 'ez-phone':
     sc.data.materials.append(m)
     ground(text('Rs', 0.9, (1.45, -0.7, 0.4), extrude=0.12))
     camera(target=(0.2, 0.2, 1.35), dist=8.6, height=1.6, lens=58)
+elif scene_name == 'p-ezvenda':
+    # A market stall: a scalloped awning on two posts over a counter of bags and boxes.
+    def box(loc, scale, rot=0.0, bev=0.03):
+        bpy.ops.mesh.primitive_cube_add(size=1, location=loc)
+        o = bpy.context.active_object
+        o.scale = scale
+        bpy.ops.object.transform_apply(scale=True)
+        o.rotation_euler = (0, 0, rot)
+        m = o.modifiers.new('b', 'BEVEL')
+        m.width = bev
+        m.segments = 6
+        o.data.materials.append(CHROME)
+        bpy.ops.object.shade_smooth()
+        return o
+    box((0, 0.6, 0.55), (2.6, 0.9, 1.1), bev=0.05)            # counter
+    for x in (-1.25, 1.25):
+        bpy.ops.mesh.primitive_cylinder_add(radius=0.05, depth=2.4, location=(x, 1.0, 1.7), vertices=32)
+        bpy.context.active_object.data.materials.append(CHROME)
+    # The awning: a tilted slab with a row of half-discs along its front edge.
+    aw = box((0, 0.55, 2.85), (2.9, 1.3, 0.06), bev=0.02)
+    aw.rotation_euler = (math.radians(-16), 0, 0)
+    for i in range(7):
+        x = -1.24 + i * 0.413
+        bpy.ops.mesh.primitive_cylinder_add(radius=0.24, depth=0.06, location=(x, -0.08, 2.6), rotation=(math.radians(90), 0, 0), vertices=48)
+        c = bpy.context.active_object
+        c.data.materials.append(CHROME)
+        bpy.ops.object.shade_smooth()
+    # Goods on the counter: a bag, boxes, a jar.
+    bag = box((-0.65, 0.5, 1.45), (0.55, 0.3, 0.7), rot=math.radians(18))
+    for x in (-0.8, -0.5):
+        bpy.ops.mesh.primitive_torus_add(major_radius=0.12, minor_radius=0.02, location=(x, 0.5, 1.86), rotation=(math.radians(90), 0, math.radians(18)), major_segments=48, minor_segments=16)
+        bpy.context.active_object.data.materials.append(CHROME)
+    box((0.25, 0.55, 1.28), (0.5, 0.45, 0.36), rot=math.radians(-12))
+    box((0.3, 0.55, 1.62), (0.36, 0.34, 0.3), rot=math.radians(9))
+    sphere((0.95, 0.5, 1.33), (0.22, 0.22, 0.24))
+    camera(target=(0, 0.5, 1.5), dist=8.4, height=1.7, lens=54, yaw=30)
+elif scene_name == 'p-havoc':
+    # Beans on a sumo ring; one is being shoved off the edge.
+    bpy.ops.mesh.primitive_cylinder_add(radius=1.9, depth=0.32, location=(0, 0.8, 0.16), vertices=128)
+    ring = bpy.context.active_object
+    bv = ring.modifiers.new('b', 'BEVEL')
+    bv.width = 0.06
+    bv.segments = 8
+    ring.data.materials.append(CHROME)
+    bpy.ops.object.shade_smooth()
+    bpy.ops.mesh.primitive_torus_add(major_radius=1.55, minor_radius=0.025, location=(0, 0.8, 0.33), major_segments=128, minor_segments=12)
+    bpy.context.active_object.data.materials.append(mat_plain(0.02, 0.4, 'line'))
+    bean((-0.55, 0.9, 0.32), 0.85, math.radians(-30))
+    bean((0.35, 0.55, 0.32), 0.7, math.radians(20))
+    bean((1.75, 0.2, 0.55), 0.62, math.radians(40), math.radians(-38))  # going over the edge
+    camera(target=(0.2, 0.7, 0.8), dist=8.4, height=2.6, lens=54)
+elif scene_name == 'p-gympaid':
+    # A tear-off calendar standing on 31, a dumbbell leaning on it.
+    bpy.ops.mesh.primitive_cube_add(size=1, location=(0, 0.6, 1.05))
+    cal = bpy.context.active_object
+    cal.scale = (1.5, 0.5, 2.1)
+    bpy.ops.object.transform_apply(scale=True)
+    m = cal.modifiers.new('b', 'BEVEL')
+    m.width = 0.08
+    m.segments = 8
+    cal.data.materials.append(CHROME)
+    bpy.ops.object.shade_smooth()
+    cal.rotation_euler = (0, 0, math.radians(-12))
+    for x in (-0.4, 0.4):
+        bpy.ops.mesh.primitive_torus_add(major_radius=0.12, minor_radius=0.03, location=(x * math.cos(math.radians(-12)), 0.6 + x * math.sin(math.radians(-12)), 2.12), rotation=(math.radians(90), 0, math.radians(-12)), major_segments=48, minor_segments=16)
+        bpy.context.active_object.data.materials.append(CHROME)
+    t = text('31', 1.25, (0, 0, 1.0), extrude=0.06)
+    t.rotation_euler = (math.radians(90), 0, math.radians(-12))
+    t.location = (0.06, 0.6 - 0.27, 1.0)
+    for x in (-0.55, 0.55):
+        bpy.ops.mesh.primitive_cylinder_add(radius=0.3, depth=0.2, location=(1.2 + x * 0.9, -0.55 + x * 0.25, 0.3), vertices=96)
+        d = bpy.context.active_object
+        d.rotation_euler = (0, math.radians(90), math.radians(16))
+        d.modifiers.new('b', 'BEVEL').width = 0.03
+        d.data.materials.append(CHROME)
+        bpy.ops.object.shade_smooth()
+    bpy.ops.mesh.primitive_cylinder_add(radius=0.055, depth=1.4, location=(1.2, -0.55, 0.3), vertices=48)
+    bar = bpy.context.active_object
+    bar.rotation_euler = (0, math.radians(90), math.radians(16))
+    bar.data.materials.append(CHROME)
+    camera(target=(0.35, 0.3, 1.1), dist=8.6, height=1.7, lens=58)
+elif scene_name == 'p-vibe':
+    # Two speech bubbles: a question asked, an answer coming back.
+    def bubble(loc, w, h, tail_left):
+        # A speech bubble poured as mercury: a soft rounded body and a tail of drops.
+        mb = bpy.data.metaballs.new('bubble')
+        mb.resolution = 0.03
+        mb.render_resolution = 0.01
+        mb.threshold = 0.6
+        body = mb.elements.new(type='ELLIPSOID')
+        body.co = (0, 0, 0)
+        body.radius = 2.0
+        body.size_x, body.size_y, body.size_z = w * 0.5, 0.26, h * 0.5
+        side = -1 if tail_left else 1
+        for k, (dx, dz, r) in enumerate([(0.3, -0.62, 0.32), (0.4, -0.88, 0.2), (0.48, -1.06, 0.12)]):
+            e = mb.elements.new(type='BALL')
+            e.co = (side * w * dx, 0, h * dz)
+            e.radius = r * 1.9
+        o = bpy.data.objects.new('bubble', mb)
+        col.objects.link(o)
+        o.location = loc
+        o.data.materials.append(CHROME)
+        return o
+    bubble((-0.55, 0.6, 2.35), 1.7, 1.05, True)
+    bubble((0.75, 0.2, 0.95), 1.45, 0.85, False)
+    q = text('?', 0.85, (-0.55, -0.02, 2.02), extrude=0.06)
+    q.location.y = -0.02
+    for i, x in enumerate((0.42, 0.75, 1.08)):
+        sphere((x, -0.38, 0.95), (0.12, 0.12, 0.12), EYE)
+    camera(target=(0.05, 0.4, 1.6), dist=8.6, height=1.9, lens=56, yaw=-28)
+elif scene_name == 'p-solar':
+    # Solar glass: near-black and glossy, with a lighter grid of cells.
+    CELLS = bpy.data.materials.new('cells')
+    CELLS.use_nodes = True
+    cn = CELLS.node_tree
+    pb = cn.nodes['Principled BSDF']
+    pb.inputs['Roughness'].default_value = 0.12
+    br = cn.nodes.new('ShaderNodeTexBrick')
+    br.offset = 0.0
+    br.inputs['Color1'].default_value = (0.012, 0.012, 0.012, 1)
+    br.inputs['Color2'].default_value = (0.02, 0.02, 0.02, 1)
+    br.inputs['Mortar'].default_value = (0.55, 0.55, 0.55, 1)
+    br.inputs['Scale'].default_value = 9.0
+    br.inputs['Mortar Size'].default_value = 0.012
+    br.inputs['Brick Width'].default_value = 0.5
+    br.inputs['Row Height'].default_value = 0.5
+    tc = cn.nodes.new('ShaderNodeTexCoord')
+    cn.links.new(tc.outputs['Object'], br.inputs['Vector'])
+    cn.links.new(br.outputs['Color'], pb.inputs['Base Color'])
+    # Solar panels tilted toward a chrome sun.
+    for r in range(3):
+        for c in range(4):
+            bpy.ops.mesh.primitive_cube_add(size=1, location=(-1.35 + c * 0.9, 0.2 + r * 0.95, 0.35 + r * 0.05))
+            pnl = bpy.context.active_object
+            pnl.scale = (0.8, 0.55, 0.035)
+            bpy.ops.object.transform_apply(scale=True)
+            pnl.rotation_euler = (math.radians(38), 0, 0)
+            pnl.modifiers.new('b', 'BEVEL').width = 0.012
+            pnl.data.materials.append(CELLS)
+            bpy.ops.mesh.primitive_cylinder_add(radius=0.02, depth=0.36, location=(-1.35 + c * 0.9, 0.35 + r * 0.95, 0.18), vertices=16)
+            bpy.context.active_object.data.materials.append(CHROME)
+    sphere((1.9, 4.6, 3.0), (0.75, 0.75, 0.75))
+    camera(target=(0, 1.1, 0.9), dist=8.0, height=2.0, lens=52, yaw=34)
 elif scene_name == 'mini-havoc':
     bean((0, 0.2, 0), 1.0, math.radians(-10))
     bean((-1.25, 1.0, 0), 0.75, math.radians(18))
