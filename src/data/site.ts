@@ -27,7 +27,6 @@ export const nav = [
   { label: 'Work', href: '/#work', count: 3, preview: 'ezvenda' },
   { label: 'Path', href: '/#path', preview: 'mini-havoc' },
   { label: 'Teams', href: '/#companies', count: 3, preview: 'photon-elixir-phoenix' },
-  { label: 'Clients', href: '/#clients', preview: 'gympaid' },
   { label: 'About', href: '/about', preview: 'arthur-vibe' },
   { label: 'Contact', href: '/#contact', preview: 'bh-group' },
 ] as const;
@@ -49,13 +48,12 @@ export type Mark = { label: string; at: string; track: 'work' | 'own' | 'side' |
 
 export const path = {
   title: 'Path',
-  intro: 'From mechatronics to the web, then to AI, then to owning products end to end.',
+  intro: 'Four years of building: inside product teams, for clients, and now on products of my own.',
   from: '2022-01',
   zoomTo: '2026-05',
   tracks: [
-    { id: 'life', label: 'Education' },
     { id: 'work', label: 'Companies' },
-    { id: 'side', label: 'Clients and side projects' },
+    { id: 'side', label: 'Early freelance and side projects' },
     { id: 'own', label: 'My own products' },
   ],
   spans: [
@@ -67,7 +65,6 @@ export const path = {
     { label: 'GymPaid', detail: 'Gym memberships', from: '2026-09', to: null, track: 'own', href: '#gympaid' },
   ] as Span[],
   marks: [
-    { label: 'BS Mechatronics, Air University', at: '2023-06', track: 'life' }, // CV: June 2023
     { label: 'PriceWatch', at: '2023-07', track: 'side' }, // repo web-scraper
     { label: 'Photopia', at: '2023-10', track: 'side' }, // repo Photopia
     { label: 'Promptswap', at: '2023-10', track: 'side' }, // repo ai-prompts-next
@@ -106,7 +103,7 @@ export const products: Product[] = [
       'A commerce platform for small merchants in Pakistan: a hosted shop with cash on delivery, custom domains, ad tracking, and an MCP server so an AI assistant can build the shop for you.',
     tag: 'EzVenda',
     stats: [
-      { value: '51', label: 'screens across merchant, shop and admin' }, // HANDOVER: M1 = 51 screens
+      { value: 'Live', label: 'with a real merchant selling through it' }, // HANDOVER; the owner
       { value: '39', label: 'tools an AI assistant can use (MCP)' }, // apps/api/src/modules/agents/mcp
       { value: '307', label: 'written engineering decisions' }, // DECISIONS.md, ### D- headings
     ],
@@ -130,7 +127,7 @@ export const products: Product[] = [
     stats: [
       { value: '23', label: 'games, seven of them 3D arenas' }, // shared/games.ts, retired excluded
       { value: '480', label: 'players in a load test, on a quarter of one core' }, // server/scripts/loadtest.ts
-      { value: '30 Hz', label: 'server-authoritative physics' },
+      { value: '100s', label: 'of game sessions played by friend groups' }, // the owner, 2026-10-28
     ],
     stack: ['TypeScript', 'three.js', 'cannon-es', 'WebSockets', 'Fastify', 'SQLite', 'Capacitor'],
     media: {
@@ -172,7 +169,7 @@ export type Company = {
   cases?: { title: string; summary: string; slug: string }[];
 };
 
-// From the CV and the old site's experience copy. Company work is under NDA: no client names or numbers.
+// From the CV and the old site's experience copy. No client names or figures from company work.
 export const companies: Company[] = [
   {
     name: 'Arthur',
@@ -214,28 +211,12 @@ export const companies: Company[] = [
   },
 ];
 
-export type Gig = { name: string; year: string; kind: string; summary: string; url?: string; placeholder?: boolean };
-
-export const gigs: Gig[] = [
-  {
-    name: 'Your client projects',
-    year: '',
-    kind: 'Client',
-    summary: 'Waiting on the list: name, year, what I built, link, and whether the client can be named.',
-    placeholder: true,
-  },
-  { name: 'LinkedIn Queens generator', year: '2026', kind: 'Side project', summary: 'Generates and plays the LinkedIn Queens puzzle.', url: 'https://linkedin-queens-game.vercel.app' },
-  { name: 'Promptswap', year: '2023', kind: 'Side project', summary: 'Create and share AI prompts.', url: 'https://promptswap.vercel.app' },
-  { name: 'Photopia', year: '2023', kind: 'Side project', summary: 'Generate images with OpenAI and share them, with the prompt, in a community feed.', url: 'https://photopia-beta.vercel.app' },
-  { name: 'PriceWatch', year: '2023', kind: 'Side project', summary: 'Tracks Amazon prices with a scraper and emails you when one drops.', url: 'https://price-watch.vercel.app' },
-];
-
 // The About page. The bio uses only facts on record (CV, the old site, the repos).
 export const about = {
   greeting: 'Hey, I’m Malik Sohaib.',
   bio: [
-    'I studied mechatronics at Air University and found I liked the software half most. Since 2022 I’ve built for a US education nonprofit, a solar engineering company in Lahore, and Arthur in Germany, where I’m now a senior engineer.',
-    'In 2026 I started taking my own ideas all the way: a commerce platform, 23 party games, and a gym system that shipped in two days. I like owning the whole thing, and writing down why I built it the way I did.',
+    'I studied engineering, and the most useful thing it taught me was how to learn anything quickly. Since 2022 I’ve built for a US education nonprofit, a solar engineering company in Lahore, and Arthur in Germany, where I’m now a senior engineer.',
+    'Alongside, I build products of my own from the idea up. EzVenda has a real merchant selling through it, and Mini Havoc has hosted hundreds of game sessions. I like owning the whole thing, and writing down why I built it the way I did.',
   ],
   // `poster` swaps in beside the list while a row is hovered.
   verbs: [

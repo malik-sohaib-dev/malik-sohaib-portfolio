@@ -20,7 +20,6 @@ import { posters } from '../data/posters';
         {
           about.current.map((c) => (
             <li>
-              <span class="ab-hero__live" aria-hidden="true" />
               <b>{c.what}</b> <span>{c.where}</span>
             </li>
           ))
@@ -152,15 +151,6 @@ import { posters } from '../data/posters';
   }
   .ab-hero__now span:last-child {
     color: var(--muted);
-  }
-  .ab-hero__live {
-    width: 8px;
-    height: 8px;
-    flex: none;
-    border-radius: 50%;
-    background: var(--signal);
-    box-shadow: 0 0 0 1.5px var(--ink);
-    translate: 0 -1px;
   }
   @media (min-width: 900px) {
     .ab-hero__in {
@@ -358,7 +348,9 @@ import { posters } from '../data/posters';
     overflow: clip;
     display: block;
     font-size: clamp(3.5rem, 14vw, 12rem);
-    line-height: 1;
+    /* Room for the @ and the descenders: the marquee clips its box. */
+    line-height: 1.2;
+    padding-block: 0.02em 0.08em;
     text-decoration: none;
     text-transform: none;
     white-space: nowrap;

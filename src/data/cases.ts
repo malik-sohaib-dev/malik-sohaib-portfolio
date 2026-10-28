@@ -1,5 +1,5 @@
 // Case studies, told as decision logs: what was chosen, what it was chosen over, and why.
-// Company work is under NDA: architecture and trade-offs only, no client names or figures.
+// Company work: architecture and trade-offs only, no client names or figures.
 import type { ImageMetadata } from 'astro';
 import ezHome from '../assets/work/ezvenda-home.webp';
 import ezProduct from '../assets/work/ezvenda-product.webp';
@@ -33,7 +33,7 @@ export type CaseStudy = {
   nda?: string;
 };
 
-const NDA = 'Under NDA: no client names, figures or internal diagrams. This is how the system was engineered and why.';
+const NDA = 'Some details are kept general on purpose.';
 
 export const cases: CaseStudy[] = [
   {
@@ -196,7 +196,7 @@ export const cases: CaseStudy[] = [
     ],
     outcomes: ['One configuration drives the Zoom bridge, the LiveKit bot and the avatar stream.', 'Multi-person calls became usable once the wake word was in.'],
     stack: ['React', 'Node', 'OpenAI Realtime', 'WebRTC', 'Groq', 'LiveKit', 'Python', 'HeyGen'],
-    nda: 'No customer names or meeting content: only architecture and how the product behaved.',
+    nda: NDA,
   },
 ];
 
