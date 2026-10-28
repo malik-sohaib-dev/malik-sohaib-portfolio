@@ -7,6 +7,12 @@ import ezCheckout from '../assets/work/ezvenda-checkout.webp';
 import ezBuilder from '../assets/work/ezvenda-builder.webp';
 import ezAi from '../assets/work/ezvenda-ai.webp';
 import ezOrder from '../assets/work/ezvenda-order.webp';
+import ezOrders from '../assets/work/ezvenda-orders.webp';
+import ezCustomers from '../assets/work/ezvenda-customers.webp';
+import ezProducts from '../assets/work/ezvenda-products.webp';
+import ezStore from '../assets/work/ezvenda-store.webp';
+import ezDesktop from '../assets/work/ezvenda-desktop.webp';
+import gpCard from '../assets/work/gympaid-card.png';
 import gpDue from '../assets/work/gympaid-due.webp';
 import gpMembers from '../assets/work/gympaid-members.webp';
 import gpPlans from '../assets/work/gympaid-plans.webp';
@@ -83,6 +89,11 @@ export const cases: CaseStudy[] = [
       { frame: 'phone', src: ezHome, alt: 'The shop home page on a phone.', caption: 'Phone first: most shoppers arrive from social apps.', tall: true },
       { frame: 'phone', src: ezProduct, alt: 'A product page with price, discount and photos.', caption: 'Product pages carry price, stock and structured data.', tall: true },
       { frame: 'phone', src: ezCheckout, alt: 'Guest checkout asking for a phone number.', caption: 'Guest checkout built around cash on delivery.', tall: true },
+      { frame: 'browser', url: 'app.ezvenda.com/orders', src: ezOrders, alt: 'The orders list, grouped by what each order needs next.', caption: 'Orders grouped by what they need next.' },
+      { frame: 'browser', url: 'app.ezvenda.com/products', src: ezProducts, alt: 'The products list with stock and price.', caption: 'Products with their stock and price.' },
+      { frame: 'browser', url: 'hilal-traders.ezvenda.store', src: ezDesktop, alt: 'A shop on EzVenda in a desktop browser.', caption: 'A shop, as shoppers see it.' },
+      { frame: 'browser', url: 'app.ezvenda.com/customers', src: ezCustomers, alt: 'Customers, with how many orders each has had delivered.', caption: 'Customers and how reliably they take delivery.' },
+      { frame: 'browser', url: 'app.ezvenda.com/store', src: ezStore, alt: 'The online store page: theme, pages and settings.', caption: 'The shop’s theme, pages and settings.' },
     ],
   },
   {
@@ -119,6 +130,7 @@ export const cases: CaseStudy[] = [
       { frame: 'game', clip: '/media/games/sumo', label: 'Sumo Out!', alt: 'Sumo Out!: four beans shove each other around a ring.', caption: 'Sumo Out!: last bean in the ring wins.' },
       { frame: 'game', clip: '/media/games/brawl', label: 'Havoc Golf', alt: 'Havoc Golf: beans putting across a green island.', caption: 'Havoc Golf: everyone putts at once.' },
       { frame: 'game', clip: '/media/games/hush', label: 'Hush', alt: 'Hush: a first-person view through a haunted house.', caption: 'Hush: escape the house before you are heard.' },
+      { frame: 'game', clip: '/media/games/floor', label: 'Colour Floor', alt: 'Colour Floor: beans racing to the right coloured tiles.', caption: 'Colour Floor: get to the right colour before the rest fall.' },
     ],
   },
   {
@@ -151,6 +163,7 @@ export const cases: CaseStudy[] = [
       { frame: 'browser', url: 'gympaid.ezvenda.com/queue', src: gpDue, alt: 'GymPaid’s due list: who owes money today, with WhatsApp and Paid buttons.', caption: 'The one question it answers: who owes money today, with a reminder a tap away.', wide: true },
       { frame: 'browser', url: 'gympaid.ezvenda.com/members', src: gpMembers, alt: 'The members list: plan, status and next due date for each member.', caption: 'Every member’s plan and when they are next due.' },
       { frame: 'browser', url: 'gympaid.ezvenda.com/plans', src: gpPlans, alt: 'Membership plans: monthly, three months and annual.', caption: 'Plans with the price per month worked out.' },
+      { frame: 'browser', url: 'gympaid.ezvenda.com', src: gpCard, alt: 'GymPaid: who owes you money today?', caption: 'The question it answers, on its card.' },
     ],
   },
   {

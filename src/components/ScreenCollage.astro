@@ -1,0 +1,162 @@
+---
+// A product's screens as a moving collage: framed screens (browser windows, phones, game screens)
+// in columns on a tilted plane, each column drifting, neighbours in opposite directions. CSS
+// transforms only; still under reduced motion. Each clip plays once (its repeat shows its poster),
+// so a phone is never decoding a wall of video.
+import Device from './Device.astro';
+import type { Shot } from '../data/cases';
+
+interface Props {
+  shots: Shot[];
+  label: string;
+  columns?: number;
+}
+const { shots, label, columns = 4 } = Astro.props;
+// Deal the shots into columns, each starting at a different item so neighbours never match.
+// A clip plays only where it first appears; everywhere else it shows its poster.
+const seen = new Set<string>();
+const cols = Array.from({ length: columns }, (_, c) =>
+  Array.from({ length: Math.max(3, Math.ceil((shots.length * 1.5) / columns)) }, (_, k) => {
+    const s = shots[(c * 2 + k) % shots.length];
+    const live = !!s.clip && !seen.has(s.clip);
+    if (s.clip) seen.add(s.clip);
+    return { s, live };
+  }),
+);
+---
+
+<div class="sc3d" data-collage>
+  <p class="sr-only">{label}</p>
+  <div class="sc3d__view">
+  <div class="sc3d__plane" style={`--n:${columns}`}>
+    {
+      cols.map((col, c) => (
+        <div class="sc3d__col" style={`--dur:${46 + c * 9}s;--dir:${c % 2 ? 'reverse' : 'normal'}`}>
+          {[0, 1].map((copy) =>
+            col.map(({ s, live }) =>
+              !s.clip || (live && copy === 0) ? (
+                <Device frame={s.frame} image={s.src} clip={s.clip} url={s.url} label={s.label} alt="" sizes="(min-width: 900px) 24vw, 60vw" />
+              ) : (
+                <div class:list={['sc3d__still', `sc3d__still--${s.frame}`]}>
+                  <img src={`${s.clip}.jpg`} alt="" loading="lazy" decoding="async" />
+                </div>
+              ),
+            ),
+          )}
+        </div>
+      ))
+    }
+  </div>
+  </div>
+  <button class="sc3d__pause" type="button" aria-pressed="false" data-collage-pause>Pause</button>
+</div>
+
+<script>
+  import { onPage } from '../motion/start';
+
+  // One button stops the whole collage: the drift and its clips.
+  onPage(() => {
+    const offs: (() => void)[] = [];
+    document.querySelectorAll<HTMLElement>('[data-collage]').forEach((c) => {
+      const btn = c.querySelector<HTMLButtonElement>('[data-collage-pause]')!;
+      const toggle = () => {
+        const paused = c.classList.toggle('is-paused');
+        btn.setAttribute('aria-pressed', String(paused));
+        btn.textContent = paused ? 'Play' : 'Pause';
+        c.querySelectorAll('video').forEach((v) => (paused ? v.pause() : v.play().catch(() => {})));
+      };
+      btn.addEventListener('click', toggle);
+      offs.push(() => btn.removeEventListener('click', toggle));
+    });
+    return () => offs.forEach((o) => o());
+  });
+</script>
+
+<style>
+  .sc3d {
+    position: relative;
+  }
+  .sc3d__view {
+    position: relative;
+    height: clamp(30rem, 58vw, 50rem);
+    overflow: hidden;
+    perspective: 1800px;
+    /* The plane fades out at its edges, so the screens drift in and out of nothing. */
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent);
+  }
+  .sc3d__plane {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 150%;
+    display: grid;
+    grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+    gap: clamp(1rem, 2vw, 2rem);
+    align-items: start;
+    transform: translate(-50%, -50%) rotateX(52deg) rotateZ(-32deg);
+    transform-style: preserve-3d;
+  }
+  .sc3d__col {
+    display: grid;
+    gap: clamp(1rem, 2vw, 2rem);
+  }
+  :global(html.motion) .sc3d__col {
+    animation: sc3d-drift var(--dur) linear infinite var(--dir);
+  }
+  .sc3d:global(.is-paused) .sc3d__col {
+    animation-play-state: paused;
+  }
+  .sc3d__pause {
+    position: absolute;
+    right: var(--margin);
+    bottom: 1.25rem;
+    z-index: 2;
+    min-height: 32px;
+    padding: 0 0.9rem;
+    border: 0;
+    border-radius: 999px;
+    background: rgb(20 20 20 / 0.8);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.2);
+    color: #ededE7;
+    font-size: var(--t-xs);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  :global(html:not(.motion)) .sc3d__pause {
+    display: none;
+  }
+  @keyframes sc3d-drift {
+    to {
+      transform: translateY(-50%);
+    }
+  }
+  .sc3d__still {
+    overflow: hidden;
+    padding: 0.55rem;
+    border-radius: 1.1rem;
+    background: #121212;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
+  }
+  .sc3d__still img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: 0.7rem;
+  }
+  /* Phones stand narrower than the column, so the wall keeps a rhythm of sizes. */
+  .sc3d :global(.dev--phone) {
+    width: 64%;
+    justify-self: center;
+  }
+  /* A clip's pause button would only get in the way here; the collage is a picture. */
+  .sc3d :global(.dev__toggle) {
+    display: none;
+  }
+  @media (max-width: 899px) {
+    .sc3d__plane {
+      width: 220%;
+    }
+  }
+</style>

@@ -1,5 +1,5 @@
 ---
-import Device from '../../components/Device.astro';
+import ScreenCollage from '../../components/ScreenCollage.astro';
 import Base from '../../layouts/Base.astro';
 import Poster from '../../components/Poster.astro';
 import { cases, type CaseStudy } from '../../data/cases';
@@ -108,15 +108,19 @@ const nextPoster = posters[next.slug];
 
     {
       c.shots?.length && (
-        <section class="cs-shots" data-field="contrast" aria-label="The product">
-          <div class="wrap cs-shots__grid">
-            {c.shots.map((s) => (
-              <figure class:list={['shot', { 'shot--tall': s.tall, 'shot--wide': s.wide }]}>
-                <Device frame={s.frame} image={s.src} clip={s.clip} url={s.url} label={s.label} alt={s.alt} sizes={s.wide ? '(min-width: 900px) 84vw, 92vw' : s.tall ? '(min-width: 900px) 28vw, 46vw' : '(min-width: 900px) 42vw, 92vw'} />
-                <figcaption>{s.caption}</figcaption>
-              </figure>
-            ))}
-          </div>
+        <section class="cs-shots" data-field="base" aria-label="The product">
+          <ScreenCollage shots={c.shots} label={`${c.title}, in use: ${c.shots.map((s) => s.alt).join(' ')}`} />
+          <ul class="wrap cs-shots__notes">
+            {c.shots
+              .filter((s) => s.frame !== 'phone')
+              .slice(0, 4)
+              .map((s) => (
+                <li>
+                  <b>{s.label ?? s.url}</b>
+                  <span>{s.caption}</span>
+                </li>
+              ))}
+          </ul>
         </section>
       )
     }
@@ -321,38 +325,29 @@ const nextPoster = posters[next.slug];
   }
 
   .cs-shots {
-    padding-block: 0 clamp(5rem, 12vw, 9rem);
+    padding-block: clamp(2rem, 5vw, 4rem) clamp(5rem, 12vw, 8rem);
+    overflow: hidden;
   }
-  .cs-shots__grid {
+  .cs-shots__notes {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--gutter);
-  }
-  .shot {
-    position: relative;
-    grid-column: 1 / -1;
-  }
-  .shot--tall {
-    grid-column: auto;
-  }
-  .shot figcaption {
-    margin-top: 0.7rem;
-    font-size: var(--t-xs);
+    gap: 1.25rem var(--gutter);
+    margin-top: clamp(1.5rem, 4vw, 3rem);
+    padding-left: var(--margin);
+    list-style: none;
+    font-size: var(--t-s);
     color: var(--muted);
   }
+  .cs-shots__notes b {
+    display: block;
+    margin-bottom: 0.3rem;
+    color: var(--ink);
+    font-size: var(--t-xs);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+  }
   @media (min-width: 900px) {
-    .cs-shots__grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-    /* Halves sit two to a row, phones three. */
-    .cs-shots__grid {
-      grid-template-columns: repeat(6, minmax(0, 1fr));
-    }
-    .shot:not(.shot--tall):not(.shot--wide) {
-      grid-column: span 3;
-    }
-    .shot--tall {
-      grid-column: span 2;
+    .cs-shots__notes {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
 
