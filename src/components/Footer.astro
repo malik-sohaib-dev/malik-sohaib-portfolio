@@ -1,9 +1,9 @@
 ---
-// The close: the invitation, then my full name over my portrait as a mosaic that resolves as it
-// comes into view and sharpens under the pointer (src/motion/mosaic.ts), then four short columns.
+// The close: the invitation, then my full name under my silhouette in soft light (art/portrait.py;
+// the mercury stirs it like every picture), then four short columns.
 // On pages with their own call to action (About) the invitation is left out.
-import { getImage } from 'astro:assets';
-import light from '../assets/portrait/profile-light.webp';
+import { Image } from 'astro:assets';
+import glow from '../assets/portrait/profile-glow.webp';
 import { site } from '../data/site';
 import { posters } from '../data/posters';
 interface Props {
@@ -13,9 +13,6 @@ const { links = false } = Astro.props;
 const year = new Date().getFullYear();
 const work = Object.values(posters).filter((p) => p.href.startsWith('/work/'));
 const outside = { target: '_blank', rel: 'noopener' };
-// The photo the mosaic averages down, and a tiny copy that is the mosaic before (or without) script.
-const full = await getImage({ src: light, width: 1254, format: 'webp' });
-const tiny = await getImage({ src: light, width: 72, format: 'webp' });
 ---
 
 <footer class:list={['ftr', { 'ftr--links': links }]} id="contact" data-field="base">
@@ -44,10 +41,11 @@ const tiny = await getImage({ src: light, width: 72, format: 'webp' });
       </div>
     )
   }
-  <div class="ftr__stage" data-mosaic data-src={full.src} data-focus-x="0.42" data-focus-y="0.36">
-    <img class="ftr__tiny" src={tiny.src} alt="Malik Sohaib in profile, lit from behind, as a mosaic." width="72" height="72" loading="lazy" />
-    <canvas aria-hidden="true"></canvas>
-    <p class="ftr__name display"><span>Malik</span> <span>Sohaib</span> <span>Ahmad</span></p>
+  <div class="ftr__stage" data-liquid-surface>
+    <span class="ftr__glow" data-liquid>
+      <Image src={glow} alt="Malik Sohaib in profile, a silhouette against soft light." widths={[800, 1400, 2400]} sizes="100vw" loading="lazy" />
+    </span>
+    <p class="ftr__name display" data-fit><span>Malik Sohaib Ahmad</span></p>
   </div>
   <div class="wrap">
     <nav class="ftr__cols" aria-label="Footer">
@@ -109,11 +107,20 @@ const tiny = await getImage({ src: light, width: 72, format: 'webp' });
 
 <script>
   import { onPage } from '../motion/start';
-  import { mosaic } from '../motion/mosaic';
 
+  // The name fills the width exactly, on one line, at any size: measured at 100px and scaled.
   onPage(() => {
-    const stage = document.querySelector<HTMLElement>('[data-mosaic]');
-    return stage ? mosaic(stage) : undefined;
+    const box = document.querySelector<HTMLElement>('[data-fit]');
+    if (!box) return;
+    const text = box.firstElementChild as HTMLElement;
+    const fit = () => {
+      box.style.fontSize = '100px';
+      box.style.fontSize = `${(100 * box.clientWidth) / text.getBoundingClientRect().width - 0.1}px`;
+    };
+    const ro = new ResizeObserver(fit);
+    ro.observe(box);
+    document.fonts.ready.then(fit);
+    return () => ro.disconnect();
   });
 </script>
 
@@ -155,62 +162,47 @@ const tiny = await getImage({ src: light, width: 72, format: 'webp' });
     }
   }
 
-  /* The stage: the portrait edge to edge as a mosaic, my name across its foot. Before the script
-     draws (or without it), a 72px copy scaled up without smoothing is the mosaic. */
+  /* The stage: the silhouette edge to edge, the whole figure in view, my name across its foot. */
   .ftr__stage {
     position: relative;
-    height: min(92svh, 62vw);
-    min-height: 420px;
+    aspect-ratio: 16 / 9;
+    max-height: 100svh;
+    width: 100%;
     overflow: hidden;
     background: #0b0b0b;
   }
   @media (max-width: 899px) {
     .ftr__stage {
-      height: 128vw;
+      aspect-ratio: 4 / 5;
     }
   }
-  .ftr__tiny,
-  .ftr__stage canvas {
+  .ftr__glow {
     position: absolute;
     inset: 0;
+  }
+  .ftr__glow :global(img) {
     width: 100%;
     height: 100%;
-  }
-  .ftr__tiny {
     object-fit: cover;
-    object-position: 42% 42%;
-    image-rendering: pixelated;
+    object-position: 50% 30%;
   }
-  .ftr__stage canvas {
-    opacity: 0;
-    transition: opacity 400ms linear;
-  }
-  .ftr__stage:global(.is-drawn) canvas {
-    opacity: 1;
-  }
-  /* The name inverts what is under it, like the cursor: light on the dark figure, dark on the light. */
   .ftr__name {
     position: absolute;
     left: var(--margin);
     right: var(--margin);
-    bottom: clamp(0.5rem, 2vw, 1.5rem);
+    bottom: clamp(0.75rem, 2.4vw, 2rem);
     z-index: 1;
-    color: #fff;
-    mix-blend-mode: difference;
-    font-size: 10.4vw;
-    line-height: 0.82;
-    letter-spacing: -0.01em;
+    color: #ededE7;
+    font-size: 10vw; /* before the script fits it */
+    font-weight: 900;
+    line-height: 0.8;
+    letter-spacing: -0.005em;
+    text-align: center;
     white-space: nowrap;
     pointer-events: none;
   }
-  @media (max-width: 899px) {
-    .ftr__name {
-      font-size: 19vw;
-      white-space: normal;
-    }
-    .ftr__name span {
-      display: block;
-    }
+  .ftr__name span {
+    display: inline-block;
   }
 
   /* Four short columns: the work, the rest of the site, elsewhere, and how to reach me. */
