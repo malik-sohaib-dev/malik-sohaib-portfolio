@@ -7,13 +7,13 @@ import { about, site } from '../data/site';
 import { posters } from '../data/posters';
 ---
 
-<Base footer="links" title="About" description="Malik Sohaib: a full-stack and AI engineer from Pakistan who takes products from an idea to production. How he works, his stack, and what people say.">
+<Base title="About" description="Malik Sohaib: a full-stack and AI engineer from Pakistan who takes products from an idea to production. How he works, his stack, and what people say.">
   <section class="ab-hero" data-field="base" aria-labelledby="ab-title">
     <div class="wrap ab-hero__in">
       <h1 class="ab-hero__title display" id="ab-title">{about.greeting}</h1>
       <figure class="ab-hero__portrait">
         <span class="ab-hero__photo" data-liquid>
-          <Image src={portrait} alt="Malik Sohaib in profile, in a wool coat over a turtleneck, in black and white." widths={[480, 720, 1000]} sizes="(min-width: 900px) 30vw, 75vw" loading="eager" />
+          <Image src={portrait} alt="Malik Sohaib in profile, in a wool coat over a turtleneck, in black and white." widths={[600, 1000, 1400]} sizes="(min-width: 900px) 50vw, 100vw" loading="eager" />
         </span>
       </figure>
       <div class="ab-hero__bio">
@@ -89,43 +89,38 @@ import { posters } from '../data/posters';
     </div>
   </section>
 
-  <section class="mail" data-field="accent" aria-labelledby="mail-title">
-    <h2 class="sr-only" id="mail-title">Email</h2>
-    <a class="mail__marquee display" href={`mailto:${site.email}`} data-cursor="Write to me">
-      <span class="mail__track" aria-hidden="true">
-        {Array.from({ length: 4 }, () => <span>{site.email}</span>)}
-      </span>
-      <span class="sr-only">{site.email}</span>
-    </a>
-    <div class="wrap mail__actions">
-      <button class="btn" type="button" data-copy={site.email}><span data-copy-label>Copy email</span></button>
-      <a class="btn btn--ghost" href={site.whatsapp.href} target="_blank" rel="noopener">WhatsApp <span class="btn__arrow" aria-hidden="true">↗</span></a>
-    </div>
-  </section>
 </Base>
 
 <style>
-  /* Hero: the hello beside the portrait, then the story. */
+  /* Hero: the hello laid over the edge of a large portrait, then the story beside it. The words
+     sit above the picture, so the two read as layers, not as things placed side by side. */
   .ab-hero__in {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 2rem var(--gutter);
-    padding-block: clamp(2rem, 6vw, 4rem) clamp(4rem, 10vw, 7rem);
+    padding-block: clamp(2rem, 5vw, 3.5rem) clamp(4rem, 9vw, 6rem);
   }
   .ab-hero__title {
+    position: relative;
+    z-index: 2;
     grid-column: 1 / -1;
     font-size: clamp(3.25rem, 0.6rem + 8.4vw, 8.5rem);
     line-height: 0.92;
     margin-left: -0.04em;
     text-transform: none;
+    text-shadow: 0 0.04em 0.4em rgb(0 0 0 / 0.35);
+    pointer-events: none;
   }
   .ab-hero__portrait {
-    grid-column: 1 / 4;
+    position: relative;
+    z-index: 1;
+    grid-column: 1 / -1;
+    margin-top: -2.6rem;
   }
   .ab-hero__photo {
     position: relative;
     display: block;
-    aspect-ratio: 4 / 5;
+    aspect-ratio: 1;
     overflow: hidden;
     border-radius: 6px;
     background: #121212;
@@ -134,7 +129,6 @@ import { posters } from '../data/posters';
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: 60% 30%;
   }
   .ab-hero__bio {
     grid-column: 1 / -1;
@@ -162,19 +156,24 @@ import { posters } from '../data/posters';
       grid-template-columns: repeat(12, minmax(0, 1fr));
     }
     .ab-hero__title {
-      grid-column: 1 / 9;
+      grid-column: 1 / 10;
+      grid-row: 1;
       align-self: start;
+      margin-top: 1.5rem;
     }
     .ab-hero__portrait {
-      grid-column: 9 / -1;
-      grid-row: 1 / span 2;
+      grid-column: 6 / -1;
+      grid-row: 1 / span 3;
+      margin-top: 0;
     }
     .ab-hero__bio {
-      grid-column: 1 / 8;
+      grid-column: 1 / 6;
+      grid-row: 2;
       align-self: end;
     }
     .ab-hero__now {
-      grid-column: 1 / 8;
+      grid-column: 1 / 6;
+      grid-row: 3;
     }
   }
 
@@ -342,48 +341,6 @@ import { posters } from '../data/posters';
       margin-left: 8%;
     }
   }
-
-  /* The email as a giant marquee. */
-  .mail {
-    padding-block: clamp(4rem, 9vw, 7rem);
-    overflow: hidden;
-  }
-  .mail__marquee {
-    position: relative;
-    overflow: clip;
-    display: block;
-    font-size: clamp(3.5rem, 14vw, 12rem);
-    /* Room for the @ and the descenders: the marquee clips its box. */
-    line-height: 1.2;
-    padding-block: 0.02em 0.08em;
-    text-decoration: none;
-    text-transform: none;
-    white-space: nowrap;
-  }
-  .mail__track {
-    display: inline-flex;
-    gap: 0.5em;
-    padding-right: 0.5em;
-  }
-  :global(html.motion) .mail__track {
-    animation: marquee 22s linear infinite;
-  }
-  @media (hover: hover) {
-    :global(html.motion) .mail__marquee:hover .mail__track {
-      animation-play-state: paused;
-    }
-  }
-  @keyframes marquee {
-    to {
-      translate: -50% 0;
-    }
-  }
-  .mail__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    margin-top: 2rem;
-  }
 </style>
 
 <script>
@@ -415,23 +372,5 @@ import { posters } from '../data/posters';
       list.removeEventListener('pointerover', onEvent);
       list.removeEventListener('focusin', onEvent);
     };
-  });
-
-  // Copy buttons on this page (the menu has its own).
-  onPage(() => {
-    const btns = [...document.querySelectorAll<HTMLButtonElement>('main [data-copy]')];
-    const copy = async (e: Event) => {
-      const b = e.currentTarget as HTMLButtonElement;
-      const out = b.querySelector('[data-copy-label]')!;
-      try {
-        await navigator.clipboard.writeText(b.dataset.copy!);
-        out.textContent = 'Copied';
-        setTimeout(() => (out.textContent = 'Copy email'), 1600);
-      } catch {
-        location.href = `mailto:${b.dataset.copy}`;
-      }
-    };
-    btns.forEach((b) => b.addEventListener('click', copy));
-    return () => btns.forEach((b) => b.removeEventListener('click', copy));
   });
 </script>

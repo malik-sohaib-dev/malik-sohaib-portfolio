@@ -1,46 +1,53 @@
 ---
-// The close: the invitation, then my full name under my silhouette in soft light (art/portrait.py;
-// the mercury stirs it like every picture), then four short columns.
-// On pages with their own call to action (About) the invitation is left out.
+// The close, on every page: the invitation (pick what it is about and the email starts itself; or
+// take the address from the marquee), then my full name under my silhouette in soft light
+// (art/portrait.py; the mercury stirs it like every picture), then four short columns.
 import { Image } from 'astro:assets';
 import glow from '../assets/portrait/profile-glow.webp';
 import { site } from '../data/site';
 import { posters } from '../data/posters';
-interface Props {
-  links?: boolean;
-}
-const { links = false } = Astro.props;
 const year = new Date().getFullYear();
 const work = Object.values(posters).filter((p) => p.href.startsWith('/work/'));
 const outside = { target: '_blank', rel: 'noopener' };
+// What people write about; each starts an email with that as its subject.
+const topics = ['A project to build', 'A role to fill', 'Advice', 'An idea to bounce around', 'A collaboration', 'Something to learn', 'Just saying hi'];
+const mailto = (subject: string) => `mailto:${site.email}?subject=${encodeURIComponent(subject)}`;
 ---
 
-<footer class:list={['ftr', { 'ftr--links': links }]} id="contact" data-field="base">
-  {
-    !links && (
-      <div class="wrap ftr__ask">
-        <h2 class="ftr__title display">
-          Let’s
-          <br />
-          talk.
-        </h2>
-        <div class="ftr__side">
-          <p class="ftr__lede">
-            A project to build, a role to fill, advice you need, an idea to bounce around, a collaboration, or something you want to
-            learn. Whatever it is, write to me. Just saying hi is welcome too.
-          </p>
-          <div class="ftr__actions">
-            <a class="btn" href={`mailto:${site.email}`}>
-              Email me <span class="btn__arrow" aria-hidden="true">↗</span>
-            </a>
-            <a class="btn btn--ghost" href={site.whatsapp.href} {...outside}>
-              WhatsApp <span class="btn__arrow" aria-hidden="true">↗</span>
-            </a>
-          </div>
-        </div>
-      </div>
-    )
-  }
+<footer class="ftr" id="contact" data-field="base">
+  <div class="wrap ftr__ask">
+    <h2 class="ftr__title display">
+      Let’s
+      <br />
+      talk.
+    </h2>
+    <div class="ftr__side">
+      <p class="ftr__lede">Whatever it is, write to me. Pick what it’s about and the email starts itself.</p>
+      <ul class="ftr__topics">
+        {
+          topics.map((t) => (
+            <li>
+              <a class="btn btn--ghost" href={mailto(t)}>
+                {t}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+  <a class="ftr__mail display" href={`mailto:${site.email}`} data-cursor="Write to me">
+    <span class="ftr__track" aria-hidden="true">
+      {Array.from({ length: 4 }, () => <span>{site.email}</span>)}
+    </span>
+    <span class="sr-only">{site.email}</span>
+  </a>
+  <div class="wrap ftr__actions">
+    <button class="btn" type="button" data-copy={site.email}><span data-copy-label>Copy email</span></button>
+    <a class="btn btn--ghost" href={site.whatsapp.href} {...outside}>
+      WhatsApp <span class="btn__arrow" aria-hidden="true">↗</span>
+    </a>
+  </div>
   <div class="ftr__stage" data-liquid-surface>
     <span class="ftr__glow" data-liquid>
       <Image src={glow} alt="Malik Sohaib in profile, a silhouette against soft light." widths={[800, 1400, 2400]} sizes="100vw" loading="lazy" />
@@ -108,6 +115,24 @@ const outside = { target: '_blank', rel: 'noopener' };
 <script>
   import { onPage } from '../motion/start';
 
+  // Copy the address; where the clipboard is refused, open the mail app instead.
+  onPage(() => {
+    const btn = document.querySelector<HTMLButtonElement>('.ftr [data-copy]');
+    if (!btn) return;
+    const out = btn.querySelector('[data-copy-label]')!;
+    const copy = async () => {
+      try {
+        await navigator.clipboard.writeText(btn.dataset.copy!);
+        out.textContent = 'Copied';
+        setTimeout(() => (out.textContent = 'Copy email'), 1600);
+      } catch {
+        location.href = `mailto:${btn.dataset.copy}`;
+      }
+    };
+    btn.addEventListener('click', copy);
+    return () => btn.removeEventListener('click', copy);
+  });
+
   // The name fills the width exactly, on one line, at any size: measured at 100px and scaled.
   onPage(() => {
     const box = document.querySelector<HTMLElement>('[data-fit]');
@@ -128,11 +153,11 @@ const outside = { target: '_blank', rel: 'noopener' };
   .ftr {
     padding-bottom: 2rem;
   }
-  /* The invitation: the words on the left, what to do about them on the right. */
+  /* The invitation: the words on the left; on the right, what it might be about, each a way in. */
   .ftr__ask {
     display: grid;
     gap: 2rem var(--gutter);
-    padding-block: clamp(5rem, 12vw, 9rem) clamp(3rem, 7vw, 5rem);
+    padding-block: clamp(4.5rem, 9vw, 7rem) clamp(2rem, 4vw, 3rem);
   }
   .ftr__title {
     font-size: var(--t-mega);
@@ -142,11 +167,17 @@ const outside = { target: '_blank', rel: 'noopener' };
     max-width: 30rem;
     color: var(--muted);
   }
-  .ftr__actions {
+  .ftr__topics {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
-    margin-top: 2rem;
+    gap: 0.6rem;
+    margin-top: 1.25rem;
+    padding: 0;
+    list-style: none;
+  }
+  .ftr__topics .btn {
+    --h: 2.6rem;
+    font-weight: 500;
   }
   @media (min-width: 900px) {
     .ftr__ask {
@@ -154,12 +185,49 @@ const outside = { target: '_blank', rel: 'noopener' };
       align-items: end;
     }
     .ftr__title {
-      grid-column: 1 / 8;
+      grid-column: 1 / 7;
     }
     .ftr__side {
-      grid-column: 8 / -1;
+      grid-column: 7 / -1;
       padding-bottom: 0.6rem;
     }
+  }
+  /* The address as a giant marquee: it pauses under the pointer. */
+  .ftr__mail {
+    position: relative;
+    display: block;
+    overflow: clip;
+    font-size: clamp(3.5rem, 12vw, 11rem);
+    /* Room for the @ and the descenders: the marquee clips its box. */
+    line-height: 1.2;
+    padding-block: 0.02em 0.08em;
+    text-decoration: none;
+    text-transform: none;
+    white-space: nowrap;
+  }
+  .ftr__track {
+    display: inline-flex;
+    gap: 0.5em;
+    padding-right: 0.5em;
+  }
+  :global(html.motion) .ftr__track {
+    animation: ftr-marquee 26s linear infinite;
+  }
+  @media (hover: hover) {
+    :global(html.motion) .ftr__mail:hover .ftr__track {
+      animation-play-state: paused;
+    }
+  }
+  @keyframes ftr-marquee {
+    to {
+      translate: -50% 0;
+    }
+  }
+  .ftr__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding-block: 1rem clamp(3rem, 6vw, 4.5rem);
   }
 
   /* The stage: the silhouette edge to edge, the whole figure in view, my name across its foot. */

@@ -11,10 +11,8 @@ interface Props {
   title?: string;
   description?: string;
   image?: string;
-  /** 'links' keeps only the footer's link row, for pages that end on their own call to action. */
-  footer?: 'full' | 'links';
 }
-const { title, description = site.description, image = '/og.png', footer = 'full' } = Astro.props;
+const { title, description = site.description, image = '/og.png' } = Astro.props;
 const fullTitle = title ? `${title} | ${site.name}` : `${site.name} | ${site.role}`;
 const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
 const ogImage = new URL(image, Astro.site ?? site.url).href;
@@ -67,7 +65,7 @@ const jsonLd = {
     <main id="main" tabindex="-1">
       <slot />
     </main>
-    <Footer links={footer === 'links'} />
+    <Footer />
     <script>
       import { start } from '../motion/start';
       start();
