@@ -1,23 +1,10 @@
 ---
-// The header, and the command palette it opens (Menu, or Cmd/Ctrl+K): a glass search box over the
-// page listing every section, every project and the contact actions, each previewed beside it.
 import { Image } from 'astro:assets';
 import Poster from './Poster.astro';
 import ring from '../assets/brand/ring.webp';
 import { nav, site } from '../data/site';
 import { posters } from '../data/posters';
-
-type Item = { id: string; group: string; label: string; hint: string; href?: string; action?: string; keywords: string; preview: { kind: 'text' | 'poster'; text?: string; slug?: string } };
-const items: Item[] = [
-  ...nav.map((n) => ({ id: `s-${n.label}`, group: 'Sections', label: n.label, hint: n.hint, href: n.href, keywords: n.preview, preview: { kind: 'text' as const, text: n.preview } })),
-  ...Object.values(posters).map((p) => ({ id: `p-${p.slug}`, group: 'Work', label: p.title, hint: p.kind, href: p.href, keywords: `${p.kind} ${p.caption} ${p.meta.join(' ')}`, preview: { kind: 'poster' as const, slug: p.slug } })),
-  { id: 'a-email', group: 'Contact', label: 'Email me', hint: site.email, href: `mailto:${site.email}`, keywords: 'mail contact hire', preview: { kind: 'text', text: site.email } },
-  { id: 'a-copy', group: 'Contact', label: 'Copy email address', hint: 'To your clipboard', action: 'copy', keywords: 'clipboard mail', preview: { kind: 'text', text: site.email } },
-  { id: 'a-wa', group: 'Contact', label: 'WhatsApp', hint: site.whatsapp.label, href: site.whatsapp.href, keywords: 'chat message phone call', preview: { kind: 'text', text: site.whatsapp.label } },
-  { id: 'a-cv', group: 'Contact', label: 'Résumé', hint: 'Opens the PDF', href: site.resume, keywords: 'cv resume pdf hire', preview: { kind: 'text', text: 'Experience, skills and education, as a PDF.' } },
-  ...site.socials.map((s) => ({ id: `a-${s.label}`, group: 'Contact', label: s.label, hint: s.href.replace(/^https?:\/\/(www\.)?/, ''), href: s.href, keywords: 'profile social', preview: { kind: 'text' as const, text: s.href.replace(/^https?:\/\/(www\.)?/, '') } })),
-];
-const groups = [...new Set(items.map((i) => i.group))];
+const previews = [...new Set(nav.map((n) => n.preview))];
 ---
 
 <header class="hdr">
@@ -26,75 +13,52 @@ const groups = [...new Set(items.map((i) => i.group))];
       <Image class="hdr__mark" src={ring} alt="" width={26} densities={[1, 2]} loading="eager" />{site.name}
     </a>
     <a class="btn hdr__cta" href={`mailto:${site.email}`}>Email me <span class="btn__arrow" aria-hidden="true">↗</span></a>
-    <button class="hdr__menu" type="button" aria-haspopup="dialog" aria-controls="palette" data-cmd-open>
+    <button class="hdr__menu" type="button" aria-expanded="false" aria-controls="menu" data-menu-toggle>
       <span class="hdr__burger" aria-hidden="true"><i></i><i></i></span>
-      <span>Menu</span>
-      <kbd class="hdr__kbd" aria-hidden="true" data-kbd>⌘K</kbd>
+      <span data-menu-label>Menu</span>
     </button>
   </div>
-</header>
 
-<dialog class="pal" id="palette" aria-label="Go to" data-cmd>
-  <div class="pal__box">
-    <label class="pal__search">
-      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"></circle><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
-      <span class="sr-only">Search sections, work and contact</span>
-      <input type="text" placeholder="Jump to a section, a project, or a way to reach me" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="true" aria-controls="pal-list" aria-autocomplete="list" data-pal-input />
-      <kbd>esc</kbd>
-    </label>
-    <div class="pal__main">
-      <ul class="pal__list" id="pal-list" role="listbox" aria-label="Results" data-pal-list>
+  <!-- The index: an orange panel wipes down, the links rise, a poster previews the hovered link. -->
+  <div class="menu" id="menu" hidden data-menu>
+    <div class="wrap menu__in">
+      <nav class="menu__nav" aria-label="Main">
+        <ol class="menu__list">
+          {
+            nav.map((n, i) => (
+              <li style={`--i:${i}`}>
+                <a class="menu__link display" href={n.href} data-preview={n.preview}>
+                  <span class="menu__mask">
+                    <span class="menu__word">{n.label}</span>
+                  </span>
+                  {'count' in n && <sup class="menu__count num">{n.count}</sup>}
+                </a>
+              </li>
+            ))
+          }
+        </ol>
+      </nav>
+      <div class="menu__preview" aria-hidden="true">
         {
-          groups.map((g) => (
-            <li class="pal__group" role="presentation" data-pal-group={g}>
-              <span class="pal__gname" aria-hidden="true">{g}</span>
-              <ul role="presentation">
-                {items
-                  .filter((i) => i.group === g)
-                  .map((i) => (
-                    <li
-                      class="pal__item"
-                      id={`pal-${i.id}`}
-                      role="option"
-                      aria-selected="false"
-                      data-pal-item
-                      data-id={i.id}
-                      data-href={i.href}
-                      data-action={i.action}
-                      data-search={`${i.label} ${i.hint} ${i.keywords} ${g}`.toLowerCase()}
-                    >
-                      <span class="pal__label">{i.label}</span>
-                      <span class="pal__hint">{i.hint}</span>
-                      <span class="pal__enter" aria-hidden="true">↵</span>
-                    </li>
-                  ))}
-              </ul>
-            </li>
-          ))
-        }
-      </ul>
-      <p class="pal__empty" data-pal-empty hidden>Nothing matches. Try “work”, “email” or a project name.</p>
-      <aside class="pal__preview" aria-hidden="true">
-        {
-          items.map((i) => (
-            <div class="pal__pv" data-pv-for={i.id}>
-              {i.preview.kind === 'poster' ? (
-                <Poster poster={posters[i.preview.slug!]} sizes="260px" decorative />
-              ) : (
-                <div class="pal__card">
-                  <span class="pal__card-kicker">{i.group}</span>
-                  <span class="pal__card-title display">{i.label}</span>
-                  <span class="pal__card-text">{i.preview.text}</span>
-                </div>
-              )}
+          previews.map((slug) => (
+            <div class="menu__poster" data-preview-for={slug}>
+              <Poster poster={posters[slug]} sizes="(min-width: 900px) 30vw, 0px" decorative />
             </div>
           ))
         }
-      </aside>
+      </div>
+      <div class="menu__foot">
+        <button class="menu__copy" type="button" data-copy={site.email}>
+          <span data-copy-label>{site.email}</span>
+          <span class="menu__copy-hint" aria-hidden="true">Copy</span>
+        </button>
+        <a class="ul" href={site.whatsapp.href} rel="noopener">WhatsApp</a>
+        <a class="ul" href={site.resume} rel="noopener">Résumé</a>
+        {site.socials.map((s) => <a class="ul" href={s.href} rel="noopener">{s.label}</a>)}
+      </div>
     </div>
-    <p class="pal__foot" aria-hidden="true"><span><kbd>↑</kbd><kbd>↓</kbd> move</span><span><kbd>↵</kbd> open</span><span><kbd>esc</kbd> close</span></p>
   </div>
-</dialog>
+</header>
 
 <style>
   .hdr {
@@ -111,6 +75,8 @@ const groups = [...new Set(items.map((i) => i.group))];
     border-bottom-color: var(--line);
   }
   .hdr__in {
+    position: relative;
+    z-index: 2;
     display: flex;
     align-items: center;
     gap: 1rem;
@@ -152,6 +118,7 @@ const groups = [...new Set(items.map((i) => i.group))];
     font-weight: 600;
     cursor: pointer;
   }
+  /* Two bars that cross into an X when open. */
   .hdr__burger {
     display: grid;
     gap: 5px;
@@ -161,383 +128,216 @@ const groups = [...new Set(items.map((i) => i.group))];
     display: block;
     height: 2px;
     background: currentColor;
-    transition: translate var(--d-m) var(--ease);
+    transition:
+      translate var(--d-m) var(--ease),
+      rotate var(--d-m) var(--ease);
   }
-  @media (hover: hover) {
-    .hdr__menu:hover .hdr__burger i:first-child {
-      translate: 4px 0;
-    }
+  :global(html.menu-open) .hdr__burger i:first-child {
+    translate: 0 3.5px;
+    rotate: 45deg;
   }
-  .hdr__kbd {
-    padding: 2px 6px;
-    border-radius: 6px;
-    box-shadow: inset 0 0 0 1px var(--line);
-    font: 600 11px/1.4 var(--f-text);
-    color: var(--muted);
+  :global(html.menu-open) .hdr__burger i:last-child {
+    translate: 0 -3.5px;
+    rotate: -45deg;
+  }
+  /* While open, the header sits on the black glass. */
+  :global(html.menu-open) .hdr {
+    background: transparent;
+    backdrop-filter: none;
+    border-bottom-color: transparent;
+    color: #ededE7;
+  }
+  :global(html.menu-open) .hdr__cta {
+    visibility: hidden;
   }
   @media (max-width: 899px) {
     .hdr__cta {
       --h: 2.25rem;
       padding: 0 1em;
     }
-    .hdr__kbd {
-      display: none;
-    }
   }
 
-  /* The palette: black glass, the same in both palettes. */
-  .pal {
+  /* Black glass in either palette: the page blurs behind it. */
+  .menu {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    padding-top: 4rem;
+    background: rgb(8 8 8 / 0.86);
+    backdrop-filter: blur(24px) saturate(1.1);
+    -webkit-backdrop-filter: blur(24px) saturate(1.1);
+    color: #ededE7;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    --ground: #0b0b0b;
     --ink: #ededE7;
     --muted: #8f8f89;
-    --line: rgb(237 237 231 / 0.12);
-    width: min(56rem, calc(100vw - 2rem));
-    max-width: none;
-    max-height: none;
-    margin: 12vh auto auto;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    color: var(--ink);
-    overflow: visible;
+    --line: rgb(237 237 231 / 0.16);
+    --flood: linear-gradient(180deg, #ffffff 0%, #c9c9c3 45%, #7d7d78 100%);
+    --on-flood: #0b0b0b;
   }
-  .pal::backdrop {
-    background: rgb(0 0 0 / 0.45);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-  }
-  .pal__box {
+  .menu__in {
     display: grid;
-    grid-template-rows: auto minmax(0, 1fr) auto;
-    max-height: min(36rem, 76vh);
-    border-radius: 18px;
-    background: rgb(14 14 14 / 0.93);
-    backdrop-filter: blur(28px) saturate(1.2);
-    -webkit-backdrop-filter: blur(28px) saturate(1.2);
-    box-shadow:
-      inset 0 0 0 1px rgb(255 255 255 / 0.14),
-      0 40px 120px rgb(0 0 0 / 0.6);
-    overflow: hidden;
+    gap: 2rem;
+    min-height: calc(100svh - 4rem);
+    padding-block: 1rem 1.5rem;
+    grid-template-rows: 1fr auto;
   }
-  .pal__search {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.4rem 1.1rem;
-    border-bottom: 1px solid var(--line);
-    color: var(--muted);
-  }
-  .pal__search input {
-    flex: 1;
-    min-width: 0;
-    height: 3.25rem;
-    border: 0;
-    background: none;
-    color: var(--ink);
-    font: 500 1.1rem/1 var(--f-text);
-    outline: none;
-  }
-  /* The open box is the focus indicator for its own field. */
-  .pal__search input:focus-visible {
-    outline: none;
-    box-shadow: none;
-  }
-  .pal__search:focus-within {
-    color: var(--ink);
-  }
-  .pal__search input::placeholder {
-    color: #6f6f6a;
-  }
-  .pal kbd {
-    padding: 1px 6px;
-    border-radius: 5px;
-    box-shadow: inset 0 0 0 1px var(--line);
-    font: 600 11px/1.5 var(--f-text);
-    color: var(--muted);
-  }
-  .pal__main {
+  .menu__list {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 17rem;
-    min-height: 0;
+    align-content: center;
   }
-  .pal__list {
-    overflow-y: auto;
-    padding: 0.5rem;
-    overscroll-behavior: contain;
+  .menu__link {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 0.15em;
+    font-size: clamp(3.25rem, 13vh, 9.5rem);
+    line-height: 0.88;
+    text-decoration: none;
   }
-  .pal__gname {
+  .menu__mask {
     display: block;
-    padding: 0.7rem 0.75rem 0.35rem;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--muted);
+    overflow: clip;
+    padding-bottom: 0.04em;
   }
-  .pal__item {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    align-items: baseline;
-    gap: 0.75rem;
-    padding: 0.6rem 0.75rem;
-    border-radius: 10px;
-    cursor: pointer;
+  .menu__word {
+    display: block;
+    transition: translate var(--d-m) var(--ease);
   }
-  .pal__label {
-    font-weight: 600;
-    white-space: nowrap;
+  .menu__count {
+    font-size: 0.28em;
+    line-height: 1;
+    margin-top: 0.3em;
+    top: 0;
   }
-  .pal__hint {
+  /* Hovered: the word slides right and the others step back. */
+  @media (hover: hover) {
+    .menu__list:has(.menu__link:hover) .menu__link:not(:hover) {
+      opacity: 0.35;
+    }
+    .menu__link:hover .menu__word {
+      translate: 0.12em 0;
+    }
+  }
+  .menu__link {
+    transition: opacity var(--d-s) var(--ease);
+  }
+  .menu__link[aria-current='page'] .menu__word {
+    text-decoration: underline;
+    text-decoration-thickness: 0.06em;
+    text-underline-offset: 0.08em;
+  }
+  .menu__preview {
+    display: none;
+  }
+  .menu__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.75rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
     font-size: var(--t-s);
-    color: var(--muted);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
-  .pal__enter {
-    opacity: 0;
-    color: var(--muted);
+  .menu__foot a {
+    min-height: 32px;
+    display: inline-flex;
+    align-items: center;
   }
-  .pal__item[aria-selected='true'] {
-    background: rgb(255 255 255 / 0.09);
-    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
-  }
-  .pal__item[aria-selected='true'] .pal__enter {
-    opacity: 1;
-  }
-  .pal__empty {
-    padding: 2rem 1.25rem;
-    color: var(--muted);
-  }
-  .pal__preview {
-    position: relative;
-    border-left: 1px solid var(--line);
-    padding: 1rem;
-  }
-  .pal__pv {
-    position: absolute;
-    inset: 1rem;
-    opacity: 0;
-    translate: 0 8px;
+  .menu__copy {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 40px;
+    margin-right: auto;
+    padding: 0 0.9rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: transparent;
+    color: #ededE7;
+    font-weight: 600;
+    cursor: pointer;
     transition:
-      opacity 220ms var(--ease),
-      translate 420ms var(--ease);
+      background-color var(--d-s) var(--ease),
+      color var(--d-s) var(--ease);
   }
-  .pal__pv.is-on {
-    opacity: 1;
+  .menu__copy-hint {
+    font-size: var(--t-xs);
+    opacity: 0.6;
+  }
+  @media (hover: hover) {
+    .menu__copy:hover {
+      background: #ededE7;
+      color: #0b0b0b;
+    }
+  }
+
+  @media (min-width: 900px) {
+    .menu__in {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--gutter);
+    }
+    .menu__nav {
+      grid-column: 1 / 8;
+      align-self: center;
+    }
+    .menu__preview {
+      display: block;
+      position: relative;
+      grid-column: 9 / -1;
+      align-self: center;
+      aspect-ratio: 4 / 5;
+      max-height: 68svh;
+    }
+    .menu__poster {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      translate: 0 3%;
+      scale: 0.96;
+      transition:
+        opacity var(--d-m) var(--ease),
+        translate var(--d-m) var(--ease),
+        scale var(--d-m) var(--ease);
+      pointer-events: none;
+    }
+    .menu__poster.is-on {
+      opacity: 1;
+      translate: 0 0;
+      scale: 1;
+    }
+    .menu__foot {
+      grid-column: 1 / -1;
+    }
+  }
+
+  /* Open and close: the panel wipes down from the header, the words rise one after another. */
+  /* Open: an ellipse wipes down from the header. */
+  :global(html.motion) .menu {
+    clip-path: ellipse(140% 0% at 50% 0%);
+    transition: clip-path 900ms var(--ease);
+  }
+  :global(html.motion) .menu.is-open {
+    clip-path: ellipse(150% 160% at 50% 0%);
+  }
+  :global(html.motion) .menu .menu__word {
+    translate: 0 105%;
+    transition: translate 800ms var(--ease) calc(120ms + var(--i) * 55ms);
+  }
+  :global(html.motion) .menu.is-open .menu__word {
     translate: 0 0;
   }
-  .pal__pv :global(.poster) {
-    max-height: 100%;
+  :global(html.motion) .menu .menu__foot {
+    opacity: 0;
+    transition: opacity var(--d-m) var(--ease) 350ms;
   }
-  .pal__card {
-    display: grid;
-    align-content: start;
-    gap: 0.6rem;
-    height: 100%;
-    padding: 1.1rem;
-    border-radius: 12px;
-    background: radial-gradient(120% 90% at 20% 0%, rgb(255 255 255 / 0.08), transparent 60%);
-    box-shadow: inset 0 0 0 1px var(--line);
+  :global(html.motion) .menu.is-open .menu__foot {
+    opacity: 1;
   }
-  .pal__card-kicker {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-  .pal__card-title {
-    font-size: 2.6rem;
-    line-height: 0.9;
-  }
-  .pal__card-text {
-    font-size: var(--t-s);
-    color: #c9c9c3;
-    overflow-wrap: anywhere;
-  }
-  .pal__foot {
-    display: flex;
-    gap: 1.25rem;
-    padding: 0.65rem 1.1rem;
-    border-top: 1px solid var(--line);
-    font-size: 12px;
-    color: var(--muted);
-  }
-  .pal__foot span {
-    display: inline-flex;
-    gap: 4px;
-    align-items: center;
-  }
-
-  /* Open: the box drops in and settles. */
-  @keyframes pal-in {
-    from {
-      opacity: 0;
-      transform: translateY(-14px) scale(0.98);
-    }
-  }
-  :global(html.motion) .pal[open] .pal__box {
-    animation: pal-in 420ms var(--ease);
-  }
-
-  /* Phones: a sheet from the bottom, list only. */
-  @media (max-width: 899px) {
-    .pal {
-      width: 100vw;
-      margin: auto 0 0;
-    }
-    .pal__box {
-      max-height: 88svh;
-      border-radius: 22px 22px 0 0;
-    }
-    .pal__main {
-      grid-template-columns: 1fr;
-    }
-    .pal__preview,
-    .pal__foot {
-      display: none;
-    }
-    .pal__item {
-      min-height: 48px;
-      align-items: center;
-    }
-    @keyframes pal-up {
-      from {
-        transform: translateY(40%);
-        opacity: 0;
-      }
-    }
-    :global(html.motion) .pal[open] .pal__box {
-      animation: pal-up 480ms var(--ease);
+  @media (hover: hover) {
+    :global(html.motion) .menu.is-open .menu__link:hover .menu__word {
+      translate: 0.12em 0;
+      transition-delay: 0ms;
     }
   }
 </style>
-
-<script>
-  import { onPage } from '../motion/start';
-
-  onPage(() => {
-    const dlg = document.querySelector<HTMLDialogElement>('[data-cmd]');
-    const openBtn = document.querySelector<HTMLButtonElement>('[data-cmd-open]');
-    if (!dlg || !openBtn) return;
-    const input = dlg.querySelector<HTMLInputElement>('[data-pal-input]')!;
-    const all = [...dlg.querySelectorAll<HTMLElement>('[data-pal-item]')];
-    const groups = [...dlg.querySelectorAll<HTMLElement>('[data-pal-group]')];
-    const empty = dlg.querySelector<HTMLElement>('[data-pal-empty]')!;
-    const pvs = [...dlg.querySelectorAll<HTMLElement>('[data-pv-for]')];
-    const kbd = document.querySelector('[data-kbd]');
-    if (kbd && !/Mac|iPhone|iPad/.test(navigator.platform)) kbd.textContent = 'Ctrl K';
-    let shown = all;
-    let sel = 0;
-
-    const select = (i: number) => {
-      sel = Math.max(0, Math.min(shown.length - 1, i));
-      all.forEach((el) => el.setAttribute('aria-selected', 'false'));
-      const el = shown[sel];
-      if (!el) return input.removeAttribute('aria-activedescendant');
-      el.setAttribute('aria-selected', 'true');
-      input.setAttribute('aria-activedescendant', el.id);
-      el.scrollIntoView({ block: 'nearest' });
-      let liquid: HTMLElement | null = null;
-      pvs.forEach((pv) => {
-        const on = pv.dataset.pvFor === el.dataset.id;
-        pv.classList.toggle('is-on', on);
-        if (on) liquid = pv.querySelector<HTMLElement>('[data-liquid]');
-      });
-      // A poster preview gets the mercury running through it.
-      document.dispatchEvent(new CustomEvent('liquid:prefer', { detail: liquid }));
-    };
-    const filter = () => {
-      const q = input.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
-      shown = all.filter((el) => {
-        const hit = q.every((w) => el.dataset.search!.includes(w));
-        el.hidden = !hit;
-        return hit;
-      });
-      groups.forEach((g) => (g.hidden = !g.querySelector('[data-pal-item]:not([hidden])')));
-      empty.hidden = shown.length > 0;
-      // Highlight the first result whose own name matches, not one that only mentions it.
-      const named = shown.findIndex((el) => q.every((w) => el.querySelector('.pal__label')!.textContent!.toLowerCase().includes(w)));
-      select(Math.max(0, named));
-    };
-    const run = async (el: HTMLElement | undefined) => {
-      if (!el) return;
-      if (el.dataset.action === 'copy') {
-        const label = el.querySelector('.pal__hint')!;
-        try {
-          await navigator.clipboard.writeText(document.querySelector<HTMLElement>('[data-pv-for="a-copy"] .pal__card-text')!.textContent!);
-          label.textContent = 'Copied';
-        } catch {
-          label.textContent = 'Could not copy: use Email me';
-        }
-        setTimeout(() => (label.textContent = 'To your clipboard'), 1600);
-        return;
-      }
-      const href = el.dataset.href!;
-      close();
-      if (href.startsWith('mailto:')) location.href = href;
-      else if (/^https?:/.test(href)) window.open(href, '_blank', 'noopener');
-      else location.assign(href);
-    };
-    const open = () => {
-      if (dlg.open) return;
-      input.value = '';
-      filter();
-      dlg.showModal();
-      document.documentElement.classList.add('menu-open');
-      input.focus();
-    };
-    const close = () => {
-      if (dlg.open) dlg.close();
-    };
-    const onClose = () => {
-      document.documentElement.classList.remove('menu-open');
-      document.dispatchEvent(new CustomEvent('liquid:prefer', { detail: null }));
-      openBtn.focus({ preventScroll: true });
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-        e.preventDefault();
-        dlg.open ? close() : open();
-      }
-    };
-    const onInputKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowDown') select(sel + 1);
-      else if (e.key === 'ArrowUp') select(sel - 1);
-      else if (e.key === 'Home') select(0);
-      else if (e.key === 'End') select(shown.length - 1);
-      else if (e.key === 'Enter') run(shown[sel]);
-      else return;
-      e.preventDefault();
-    };
-    const onList = (e: Event) => {
-      const el = (e.target as HTMLElement).closest<HTMLElement>('[data-pal-item]');
-      if (!el) return;
-      if (e.type === 'click') run(el);
-      else select(shown.indexOf(el));
-    };
-    // A click on the backdrop (outside the box) closes.
-    const onDlgClick = (e: MouseEvent) => {
-      if (e.target === dlg) close();
-    };
-    openBtn.addEventListener('click', open);
-    document.addEventListener('keydown', onKey);
-    input.addEventListener('input', filter);
-    input.addEventListener('keydown', onInputKey);
-    dlg.addEventListener('click', onList);
-    dlg.addEventListener('pointermove', onList);
-    dlg.addEventListener('click', onDlgClick);
-    dlg.addEventListener('close', onClose);
-    return () => {
-      close();
-      openBtn.removeEventListener('click', open);
-      document.removeEventListener('keydown', onKey);
-      input.removeEventListener('input', filter);
-      input.removeEventListener('keydown', onInputKey);
-      dlg.removeEventListener('click', onList);
-      dlg.removeEventListener('pointermove', onList);
-      dlg.removeEventListener('click', onDlgClick);
-      dlg.removeEventListener('close', onClose);
-    };
-  });
-</script>

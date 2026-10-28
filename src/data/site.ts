@@ -22,15 +22,14 @@ export const site = {
   location: 'Pakistan, working remotely with teams worldwide',
 } as const;
 
-// The command palette (Menu, or Cmd/Ctrl+K). Sections preview a line about what is there;
-// projects preview their poster; actions do something.
+// The full-screen index. `preview` names the poster shown beside a link while it is hovered.
 export const nav = [
-  { label: 'Work', href: '/#work', hint: 'Three products I own end to end', preview: 'EzVenda, Mini Havoc and GymPaid: idea, design, code and launch, each with its case study.' },
-  { label: 'Path', href: '/#path', hint: '2022 to now', preview: 'Council for Education, BH Group, Arthur, and my own products, on one timeline.' },
-  { label: 'Contributions', href: '/#activity', hint: 'GitHub, both accounts', preview: 'Every working day since 2024, counted across my work and personal accounts.' },
-  { label: 'Teams', href: '/#companies', hint: 'Arthur, BH Group, Cfored', preview: 'Four years inside product teams, from part-time remote to senior engineer.' },
-  { label: 'Clients', href: '/#clients', hint: 'Client and side projects', preview: 'Work for clients, and things I built to learn.' },
-  { label: 'About', href: '/about', hint: 'How I work, stack, references', preview: 'Who I am, how I work, what I build with, and what people say.' },
+  { label: 'Work', href: '/#work', count: 3, preview: 'ezvenda' },
+  { label: 'Path', href: '/#path', preview: 'mini-havoc' },
+  { label: 'Teams', href: '/#companies', count: 3, preview: 'photon-elixir-phoenix' },
+  { label: 'Clients', href: '/#clients', preview: 'gympaid' },
+  { label: 'About', href: '/about', preview: 'arthur-vibe' },
+  { label: 'Contact', href: '/#contact', preview: 'bh-group' },
 ] as const;
 
 export const hero = {
