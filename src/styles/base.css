@@ -1,0 +1,388 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-padding-top: 5rem;
+}
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--f-text);
+  font-size: var(--t-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  font-synthesis: none;
+  overflow-x: clip;
+}
+img,
+video,
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+h1,
+h2,
+h3,
+h4,
+p,
+ul,
+ol,
+figure,
+dl,
+dd {
+  margin: 0;
+}
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+a {
+  color: inherit;
+}
+button {
+  font: inherit;
+  color: inherit;
+}
+::selection {
+  background: var(--ink);
+  color: var(--ground);
+}
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px var(--ring, var(--signal));
+  border-radius: 2px;
+}
+
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 100;
+  padding: 10px 16px;
+  background: var(--ink);
+  color: var(--ground);
+  font-weight: 600;
+  text-decoration: none;
+  translate: 0 -200%;
+}
+.skip-link:focus-visible {
+  translate: 0 0;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.wrap {
+  width: 100%;
+  max-width: var(--max);
+  margin-inline: auto;
+  padding-inline: var(--margin);
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: var(--gutter);
+}
+@media (min-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+}
+
+.display {
+  font-family: var(--f-display);
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 0.84;
+  letter-spacing: -0.005em;
+  font-variant-numeric: tabular-nums;
+}
+.muted {
+  color: var(--muted);
+}
+.num {
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 0.9;
+}
+
+/* Primary action: ink fills in from the left on hover, the arrow travels. */
+.btn {
+  --h: 3rem;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  height: var(--h);
+  padding: 0 1.4em;
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--ground);
+  font-weight: 600;
+  font-size: var(--t-s);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  isolation: isolate;
+  transition: color var(--d-s) var(--ease);
+}
+.btn {
+  /* The fill sweeps in from the left; the text inverts as it passes. */
+  --fill: var(--ground);
+  --on-fill: var(--ink);
+  transition:
+    color 420ms var(--ease),
+    border-color 420ms var(--ease);
+}
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--fill);
+  translate: -101% 0;
+  transition: translate 560ms var(--ease);
+}
+.btn--ghost {
+  --fill: var(--ink);
+  --on-fill: var(--ground);
+  background: transparent;
+  color: var(--ink);
+}
+.btn__arrow {
+  display: inline-block;
+}
+/* The arrow leaves to the right and comes back from the left. */
+@keyframes arrow-through {
+  45% {
+    translate: 0.9em -0.9em;
+    opacity: 0;
+  }
+  46% {
+    translate: -0.9em 0.9em;
+    opacity: 0;
+  }
+  100% {
+    translate: 0 0;
+    opacity: 1;
+  }
+}
+@media (hover: hover) {
+  .btn:hover {
+    color: var(--on-fill);
+  }
+  .btn:hover::before {
+    translate: 0 0;
+  }
+  .btn:hover .btn__arrow {
+    animation: arrow-through 560ms var(--ease);
+  }
+}
+.btn:active {
+  scale: 0.97;
+}
+
+/* Nav: the underline draws. */
+.ul {
+  text-decoration: none;
+  background: linear-gradient(currentColor, currentColor) no-repeat 0 100% / 0 1.5px;
+  transition: background-size var(--d-m) var(--ease);
+  padding-bottom: 2px;
+}
+@media (hover: hover) {
+  .ul:hover {
+    background-size: 100% 1.5px;
+  }
+}
+.ul[aria-current='page'] {
+  background-size: 100% 1.5px;
+}
+
+/* Reveals. Hidden only once JS has flagged motion; without JS or with reduced motion, all visible. */
+html.motion [data-reveal] {
+  opacity: 0;
+  translate: 0 24px;
+  transition:
+    opacity var(--d-m) var(--ease),
+    translate var(--d-l) var(--ease);
+  transition-delay: calc(var(--i, 0) * 60ms);
+}
+html.motion [data-reveal].is-in {
+  opacity: 1;
+  translate: 0 0;
+}
+
+/* The cursor (src/motion/cursor.ts). It sits on top of everything, never takes clicks, and
+   inverts what is under it. It replaces the system pointer on fine pointers. */
+.cur {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 200;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  mix-blend-mode: difference;
+  opacity: 0;
+  transition: opacity 300ms var(--ease);
+}
+.cur.is-in {
+  opacity: 1;
+}
+html.cur-own,
+html.cur-own * {
+  cursor: none !important;
+}
+.cur__dot {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border-radius: 50%;
+  background: #fff;
+  transition:
+    scale 480ms var(--ease),
+    opacity 200ms linear;
+}
+.cur__ring {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  margin: -32px 0 0 -32px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1.5px #fff;
+  opacity: 0;
+  scale: 0.3;
+  transition:
+    opacity 260ms var(--ease),
+    scale 520ms var(--ease);
+}
+/* Over a link: a bigger dot. Over a poster: a point in a ring, and where it goes. */
+.cur.is-link .cur__dot {
+  scale: 3;
+}
+.cur.is-lens .cur__dot {
+  scale: 0.4;
+}
+.cur.is-lens .cur__ring {
+  opacity: 1;
+  scale: 1;
+}
+.cur.is-down .cur__dot {
+  scale: 0.75;
+}
+.cur.is-lens.is-down .cur__ring {
+  scale: 0.85;
+}
+.cur__tag {
+  position: absolute;
+  left: 44px;
+  top: -9px;
+  color: #fff;
+  font-family: var(--f-text);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  opacity: 0;
+  translate: -8px 0;
+  transition:
+    opacity 260ms var(--ease),
+    translate 480ms var(--ease);
+}
+.cur.is-lens .cur__tag {
+  opacity: 1;
+  translate: 0 0;
+}
+
+/* Over the film: a lens that inverts the frame, its icon knocked out (black does not invert),
+   and its words turning round it. */
+.cur__film {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+}
+.cur__words {
+  position: absolute;
+  width: 140px;
+  max-width: none;
+  height: 140px;
+  margin: -70px 0 0 -70px;
+  fill: #fff;
+  font-family: var(--f-text);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  opacity: 0;
+  scale: 0.55;
+  transition:
+    opacity 300ms var(--ease),
+    scale 620ms var(--ease);
+}
+.cur__lens {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin: -32px 0 0 -32px;
+  border-radius: 50%;
+  background: #fff;
+  scale: 0.25;
+  opacity: 0;
+  transition:
+    scale 560ms var(--ease),
+    opacity 160ms linear;
+}
+.cur__lens svg {
+  width: 26px;
+  max-width: none;
+  height: 26px;
+  fill: #000;
+  opacity: 0;
+  transition: opacity 200ms linear 120ms;
+}
+.cur.is-film .cur__dot {
+  opacity: 0;
+}
+.cur.is-film .cur__lens {
+  scale: 1;
+  opacity: 1;
+}
+.cur.is-film .cur__lens svg {
+  opacity: 1;
+}
+.cur.is-film .cur__words {
+  opacity: 1;
+  scale: 1;
+}
+.cur.is-film.is-down .cur__lens {
+  scale: 0.86;
+}
+
+/* The mercury's canvas lies exactly over the picture it distorts (src/motion/liquid.ts), wherever
+   that picture is; components may add their own fades on top. */
+[data-liquid] > canvas.liquid {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}

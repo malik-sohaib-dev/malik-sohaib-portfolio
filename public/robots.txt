@@ -1,4 +1,3 @@
 User-agent: *
 Allow: /
-
-Sitemap: https://malik-sohaib.vercel.app/sitemap.xml
+Sitemap: https://maliksohaib.com/sitemap-index.xml

@@ -1,0 +1,407 @@
+---
+// Four years, wrapped: a 50-second film in my own voice, an editorial collage cut like a Reel
+// (art/wrapped/collage.html), landscape on wide screens and
+// portrait on phones. Scrolling to it pins it and grows it from a card to the whole screen; it plays
+// muted while in view, and a click starts it over with sound. Under reduced motion it stays a card
+// and waits to be played. The same facts are written out below it.
+import { activityData } from '../data/site';
+
+const nf = new Intl.NumberFormat('en-US');
+---
+
+<section class="wr" id="wrapped" data-field="contrast" aria-labelledby="wr-title">
+  <div class="wrap wr__head">
+    <h2 class="wr__title display" id="wr-title">Four years,<br />wrapped</h2>
+    <p class="wr__intro">The short version, in my own voice: the teams, the products, and what I build. Tap it for sound.</p>
+  </div>
+
+  <div class="wr__track" data-film>
+    <div class="wr__stage">
+      <div class="wr__film">
+        <video
+          playsinline
+          muted
+          loop
+          preload="none"
+          controls
+          poster="/media/wrapped-16x9.jpg"
+          width="1920"
+          height="1080"
+          aria-describedby="wr-text"
+          data-film-base="/media/wrapped"
+        >
+          <source src="/media/wrapped-16x9.webm" type="video/webm" />
+          <source src="/media/wrapped-16x9.mp4" type="video/mp4" />
+        </video>
+        <button class="wr__hit" type="button" aria-label="Play the film with sound" data-cursor="Play with sound" data-cursor-skin="film" data-film-hit hidden></button>
+        <div class="wr__ui" hidden data-film-ui>
+          <button class="wr__sound" type="button" aria-pressed="false" data-film-sound>
+            <svg viewBox="0 0 24 24" aria-hidden="true"
+              ><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"></path><path
+                class="wr__waves"
+                d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"></path><path
+                class="wr__x"
+                d="M17 9.5l5 5M22 9.5l-5 5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"></path></svg
+            >
+            <span data-film-sound-label>Tap for sound</span>
+          </button>
+          <span class="wr__bar" aria-hidden="true"><i data-film-bar></i></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <details class="wr__text" id="wr-text">
+      <summary>Read it instead</summary>
+      <ul>
+        <li>I’m Malik Sohaib. Give me an idea, and I’ll hand you back a product.</li>
+        <li>Four years of shipping software, and {nf.format(activityData.total)} contributions on GitHub since 2022, across my work and personal accounts.</li>
+        <li>I’ve built for a US education nonprofit, a solar engineering company in Lahore, and Arthur in Germany, where I’m now a senior engineer.</li>
+        <li>Products of my own: EzVenda, with a real merchant selling through it; Mini Havoc, with hundreds of game sessions played; GymPaid, built in two days.</li>
+        <li>Web apps, real-time games, AI agents, and tools for your business. From the idea to production, every layer.</li>
+      </ul>
+    </details>
+  </div>
+</section>
+
+<script>
+  import { onPage } from '../motion/start';
+  import { onFrame, reducedMotion } from '../motion/clock';
+
+  onPage(() => {
+    const track = document.querySelector<HTMLElement>('[data-film]');
+    if (!track) return;
+    const film = track.querySelector<HTMLElement>('.wr__film')!;
+    const video = film.querySelector('video')!;
+    const hit = film.querySelector<HTMLButtonElement>('[data-film-hit]')!;
+    const ui = film.querySelector<HTMLElement>('[data-film-ui]')!;
+    const sound = film.querySelector<HTMLButtonElement>('[data-film-sound]')!;
+    const soundLabel = film.querySelector<HTMLElement>('[data-film-sound-label]')!;
+    const bar = film.querySelector<HTMLElement>('[data-film-bar]')!;
+    const html = document.documentElement;
+
+    // Our own controls replace the browser's once the script runs.
+    video.controls = false;
+    hit.hidden = false;
+    ui.hidden = false;
+
+    // The cut that fits the screen: portrait on tall screens.
+    const portrait = innerHeight > innerWidth * 1.1;
+    const base = `${video.dataset.filmBase}-${portrait ? '9x16' : '16x9'}`;
+    video.poster = `${base}.jpg`;
+    video.innerHTML = `<source src="${base}.webm" type="video/webm"><source src="${base}.mp4" type="video/mp4">`;
+    video.width = portrait ? 1080 : 1920;
+    video.height = portrait ? 1920 : 1080;
+    track.classList.toggle('is-portrait', portrait);
+    video.load(); // a browser only re-picks among new <source>s when asked
+
+    let inView = false;
+    let held = false; // paused by the visitor
+    // Muted autoplay only with motion on; once the visitor has asked for sound, it plays either way.
+    const sync = () => {
+      const play = inView && !held && (!video.muted || !reducedMotion());
+      if (play && video.paused) video.play().catch(() => {});
+      if (!play && !video.paused) video.pause();
+    };
+    const label = () => {
+      const muted = video.muted;
+      sound.setAttribute('aria-pressed', String(!muted));
+      soundLabel.textContent = muted ? 'Tap for sound' : 'Sound on';
+      film.classList.toggle('has-sound', !muted);
+      hit.setAttribute('aria-label', muted ? 'Play the film with sound' : video.paused ? 'Play the film' : 'Pause the film');
+      hit.dataset.cursor = muted ? 'Play with sound' : video.paused ? 'Play' : 'Pause';
+    };
+
+    // The first tap starts it over with sound, so the narration is heard from its first word.
+    const onHit = () => {
+      if (video.muted) {
+        video.muted = false;
+        video.currentTime = 0;
+        held = false;
+      } else held = !video.paused;
+      if (held) video.pause();
+      else video.play().catch(() => {});
+      label();
+    };
+    const onSound = (e: Event) => {
+      e.stopPropagation();
+      if (video.muted) return onHit();
+      video.muted = true;
+      label();
+    };
+    hit.addEventListener('click', onHit);
+    sound.addEventListener('click', onSound);
+    video.addEventListener('play', label);
+    video.addEventListener('pause', label);
+
+    // Progress, drawn on the shared clock while the film plays.
+    let stopBar: (() => void) | null = null;
+    const onPlay = () => {
+      stopBar ??= onFrame(() => {
+        bar.style.scale = `${video.duration ? video.currentTime / video.duration : 0} 1`;
+        if (video.paused) {
+          stopBar = null;
+          return false;
+        }
+      });
+    };
+    video.addEventListener('play', onPlay);
+
+    // In view (a good part of it): play; out of view: pause.
+    const io = new IntersectionObserver(
+      ([e]) => {
+        inView = e.isIntersecting;
+        sync();
+      },
+      { threshold: 0.35 },
+    );
+    io.observe(film);
+
+    // The grow: from a card in the page to the whole screen, as the track's top reaches the top.
+    let stopGrow: (() => void) | null = null;
+    const grow = () => {
+      const r = track.getBoundingClientRect();
+      const vh = innerHeight;
+      const g = reducedMotion() ? 0 : Math.min(1, Math.max(0, 1 - r.top / (vh * 0.85)));
+      const e = 1 - Math.pow(1 - g, 3);
+      film.style.setProperty('--g', e.toFixed(4));
+      // Full screen while pinned: the header steps aside.
+      html.classList.toggle('film-full', e > 0.995 && r.bottom > vh * 0.98);
+    };
+    const near = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) stopGrow ??= onFrame(() => void grow());
+      else {
+        stopGrow?.();
+        stopGrow = null;
+        grow();
+      }
+    });
+    near.observe(track);
+    grow();
+    label();
+
+    return () => {
+      io.disconnect();
+      near.disconnect();
+      stopGrow?.();
+      stopBar?.();
+      html.classList.remove('film-full');
+      hit.removeEventListener('click', onHit);
+      sound.removeEventListener('click', onSound);
+      video.removeEventListener('play', label);
+      video.removeEventListener('pause', label);
+      video.removeEventListener('play', onPlay);
+      video.pause();
+    };
+  });
+</script>
+
+<style>
+  .wr {
+    padding-top: clamp(5rem, 11vw, 8rem);
+  }
+  .wr__head {
+    display: grid;
+    gap: 1.25rem;
+    margin-bottom: clamp(2rem, 4vw, 3rem);
+  }
+  .wr__title {
+    font-size: var(--t-xl);
+    line-height: 0.95;
+    margin-left: -0.04em;
+  }
+  .wr__intro {
+    max-width: 30rem;
+    color: var(--muted);
+  }
+  @media (min-width: 900px) {
+    .wr__head {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--gutter);
+      align-items: end;
+    }
+    .wr__title {
+      grid-column: 1 / 8;
+    }
+    .wr__intro {
+      grid-column: 8 / -1;
+      padding-bottom: 0.4rem;
+    }
+  }
+
+  /* The track is two screens tall: one to grow into, one held at full size. The stage pins inside it. */
+  .wr__track {
+    position: relative;
+    height: 200svh;
+  }
+  .wr__stage {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+  }
+  /* The film is the whole screen, scaled down to a card at the start (--g 0) and up to full (--g 1). */
+  .wr__film {
+    --g: 0;
+    --card: 0.93;
+    position: relative;
+    width: 100vw;
+    height: 100svh;
+    background: #0b0b0b;
+    scale: calc(var(--card) + (1 - var(--card)) * var(--g));
+    border-radius: calc((1 - var(--g)) * 24px);
+    overflow: hidden;
+  }
+  @media (min-width: 900px) {
+    .wr__film {
+      --card: 0.86;
+    }
+  }
+  /* The film fills the screen. Each cut is near the shape it plays in (16:9 on wide screens, 9:16 on
+     phones), so cover trims only a sliver, and the films keep their words inside a safe margin. */
+  .wr__film video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .wr__hit {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+  .wr__hit:focus-visible {
+    outline-offset: -6px;
+  }
+  .wr__ui {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 0 clamp(16px, 3vw, 32px) clamp(16px, 3vw, 28px);
+    display: grid;
+    gap: 14px;
+    justify-items: start;
+    pointer-events: none;
+  }
+  .wr__sound {
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55em;
+    min-height: 40px;
+    padding: 0 1rem 0 0.8rem;
+    border: 0;
+    border-radius: 999px;
+    background: rgb(14 14 14 / 0.62);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.18);
+    color: #ededE7;
+    font-size: var(--t-xs);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 300ms var(--ease);
+  }
+  .wr__sound:hover {
+    background: rgb(14 14 14 / 0.85);
+  }
+  .wr__sound svg {
+    width: 20px;
+    height: 20px;
+    max-width: none;
+  }
+  .wr__waves {
+    display: none;
+  }
+  .has-sound .wr__waves {
+    display: inline;
+  }
+  .has-sound .wr__x {
+    display: none;
+  }
+  .wr__bar {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: rgb(255 255 255 / 0.18);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .wr__bar i {
+    display: block;
+    height: 100%;
+    background: #ededE7;
+    transform-origin: 0 50%;
+    scale: 0 1;
+  }
+
+  /* While the film fills the screen, the header steps aside. */
+  :global(.hdr) {
+    transition: opacity 400ms var(--ease);
+  }
+  :global(html.film-full .hdr) {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Reduced motion (or no script): a plain card in the flow, no pinning, no growing. */
+  :global(html:not(.motion)) .wr__track {
+    height: auto;
+  }
+  :global(html:not(.motion)) .wr__stage {
+    position: relative;
+    height: auto;
+    padding-inline: var(--margin);
+  }
+  :global(html:not(.motion)) .wr__film {
+    scale: none;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    border-radius: 16px;
+  }
+  :global(html:not(.motion)) .is-portrait .wr__film {
+    aspect-ratio: 9 / 16;
+    max-height: 85svh;
+    width: auto;
+  }
+
+  .wr__text {
+    margin-top: 1.25rem;
+    padding-bottom: clamp(5rem, 11vw, 8rem);
+    font-size: var(--t-s);
+    color: var(--muted);
+  }
+  .wr__text summary {
+    display: inline-flex;
+    min-height: 32px;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .wr__text ul {
+    display: grid;
+    gap: 0.4rem;
+    max-width: 52rem;
+    margin-top: 0.75rem;
+    padding-left: 1.1rem;
+    list-style: disc;
+  }
+</style>

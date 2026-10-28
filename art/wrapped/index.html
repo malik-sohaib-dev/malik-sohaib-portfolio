@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Malik Sohaib, wrapped</title>
+<!--
+  The "Wrapped" film, cut like a Reel. Every frame is a pure function of time: await render(t), with t
+  in seconds. The cuts follow the narration: timeline.json (from voice.py) holds when every word is
+  said. The page lays itself out landscape or portrait from the viewport, so one edit renders both.
+  art/wrapped/render.mjs steps through it and encodes. Facts: src/data/activity.json and site.ts.
+-->
+<style>
+@font-face { font-family: D; src: url(../../public/fonts/display.woff2); font-weight: 100 900; }
+@font-face { font-family: T; src: url(../../public/fonts/text.woff2); font-weight: 300 800; }
+* { box-sizing: border-box; margin: 0; }
+:root { --u: calc(min(100vw, 100vh) / 100); }
+html, body { width: 100vw; height: 100vh; overflow: hidden; background: #0b0b0b; }
+body { font-family: T, sans-serif; color: #ededE7; -webkit-font-smoothing: antialiased; }
+#cam { position: absolute; inset: 0; overflow: hidden; }
+#bg { position: absolute; inset: -8%; background: url(../../src/assets/hero/mercury.webp) center / cover; filter: grayscale(1) brightness(0.42); }
+#shade { position: absolute; inset: 0; background: radial-gradient(90% 70% at 50% 45%, rgb(0 0 0 / 0.35), rgb(0 0 0 / 0.88)); }
+#flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+.sc { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; text-align: center; visibility: hidden; }
+.d { font-family: D; font-weight: 900; text-transform: uppercase; line-height: 0.84; letter-spacing: -0.015em; }
+.chrome { background: linear-gradient(180deg, #fff 0%, #e2e2dc 36%, #6d6d68 52%, #f4f4ee 70%, #b1b1ab 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.kick { font-size: calc(var(--u) * 2.1); font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #b5b5af; }
+.w { display: inline-block; }
+
+/* Captions: three words at a time; the one being said lights up. */
+#caps { position: absolute; left: 6%; right: 6%; bottom: 6%; text-align: center; font-family: D; font-weight: 800; text-transform: uppercase; font-size: calc(var(--u) * 6); line-height: 1; letter-spacing: 0.005em; text-shadow: 0 0.06em 0.3em rgb(0 0 0 / 0.9); }
+body.port #caps { bottom: 14%; font-size: calc(var(--u) * 8.4); }
+#caps span { display: inline-block; margin: 0 0.12em; color: rgb(237 237 231 / 0.32); }
+#caps span.said { color: #ededE7; }
+#caps span.now { color: #fff; }
+
+/* name */
+#name .d { font-size: calc(var(--u) * 30); }
+body.port #name .d { font-size: calc(var(--u) * 27); }
+#name .kick { margin-top: calc(var(--u) * 3); }
+/* idea → product */
+#idea { align-content: center; }
+#idea .swap { display: grid; font-size: calc(var(--u) * 22); }
+#idea .swap > span { grid-area: 1 / 1; justify-self: center; }
+body.port #idea .swap { font-size: calc(var(--u) * 19); margin-top: -18vh; }
+#idea .outline { color: transparent; -webkit-text-stroke: calc(var(--u) * 0.25) #ededE7; }
+#idea .arrow { font-family: T; font-weight: 300; font-size: calc(var(--u) * 6); color: #8f8f89; }
+/* years */
+#years .row { display: flex; align-items: flex-end; gap: calc(var(--u) * 2); }
+#years .big { font-size: calc(var(--u) * 52); line-height: 0.8; }
+#years .unit { font-size: calc(var(--u) * 16); padding-bottom: calc(var(--u) * 2); }
+body.port #years .row { flex-direction: column; align-items: center; gap: 0; }
+/* contributions */
+#contrib .num { font-size: calc(var(--u) * 25); }
+#contrib .unit { font-size: calc(var(--u) * 8); margin-top: calc(var(--u) * 0.5); }
+#contrib .bars { display: flex; gap: calc(var(--u) * 2); align-items: flex-end; height: calc(var(--u) * 18); margin-top: calc(var(--u) * 4); }
+#contrib .bar { width: calc(var(--u) * 9); display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: calc(var(--u) * 0.8); height: 100%; }
+#contrib .bar i { display: block; width: 100%; background: linear-gradient(180deg, #f5f5f0, #7d7d78); border-radius: calc(var(--u) * 0.4) calc(var(--u) * 0.4) 0 0; }
+#contrib .bar span { font-size: calc(var(--u) * 1.8); color: #a9a9a3; }
+#contrib .bar b { font-family: D; font-weight: 800; font-size: calc(var(--u) * 2.6); }
+body.port #contrib .bars { height: calc(var(--u) * 30); }
+body.port #contrib .bar { width: calc(var(--u) * 13); }
+/* teams */
+#teams { align-content: center; }
+#teams .cards { display: flex; gap: calc(var(--u) * 2.2); }
+body.port #teams .cards { flex-direction: column; gap: calc(var(--u) * 2.6); margin-top: -14vh; }
+#teams .card { width: calc(var(--u) * 46); padding: calc(var(--u) * 3.2); border-radius: calc(var(--u) * 1.6); background: rgb(12 12 12 / 0.72); box-shadow: inset 0 0 0 calc(var(--u) * 0.15) rgb(255 255 255 / 0.16); text-align: left; position: relative; }
+body.land #teams .card { width: calc(var(--u) * 52); }
+body.port #teams .card { width: calc(var(--u) * 86); padding: calc(var(--u) * 3.6); }
+#teams .card .d { font-size: calc(var(--u) * 9); }
+#teams .card p { margin-top: calc(var(--u) * 1.4); font-size: calc(var(--u) * 2.6); font-weight: 600; }
+#teams .card small { display: block; margin-top: calc(var(--u) * 0.8); font-size: calc(var(--u) * 2); color: #9b9b95; }
+#teams .card.lit { box-shadow: inset 0 0 0 calc(var(--u) * 0.3) #ededE7; }
+/* stickers */
+.sticker { position: absolute; padding: 0.22em 0.5em 0.12em; border-radius: 0.18em; background: #ededE7; color: #0b0b0b; font-family: D; font-weight: 900; text-transform: uppercase; line-height: 1; white-space: nowrap; box-shadow: 0 0.2em 0.6em rgb(0 0 0 / 0.5); }
+#teams .sticker { right: calc(var(--u) * -1.5); top: calc(var(--u) * -2.4); font-size: calc(var(--u) * 4.4); }
+/* own */
+#own .small { font-size: calc(var(--u) * 7); color: #b5b5af; }
+#own .big { font-size: calc(var(--u) * 21); margin-top: calc(var(--u) * 1.5); }
+body.port #own .big { font-size: calc(var(--u) * 19); }
+/* products */
+.product { display: grid; grid-template-columns: auto auto; align-items: center; gap: calc(var(--u) * 6); text-align: left; justify-content: center; }
+body.port .product { grid-template-columns: auto; justify-items: center; text-align: center; gap: calc(var(--u) * 3); margin-top: -18vh; }
+body.land .product { margin-top: -6vh; }
+.product .frame { position: relative; height: 72vh; aspect-ratio: 4 / 5; border-radius: calc(var(--u) * 1.6); overflow: hidden; box-shadow: 0 calc(var(--u) * 3) calc(var(--u) * 8) rgb(0 0 0 / 0.6), inset 0 0 0 1px rgb(255 255 255 / 0.12); background: #050505; }
+body.port .product .frame { height: auto; width: 66vw; }
+.product video, .product img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.product .kick { margin-bottom: calc(var(--u) * 1.5); }
+.product .d { font-size: calc(var(--u) * 17); }
+body.port .product .d { font-size: calc(var(--u) * 13); }
+.product .sticker { font-size: calc(var(--u) * 5.4); }
+.product .sticker { right: 5%; bottom: 5%; transform-origin: 100% 100%; }
+/* build */
+#build .idx { font-family: D; font-weight: 700; font-size: calc(var(--u) * 5); color: #8f8f89; margin-bottom: calc(var(--u) * 1.5); }
+#build .phrase { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; visibility: hidden; }
+#build .d { font-size: calc(var(--u) * 21); max-width: 92vw; }
+body.port #build .d { font-size: calc(var(--u) * 19); }
+/* layers */
+#layers .ends { display: flex; justify-content: space-between; width: 82vw; font-family: D; font-weight: 900; text-transform: uppercase; font-size: calc(var(--u) * 7); }
+#layers .track { position: relative; width: 82vw; height: calc(var(--u) * 0.4); margin: calc(var(--u) * 3) 0; background: rgb(255 255 255 / 0.14); }
+#layers .track i { position: absolute; left: 0; top: 0; bottom: 0; background: #ededE7; }
+#layers .stops { display: flex; justify-content: space-between; width: 82vw; font-size: calc(var(--u) * 2.6); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+body.port #layers { margin-top: -14vh; }
+body.port #layers .stops { flex-direction: column; align-items: center; gap: calc(var(--u) * 1.6); font-size: calc(var(--u) * 4.4); }
+#layers .stops span { color: rgb(237 237 231 / 0.25); }
+#layers .stops span.on { color: #ededE7; }
+/* ask, talk */
+#ask .d { font-size: calc(var(--u) * 15); max-width: 90vw; }
+body.port #ask .d { font-size: calc(var(--u) * 17); }
+#talk .d { font-size: calc(var(--u) * 26); }
+#talk .ring { width: calc(var(--u) * 9); height: calc(var(--u) * 9); margin-bottom: calc(var(--u) * 3); background: url(../../public/brand/ring-spin.webp) 0 0 / 4800% 100% no-repeat; }
+#talk .contact { margin-top: calc(var(--u) * 3.5); font-size: calc(var(--u) * 3); font-weight: 600; color: #c9c9c3; }
+#talk .contact b { display: block; margin-top: calc(var(--u) * 0.6); font-size: calc(var(--u) * 2.4); font-weight: 500; color: #8f8f89; letter-spacing: 0.04em; }
+</style>
+</head>
+<body>
+<div id="cam">
+  <div id="bg"></div>
+  <div id="shade"></div>
+
+  <section class="sc" id="name">
+    <div class="d"><span class="w chrome" data-at="Malik">Malik</span></div>
+    <div class="d"><span class="w chrome" data-at="Sohaib">Sohaib</span></div>
+    <p class="kick" data-fade>Full-stack and AI engineer</p>
+  </section>
+
+  <section class="sc" id="idea">
+    <div class="swap d">
+      <span class="outline" data-out>Idea</span>
+      <span class="chrome" data-in>Product</span>
+    </div>
+  </section>
+
+  <section class="sc" id="years">
+    <p class="kick" data-fade>Shipping software since 2022</p>
+    <div class="row"><span class="d chrome big" data-count="years">0</span><span class="d unit" data-fade>years</span></div>
+  </section>
+
+  <section class="sc" id="contrib">
+    <p class="kick" data-fade>On GitHub, work and personal</p>
+    <span class="d chrome num" data-count="total">0</span>
+    <span class="d unit" data-fade>contributions</span>
+    <div class="bars"></div>
+  </section>
+
+  <section class="sc" id="teams">
+    <div class="cards">
+      <div class="card" data-beat="team1"><div class="d">USA</div><p>Education nonprofit</p><small>Council for Education · 2022</small></div>
+      <div class="card" data-beat="team2"><div class="d">Lahore</div><p>Solar engineering</p><small>BH Group · 2022 to 2023</small></div>
+      <div class="card" data-beat="team3"><div class="d">Germany</div><p>Arthur</p><small>2023 to now</small><span class="sticker" data-at="senior">Senior engineer</span></div>
+    </div>
+  </section>
+
+  <section class="sc" id="own">
+    <p class="d small" data-at="side">On the side</p>
+    <p class="d big"><span class="w chrome" data-at="Products">Products</span><br><span class="w chrome" data-at="of">of my own</span></p>
+  </section>
+
+  <section class="sc" id="ezvenda"><div class="product">
+    <div class="frame"><img src="../../src/assets/posters/ezvenda-art.webp" alt=""><video src="../../public/media/loops/ezvenda.webm" muted></video><span class="sticker" data-at="real">Real merchant</span></div>
+    <div><p class="kick">01 · Commerce platform</p><div class="d chrome">EzVenda</div></div>
+  </div></section>
+
+  <section class="sc" id="havoc"><div class="product">
+    <div class="frame"><img src="../../src/assets/posters/mini-havoc-art.webp" alt=""><video src="../../public/media/loops/mini-havoc.webm" muted></video><span class="sticker" data-at="hundreds">100s of sessions</span></div>
+    <div><p class="kick">02 · Party games</p><div class="d chrome">Mini<br>Havoc</div></div>
+  </div></section>
+
+  <section class="sc" id="gympaid"><div class="product">
+    <div class="frame"><img src="../../src/assets/posters/gympaid-art.webp" alt=""><video src="../../public/media/loops/gympaid.webm" muted></video><span class="sticker" data-at="two">2 days</span></div>
+    <div><p class="kick">03 · Gym billing</p><div class="d chrome">GymPaid</div></div>
+  </div></section>
+
+  <section class="sc" id="build">
+    <div class="phrase" data-at="Web"><p class="idx">01</p><p class="d chrome">Web apps</p></div>
+    <div class="phrase" data-at="Real-time"><p class="idx">02</p><p class="d chrome">Real-time games</p></div>
+    <div class="phrase" data-at="AI"><p class="idx">03</p><p class="d chrome">AI agents</p></div>
+    <div class="phrase" data-at="Tools"><p class="idx">04</p><p class="d chrome">Tools for your business</p></div>
+  </section>
+
+  <section class="sc" id="layers">
+    <div class="ends"><span data-at="idea">Idea</span><span data-at="production">Production</span></div>
+    <div class="track"><i></i></div>
+    <div class="stops"><span>Design</span><span>Frontend</span><span>Backend</span><span>AI</span><span>Launch</span></div>
+  </section>
+
+  <section class="sc" id="ask">
+    <p class="d"><span class="w" data-at="Got">Got</span> <span class="w" data-at="something">something</span><br><span class="w" data-at="to">to</span> <span class="w chrome" data-at="build">build?</span></p>
+  </section>
+
+  <section class="sc" id="talk">
+    <div class="ring" data-fade></div>
+    <p class="d"><span class="w chrome" data-at="Let's">Let’s</span> <span class="w chrome" data-at="talk">talk.</span></p>
+    <p class="contact" data-end>maliksohaib.official@gmail.com</p>
+  </section>
+
+  <div id="caps"></div>
+</div>
+<div id="flash"></div>
+
+<script>
+// Injected by render.mjs: the narration's timeline and the contribution counts.
+const TL = window.TIMELINE;
+const FACTS = window.FACTS || { years: 4, total: 5582, perYear: { 2022: 95, 2023: 616, 2024: 615, 2025: 1009, 2026: 3247 } };
+document.body.classList.add(innerWidth > innerHeight ? 'land' : 'port');
+
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const ease = (x) => 1 - Math.pow(1 - clamp(x), 4);
+const win = (t, a, b) => clamp((t - a) / (b - a));
+const nf = new Intl.NumberFormat('en-US');
+const B = Object.fromEntries(TL.beats.map((b) => [b.id, b]));
+const norm = (s) => s.toLowerCase().replace(/[^a-z0-9-]/g, '');
+/** When a word in a beat is said (the first match), or the beat's start. */
+const when = (beat, word) => {
+  const w = B[beat].words.find((x) => norm(x.w).startsWith(norm(word)));
+  return w ? w.s : B[beat].start;
+};
+
+// Scenes: which beats they cover, how they come in, and whether captions run under them.
+const LEAD = 0.1; // a cut lands a moment before the voice
+const SCENES = [
+  { id: 'name', beats: ['name'], enter: 'cut', caps: false },
+  { id: 'idea', beats: ['idea'], enter: 'whip', caps: true },
+  { id: 'years', beats: ['years'], enter: 'punch', caps: false },
+  { id: 'contrib', beats: ['contrib'], enter: 'whip', caps: false },
+  { id: 'teams', beats: ['team1', 'team2', 'team3'], enter: 'rise', caps: true },
+  { id: 'own', beats: ['own'], enter: 'punch', caps: false },
+  { id: 'ezvenda', beats: ['ezvenda'], enter: 'whip', caps: true, flash: true },
+  { id: 'havoc', beats: ['havoc'], enter: 'whip', caps: true },
+  { id: 'gympaid', beats: ['gympaid'], enter: 'whip', caps: true },
+  { id: 'build', beats: ['build'], enter: 'cut', caps: false, flash: true },
+  { id: 'layers', beats: ['layers'], enter: 'whip', caps: true },
+  { id: 'ask', beats: ['ask'], enter: 'punch', caps: false },
+  { id: 'talk', beats: ['talk'], enter: 'cut', caps: false, flash: true },
+];
+SCENES.forEach((s, i) => {
+  s.el = document.getElementById(s.id);
+  s.from = i === 0 ? 0 : B[s.beats[0]].start - LEAD;
+  s.to = i === SCENES.length - 1 ? TL.duration + 1 : B[SCENES[i + 1].beats[0]].start - LEAD;
+  s.alt = i % 2 ? -1 : 1; // whips alternate direction
+});
+
+// Moments that shake the camera: the hits in sound.py.
+const HITS = [when('name', 'Malik'), B.years.start, when('ezvenda', 'EzVenda'), when('havoc', 'Mini'), when('gympaid', 'GymPaid'), when('talk', "Let's"), when('idea', 'product'), when('ezvenda', 'real'), when('havoc', 'hundreds'), when('gympaid', 'two')];
+
+// Captions: up to three words a group, broken at pauses.
+const groups = [];
+for (const s of SCENES.filter((s) => s.caps)) {
+  for (const id of s.beats) {
+    let g = [];
+    B[id].words.forEach((w, i, all) => {
+      const gap = i ? w.s - all[i - 1].e : 0;
+      if (g.length === 3 || (g.length && gap > 0.16)) (groups.push(g), (g = []));
+      g.push(w);
+    });
+    if (g.length) groups.push(g);
+  }
+}
+const caps = document.getElementById('caps');
+
+// Bars, once.
+const bars = document.querySelector('#contrib .bars');
+const years = Object.keys(FACTS.perYear);
+const max = Math.max(...Object.values(FACTS.perYear));
+for (const y of years) bars.insertAdjacentHTML('beforeend', `<div class="bar"><b>0</b><i></i><span>${y}</span></div>`);
+
+const videos = [...document.querySelectorAll('video')];
+const seek = (v, time) =>
+  new Promise((ok) => {
+    const target = time % (v.duration || 3);
+    if (Math.abs(v.currentTime - target) < 0.001) return ok();
+    v.addEventListener('seeked', ok, { once: true });
+    v.currentTime = target;
+  });
+
+// A word landing: it drops from big and blurred to its place.
+function slam(el, t, at, k = 1) {
+  const p = ease(win(t, at, at + 0.22));
+  el.style.opacity = t < at ? 0 : 1;
+  el.style.transform = `scale(${1 + (1 - p) * 0.55 * k})`;
+  el.style.filter = p < 1 ? `blur(${(1 - p) * 18}px)` : '';
+}
+function fade(el, t, at, dur = 0.35) {
+  const p = ease(win(t, at, at + dur));
+  el.style.opacity = p;
+  el.style.transform = `translateY(${(1 - p) * 20}px)`;
+}
+
+window.render = async (t) => {
+  // The camera: a slow push in, and a kick on every hit.
+  let shake = 0;
+  for (const h of HITS) if (t >= h) shake += Math.exp(-(t - h) * 11) * Math.sin((t - h) * 70);
+  const cam = document.getElementById('cam');
+  cam.style.transform = `translate(${shake * 7}px, ${shake * -5}px) scale(${1 + Math.abs(shake) * 0.012})`;
+  document.getElementById('bg').style.transform = `scale(${1.04 + 0.05 * Math.sin(t / 7)}) translate(${Math.sin(t / 9) * 1.5}%, ${Math.cos(t / 11) * 1.2}%) rotate(${Math.sin(t / 13) * 1.5}deg)`;
+
+  let flash = 0;
+  const waits = [];
+  for (const s of SCENES) {
+    const on = t >= s.from && t < s.to;
+    s.el.style.visibility = on ? 'visible' : 'hidden';
+    if (!on) continue;
+    const lt = t - s.from;
+    // How the scene comes in, and how it leaves in its last 0.12 s.
+    const p = ease(lt / 0.32);
+    const out = win(t, s.to - 0.12, s.to);
+    let tf = '';
+    let blur = 0;
+    if (s.enter === 'whip') (tf = `translateX(${(1 - p) * 38 * s.alt}%)`), (blur = (1 - p) * 30);
+    if (s.enter === 'punch') (tf = `scale(${1 + (1 - p) * 0.35})`), (blur = (1 - p) * 14);
+    if (s.enter === 'rise') (tf = `translateY(${(1 - p) * 14}%)`), (blur = (1 - p) * 16);
+    tf += ` scale(${1 + Math.min(lt, 3) * 0.012 + out * 0.08})`; // a slow push (capped, for long scenes), a quick one out
+    s.el.style.transform = tf;
+    s.el.style.filter = blur + out * 20 > 0.2 ? `blur(${blur + out * 20}px)` : '';
+    s.el.style.opacity = (s.enter === 'cut' ? 1 : clamp(lt / 0.12)) * (1 - out);
+    if (s.flash) flash = Math.max(flash, 1 - win(t, s.from, s.from + 0.16));
+
+    // Words timed to the voice.
+    s.el.querySelectorAll('.w[data-at]').forEach((el) => slam(el, t, when(s.beats.find((b) => B[b].words.some((w) => norm(w.w).startsWith(norm(el.dataset.at)))) ?? s.beats[0], el.dataset.at) - 0.04));
+    s.el.querySelectorAll('[data-fade]').forEach((el, i) => fade(el, t, s.from + 0.25 + i * 0.12));
+  }
+  document.getElementById('flash').style.opacity = flash * 0.85;
+
+  // name: the kicker after the name lands.
+  // idea: the outline word gives way to the chrome one on "product".
+  {
+    const at = when('idea', 'product');
+    const p = ease(win(t, at - 0.05, at + 0.2));
+    const o = document.querySelector('#idea [data-out]');
+    const n = document.querySelector('#idea [data-in]');
+    o.style.opacity = 1 - p;
+    o.style.transform = `scale(${1 - p * 0.25})`;
+    n.style.opacity = p;
+    n.style.transform = `scale(${1.5 - p * 0.5})`;
+    n.style.filter = p < 1 ? `blur(${(1 - p) * 16}px)` : '';
+    o.style.filter = p > 0 ? `blur(${p * 10}px)` : '';
+  }
+  // years and contributions count up while the ticks play.
+  document.querySelector('[data-count="years"]').textContent = Math.round(FACTS.years * ease(win(t, B.years.start, B.years.start + 1.4)));
+  const c0 = B.contrib.start;
+  document.querySelector('[data-count="total"]').textContent = nf.format(Math.round(FACTS.total * ease(win(t, c0, c0 + 1.4))));
+  bars.querySelectorAll('.bar').forEach((bar, i) => {
+    const v = FACTS.perYear[years[i]];
+    const p = ease(win(t, c0 + 0.25 + i * 0.16, c0 + 0.9 + i * 0.16));
+    bar.querySelector('i').style.height = `${Math.max(1, (v / max) * 100 * p)}%`;
+    bar.querySelector('b').textContent = nf.format(Math.round(v * p));
+  });
+  // teams: each card on its line; "senior" lights the last one.
+  document.querySelectorAll('#teams .card').forEach((card) => {
+    const at = B[card.dataset.beat].start - 0.05;
+    const p = ease(win(t, at, at + 0.3));
+    card.style.opacity = p;
+    card.style.transform = `translateY(${(1 - p) * 60}px) scale(${1.08 - p * 0.08})`;
+  });
+  {
+    const at = when('team3', 'senior');
+    const st = document.querySelector('#teams .sticker');
+    const p = ease(win(t, at, at + 0.22));
+    st.style.opacity = t < at ? 0 : 1;
+    st.style.transform = `rotate(${-14 + p * 10}deg) scale(${1.7 - p * 0.7})`;
+    document.querySelector('#teams [data-beat="team3"]').classList.toggle('lit', t >= at);
+  }
+  // own: the small line, then the big words.
+  fade(document.querySelector('#own .small'), t, when('own', 'side') - 0.1);
+  // products: stickers slap on their words; the loops play under them.
+  for (const [id, word] of [['ezvenda', 'real'], ['havoc', 'hundreds'], ['gympaid', 'two']]) {
+    const s = SCENES.find((x) => x.id === id);
+    const at = when(id, word);
+    const st = s.el.querySelector('.sticker');
+    const p = ease(win(t, at, at + 0.22));
+    st.style.opacity = t < at ? 0 : 1;
+    st.style.transform = `rotate(${-16 + p * 12}deg) scale(${1.8 - p * 0.8})`;
+    const v = s.el.querySelector('video');
+    if (t >= s.from && t < s.to && v.readyState >= 1) waits.push(seek(v, t - s.from));
+  }
+  // build: one phrase at a time, hard cuts.
+  const phrases = [...document.querySelectorAll('#build .phrase')];
+  const buildScene = SCENES.find((x) => x.id === 'build');
+  phrases.forEach((ph, i) => {
+    const at = when('build', ph.dataset.at) - 0.06;
+    const next = i < phrases.length - 1 ? when('build', phrases[i + 1].dataset.at) - 0.06 : Infinity;
+    const on = t >= at && t < next && t < buildScene.to;
+    ph.style.visibility = on ? 'visible' : 'hidden';
+    if (on) slam(ph, t, at, 0.6);
+    if (i && t >= at && t < at + 0.1) flash = Math.max(flash, 0.5 * (1 - (t - at) / 0.1));
+  });
+  document.getElementById('flash').style.opacity = flash * 0.85;
+  // layers: the line draws from idea to production; the stops light along it.
+  {
+    const a = when('layers', 'idea');
+    const b = B.layers.end;
+    const p = ease(win(t, a, b));
+    document.querySelector('#layers .track i').style.width = `${p * 100}%`;
+    document.querySelectorAll('#layers .stops span').forEach((sp, i, all) => sp.classList.toggle('on', p >= (i + 0.5) / all.length));
+    document.querySelectorAll('#layers .ends span').forEach((sp) => fade(sp, t, when('layers', sp.dataset.at) - 0.1, 0.25));
+  }
+  // talk: the ring turns; the contact rises once the words have landed.
+  document.querySelector('#talk .ring').style.backgroundPosition = `${(Math.floor(t * 12) % 48) * (100 / 47)}% 0`;
+  fade(document.querySelector('#talk [data-end]'), t, B.talk.end + 0.2, 0.5);
+
+  // Captions.
+  const g = groups.find((g, i) => t >= g[0].s - 0.08 && t < (groups[i + 1]?.[0].s ?? g[g.length - 1].e + 0.6) - 0.08 && t < g[g.length - 1].e + 0.6);
+  const capOn = !!g && SCENES.some((s) => s.caps && t >= s.from && t < s.to);
+  if (capOn) {
+    const html = g.map((w) => `<span class="${t >= w.e ? 'said' : t >= w.s - 0.03 ? 'now' : ''}">${w.w}</span>`).join(' ');
+    if (caps.innerHTML !== html) caps.innerHTML = html;
+    const p = ease(win(t, g[0].s - 0.08, g[0].s + 0.1));
+    caps.style.opacity = p;
+    caps.style.transform = `translateY(${(1 - p) * 16}px) scale(${0.96 + p * 0.04})`;
+    caps.querySelectorAll('.now').forEach((el) => (el.style.transform = 'scale(1.08)'));
+  } else caps.style.opacity = 0;
+
+  await Promise.all(waits);
+};
+window.DURATION = TL.duration;
+</script>
+</body>
+</html>

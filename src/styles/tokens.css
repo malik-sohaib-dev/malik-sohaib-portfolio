@@ -1,0 +1,123 @@
+/* Big Shoulders (OFL), variable 100..900 */
+@font-face {
+  font-family: 'Display';
+  src: url('/fonts/display.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* Host Grotesk (OFL), variable 300..800 */
+@font-face {
+  font-family: 'Text';
+  src: url('/fonts/text.woff2') format('woff2');
+  font-weight: 300 800;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* Fallbacks metric-matched to the webfonts, so the swap doesn't shift the layout. */
+@font-face {
+  font-family: 'Display Fallback';
+  src: local('Arial Narrow Bold'), local('ArialNarrow-Bold'), local('Roboto Condensed Bold'), local('Arial');
+  size-adjust: 82%;
+  ascent-override: 98%;
+  descent-override: 22%;
+}
+@font-face {
+  font-family: 'Text Fallback';
+  src: local('Arial'), local('Helvetica');
+  size-adjust: 101%;
+}
+
+/* Registered so the chapter colours can cross-fade. */
+@property --ground {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #0b0b0b;
+}
+@property --ink {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ededE7;
+}
+@property --muted {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #8f8f89;
+}
+@property --line {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: rgb(237 237 231 / 0.14);
+}
+
+:root {
+  --ground: #0b0b0b;
+  --ink: #ededE7;
+  --muted: #8f8f89;
+  --line: rgb(237 237 231 / 0.14);
+  --faint: rgb(237 237 231 / 0.12);
+  /* No colour accent: chrome and contrast do the work. */
+  --signal: #ffffff;
+  --ring: #ffffff;
+
+  --f-display: 'Display', 'Display Fallback', 'Arial Narrow', sans-serif;
+  --f-text: 'Text', 'Text Fallback', system-ui, sans-serif;
+
+  --t-mega: clamp(4.25rem, 0.6rem + 15.5vw, 15.5rem);
+  --t-xl: clamp(3rem, 1.4rem + 6.4vw, 7.5rem);
+  --t-l: clamp(2rem, 1.3rem + 2.6vw, 3.5rem);
+  --t-m: clamp(1.25rem, 1.1rem + 0.6vw, 1.625rem);
+  --t-body: clamp(1.0625rem, 1rem + 0.2vw, 1.125rem);
+  --t-s: 0.9375rem;
+  --t-xs: 0.8125rem;
+
+  --gutter: clamp(16px, 2.5vw, 32px);
+  --margin: clamp(16px, 3vw, 48px);
+  --max: 1680px;
+
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --d-s: 240ms;
+  --d-m: 600ms;
+  --d-l: 900ms;
+}
+
+/* Chapter fields. Sections declare a role (base, contrast, accent) and the role picks the colours:
+   the site lives in the posters' black studio, with pale chapters for contrast. With JS the whole
+   page takes the field of the chapter in view; without JS each chapter paints its own. */
+html {
+  transition:
+    --ground 700ms var(--ease),
+    --ink 700ms var(--ease),
+    --muted 700ms var(--ease),
+    --line 700ms var(--ease);
+}
+html[data-field='contrast'],
+html:not(.js) [data-field='contrast'] {
+  --ground: #ededE7;
+  --ink: #0e0e0e;
+  --muted: #5c5c57;
+  --line: rgb(14 14 14 / 0.14);
+  --faint: rgb(14 14 14 / 0.12);
+  --signal: #0e0e0e;
+}
+html[data-field='accent'],
+html:not(.js) [data-field='accent'] {
+  --ground: #1a1a19;
+  --ink: #ededE7;
+  --muted: #9b9b95;
+  --line: rgb(237 237 231 / 0.16);
+  --faint: rgb(237 237 231 / 0.12);
+  --signal: #ffffff;
+}
+
+html:not(.js) [data-field] {
+  background: var(--ground);
+  color: var(--ink);
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    transition: none;
+  }
+}

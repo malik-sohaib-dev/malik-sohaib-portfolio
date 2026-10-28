@@ -1,0 +1,438 @@
+---
+import ScreenCollage from '../../components/ScreenCollage.astro';
+import Base from '../../layouts/Base.astro';
+import Poster from '../../components/Poster.astro';
+import { cases, type CaseStudy } from '../../data/cases';
+import { posters } from '../../data/posters';
+
+export function getStaticPaths() {
+  return cases.map((c, i) => ({ params: { slug: c.slug }, props: { study: c, next: cases[(i + 1) % cases.length] } }));
+}
+interface Props {
+  study: CaseStudy;
+  next: CaseStudy;
+}
+const { study: c, next } = Astro.props;
+const poster = posters[c.slug];
+const nextPoster = posters[next.slug];
+---
+
+<Base title={c.title} description={c.description} type="article" image={`/og/${c.slug}.jpg`} imageAlt={`${c.title}: ${c.oneLiner}`}>
+  <article>
+    <header class="cs-hero" data-field="base">
+      <div class="wrap cs-hero__in">
+        <div class="cs-hero__text">
+          <a class="cs-back" href="/#work">← All work</a>
+          <h1 class="cs-hero__title display">{c.title}</h1>
+          <p class="cs-hero__line">{c.oneLiner}</p>
+          <dl class="cs-meta">
+            <div><dt>Role</dt><dd>{c.role}</dd></div>
+            {c.when && <div><dt>When</dt><dd>{c.when}</dd></div>}
+            <div><dt>Status</dt><dd>{c.status}</dd></div>
+            {
+              c.links?.length && (
+                <div>
+                  <dt>Live</dt>
+                  <dd>
+                    {c.links.map((l) => (
+                      <a class="ul" href={l.href} target="_blank" rel="noopener">
+                        {l.label} ↗
+                      </a>
+                    ))}
+                  </dd>
+                </div>
+              )
+            }
+          </dl>
+        </div>
+        {
+          poster ? (
+            <div class="cs-hero__poster">
+              <Poster poster={poster} sizes="(min-width: 900px) 36vw, 92vw" eager morph />
+            </div>
+          ) : (
+            <p class="cs-hero__mark display" aria-hidden="true">{c.title.slice(0, 2)}</p>
+          )
+        }
+      </div>
+    </header>
+
+    {
+      c.context.length > 0 && (
+        <section class="cs-context" data-field="base" aria-label="Context">
+          <div class="wrap cs-context__in">
+            {c.context.map((p) => (
+              <p>{p}</p>
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    {
+      c.decisions.length > 0 && (
+        <section class="cs-log" data-field="contrast" aria-labelledby="log-title">
+          <div class="wrap">
+            <h2 class="cs-log__title display" id="log-title">
+              Decisions
+            </h2>
+            <ol class="cs-log__list">
+              {c.decisions.map((d, i) => (
+                <li class="dec">
+                  <p class="dec__id num">{`0${i + 1}`}</p>
+                  <h3 class="dec__title display">
+                    {d.title}
+                    {d.id && <span class="dec__src">Decision {d.id}</span>}
+                  </h3>
+                  <dl class="dec__body">
+                    <div>
+                      <dt>Chose</dt>
+                      <dd>{d.chose}</dd>
+                    </div>
+                    <div>
+                      <dt>Instead of</dt>
+                      <dd>{d.insteadOf}</dd>
+                    </div>
+                    <div>
+                      <dt>Why</dt>
+                      <dd>{d.why}</dd>
+                    </div>
+                  </dl>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+      )
+    }
+
+    {
+      c.shots?.length && (
+        <section class="cs-shots" data-field="base" aria-label="The product">
+          <ScreenCollage shots={c.shots} label={`${c.title}, in use: ${c.shots.map((s) => s.alt).join(' ')}`} />
+          <ul class="wrap cs-shots__notes">
+            {c.shots
+              .filter((s) => s.frame !== 'phone')
+              .slice(0, 4)
+              .map((s) => (
+                <li>
+                  <b>{s.label ?? s.url}</b>
+                  <span>{s.caption}</span>
+                </li>
+              ))}
+          </ul>
+        </section>
+      )
+    }
+
+    <section class="cs-out" data-field="base" aria-labelledby="out-title">
+      <div class="wrap cs-out__in">
+        {
+          c.outcomes.length > 0 && (
+            <div>
+              <h2 class="cs-out__title display" id="out-title">
+                What shipped
+              </h2>
+              <ul class="cs-out__list">
+                {c.outcomes.map((o) => (
+                  <li>{o}</li>
+                ))}
+              </ul>
+            </div>
+          )
+        }
+        <div>
+          <h2 class="cs-out__sub">Built with</h2>
+          <p class="cs-out__stack">{c.stack.join(', ')}</p>
+          {c.nda && <p class="cs-out__nda">{c.nda}</p>}
+        </div>
+      </div>
+    </section>
+
+    <nav class="cs-next" data-field="base" aria-label="Next case study">
+      <div class="wrap cs-next__in">
+        <p class="cs-next__label">Next</p>
+        <a class="cs-next__title display" href={`/work/${next.slug}`}>{next.title}&nbsp;→</a>
+        {nextPoster && <div class="cs-next__poster"><Poster poster={nextPoster} sizes="(min-width: 900px) 24vw, 60vw" /></div>}
+      </div>
+    </nav>
+  </article>
+</Base>
+
+<style>
+  .cs-hero__in {
+    display: grid;
+    gap: 2.5rem var(--gutter);
+    padding-block: clamp(1.5rem, 4vw, 3rem) clamp(3rem, 8vw, 6rem);
+  }
+  .cs-back {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    min-height: 32px;
+    align-items: center;
+    font-size: var(--t-s);
+    text-decoration: none;
+    color: var(--muted);
+    transition:
+      color var(--d-s) var(--ease),
+      translate var(--d-m) var(--ease);
+  }
+  @media (hover: hover) {
+    .cs-back:hover {
+      color: var(--ink);
+      translate: -0.25rem 0;
+    }
+  }
+  .cs-hero__title {
+    margin: 1rem 0 0 -0.04em;
+    font-size: clamp(4rem, 15vw, 13rem);
+    line-height: 0.82;
+  }
+  .cs-hero__line {
+    margin-top: 1.5rem;
+    max-width: 30ch;
+    font-size: var(--t-m);
+    line-height: 1.35;
+  }
+  .cs-meta {
+    display: grid;
+    gap: 0;
+    margin-top: 2rem;
+    border-top: 1px solid var(--line);
+  }
+  .cs-meta div {
+    display: grid;
+    grid-template-columns: 6rem 1fr;
+    gap: 1rem;
+    padding-block: 0.7rem;
+    border-bottom: 1px solid var(--line);
+    font-size: var(--t-s);
+  }
+  .cs-meta dt {
+    color: var(--muted);
+  }
+  .cs-meta dd {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .cs-hero__mark {
+    font-size: clamp(8rem, 30vw, 24rem);
+    line-height: 0.8;
+    color: color-mix(in srgb, var(--ink) 8%, transparent);
+  }
+  @media (min-width: 900px) {
+    .cs-hero__in {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      align-items: end;
+    }
+    .cs-hero__text {
+      grid-column: 1 / 8;
+    }
+    .cs-hero__poster,
+    .cs-hero__mark {
+      grid-column: 8 / -1;
+    }
+  }
+
+  .cs-context {
+    padding-block: 0 clamp(4rem, 10vw, 7rem);
+  }
+  .cs-context__in {
+    display: grid;
+    gap: 1.25rem;
+    font-size: clamp(1.2rem, 1rem + 0.8vw, 1.6rem);
+    line-height: 1.4;
+  }
+  .cs-context__in p {
+    max-width: 44rem;
+  }
+  @media (min-width: 900px) {
+    .cs-context__in {
+      padding-left: calc((100% - 11 * var(--gutter)) / 12 * 2 + var(--gutter) * 2);
+    }
+  }
+
+  /* The decision log: the heart of each case study. */
+  .cs-log {
+    padding-block: clamp(5rem, 12vw, 9rem);
+  }
+  .cs-log__title {
+    font-size: var(--t-xl);
+    margin: 0 0 2.5rem -0.04em;
+  }
+  .dec {
+    display: grid;
+    gap: 0.75rem var(--gutter);
+    padding-block: 2rem;
+    border-top: 1px solid var(--line);
+  }
+  /* The id in ink with an orange marker: legible in every colour field. */
+  .dec__id {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.25rem;
+  }
+  .dec__id::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--signal);
+  }
+  .dec__title {
+    font-size: var(--t-l);
+  }
+  .dec__src {
+    display: block;
+    margin-top: 0.6rem;
+    font-family: var(--f-text);
+    font-size: var(--t-xs);
+    font-weight: 500;
+    text-transform: none;
+    color: var(--muted);
+  }
+  .dec__body {
+    display: grid;
+    gap: 1rem;
+    font-size: var(--t-s);
+  }
+  .dec__body dt {
+    margin-bottom: 0.25rem;
+    font-size: var(--t-xs);
+    font-weight: 600;
+    color: var(--muted);
+  }
+  @media (min-width: 900px) {
+    .dec {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+    .dec__id {
+      grid-column: 1 / 2;
+      padding-top: 0.4rem;
+    }
+    .dec__title {
+      grid-column: 2 / 6;
+    }
+    .dec__body {
+      grid-column: 6 / -1;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--gutter);
+      padding-top: 0.5rem;
+    }
+  }
+
+  .cs-shots {
+    padding-block: clamp(2rem, 5vw, 4rem) clamp(5rem, 12vw, 8rem);
+    overflow: hidden;
+  }
+  .cs-shots__notes {
+    display: grid;
+    gap: 1.25rem var(--gutter);
+    margin-top: clamp(1.5rem, 4vw, 3rem);
+    padding-left: var(--margin);
+    list-style: none;
+    font-size: var(--t-s);
+    color: var(--muted);
+  }
+  .cs-shots__notes b {
+    display: block;
+    margin-bottom: 0.3rem;
+    color: var(--ink);
+    font-size: var(--t-xs);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+  }
+  @media (min-width: 900px) {
+    .cs-shots__notes {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .cs-out {
+    padding-block: clamp(5rem, 12vw, 8rem) clamp(3rem, 6vw, 4rem);
+  }
+  .cs-out__in {
+    display: grid;
+    gap: 3rem var(--gutter);
+  }
+  .cs-out__title {
+    font-size: var(--t-l);
+    margin-bottom: 1.25rem;
+  }
+  .cs-out__list {
+    display: grid;
+    border-top: 1px solid var(--line);
+  }
+  .cs-out__list li {
+    padding-block: 0.9rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .cs-out__sub {
+    font-size: var(--t-xs);
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+  .cs-out__stack {
+    font-size: var(--t-m);
+    line-height: 1.4;
+  }
+  .cs-out__nda {
+    margin-top: 1.5rem;
+    font-size: var(--t-s);
+    color: var(--muted);
+  }
+  @media (min-width: 900px) {
+    .cs-out__in {
+      grid-template-columns: 7fr 5fr;
+    }
+  }
+
+  .cs-next {
+    padding-block: clamp(3rem, 8vw, 6rem);
+    border-top: 1.5px solid var(--ink);
+  }
+  .cs-next__in {
+    display: grid;
+    gap: 1rem;
+  }
+  .cs-next__label {
+    font-size: var(--t-xs);
+    color: var(--muted);
+  }
+  .cs-next__title {
+    justify-self: start;
+    font-size: var(--t-xl);
+    text-decoration: none;
+    margin-left: -0.04em;
+    background: linear-gradient(var(--signal), var(--signal)) no-repeat 0 92% / 0 0.08em;
+    transition:
+      translate var(--d-m) var(--ease),
+      background-size var(--d-m) var(--ease);
+  }
+  .cs-next__title:hover,
+  .cs-next__title:focus-visible {
+    translate: 0.15em 0;
+    background-size: 100% 0.08em;
+  }
+  .cs-next__poster {
+    max-width: 22rem;
+  }
+  @media (min-width: 900px) {
+    .cs-next__in {
+      grid-template-columns: 1fr 22rem;
+      align-items: end;
+    }
+    .cs-next__label,
+    .cs-next__title {
+      grid-column: 1;
+    }
+    .cs-next__poster {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+    }
+  }
+</style>

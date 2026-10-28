@@ -1,0 +1,435 @@
+---
+// The close: the invitation (pick what it is about and the email starts itself), or on About the
+// address running as a headline; then my silhouette in soft light with my full name drawn into it
+// as part of the picture (art/portrait.py; the mercury stirs both), then four short columns.
+import { Image } from 'astro:assets';
+import glow from '../assets/portrait/profile-glow.webp';
+import { site } from '../data/site';
+import { posters } from '../data/posters';
+interface Props {
+  close?: 'talk' | 'mail';
+}
+const { close = 'talk' } = Astro.props;
+const year = new Date().getFullYear();
+const work = Object.values(posters).filter((p) => p.href.startsWith('/work/'));
+const outside = { target: '_blank', rel: 'noopener' };
+// What people write about; each starts an email with that as its subject.
+const topics = ['A project to build', 'A role to fill', 'Advice', 'An idea to bounce around', 'A collaboration', 'Something to learn', 'Just saying hi'];
+const mailto = (subject: string) => `mailto:${site.email}?subject=${encodeURIComponent(subject)}`;
+---
+
+<footer class="ftr" id="contact" data-field="base">
+  {
+    close === 'mail' && (
+      <a class="ftr__mail display" href={`mailto:${site.email}`} data-cursor="Write to me">
+        <span class="ftr__track" aria-hidden="true">
+          {Array.from({ length: 4 }, () => <span>{site.email}</span>)}
+        </span>
+        <span class="sr-only">{site.email}</span>
+      </a>
+    )
+  }
+  {close === 'talk' && (
+  <div class="wrap ftr__ask">
+    <h2 class="ftr__title display">
+      Let’s talk.
+    </h2>
+    <div class="ftr__side">
+      <p class="ftr__lede">Whatever it is, write to me. Pick what it’s about and the email starts itself.</p>
+      <ul class="ftr__topics">
+        {
+          topics.map((t) => (
+            <li>
+              <a class="btn btn--ghost" href={mailto(t)}>
+                {t}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+  )}
+  <!-- The end, one screen tall: the silhouette takes what the links leave. -->
+  <div class="ftr__end">
+  <div class="ftr__stage" data-liquid-surface>
+    <span class="ftr__glow" data-liquid>
+      <Image src={glow} alt="Malik Sohaib in profile, a silhouette against soft light." widths={[800, 1400, 2400]} sizes="100vw" loading="lazy" />
+    </span>
+    <p class="ftr__name display" data-fit><span>Malik Sohaib Ahmad</span></p>
+    <!-- With script, the name is drawn into the picture (see the poster script below). -->
+  </div>
+  <div class="wrap ftr__bottom">
+    <nav class="ftr__cols" aria-label="Footer">
+      <div>
+        <h3>Work</h3>
+        <ul>
+          {
+            work.map((p) => (
+              <li>
+                <a href={p.href}>{p.title}</a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <div>
+        <h3>More</h3>
+        <ul>
+          <li><a href="/about">About me</a></li>
+          <li><a href="/#path">Path</a></li>
+          <li><a href="/#companies">Teams</a></li>
+          <li><a href="/#wrapped">Four years, wrapped</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Elsewhere</h3>
+        <ul>
+          {
+            site.socials.map((s) => (
+              <li>
+                <a href={s.href} {...outside}>
+                  {s.label} <span aria-hidden="true">↗</span>
+                </a>
+              </li>
+            ))
+          }
+          <li>
+            <a href={site.resume} {...outside}>Résumé <span aria-hidden="true">↗</span></a>
+          </li>
+        </ul>
+      </div>
+      <div>
+        <h3>Contact</h3>
+        <ul>
+          <li><a href={`mailto:${site.email}`}>{site.email}</a></li>
+          <li>
+            <a href={site.whatsapp.href} {...outside}>WhatsApp {site.whatsapp.label}</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="ftr__meta">
+      <span>© {year} {site.fullName}</span>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </div>
+  </div>
+</footer>
+
+<script>
+  import { onPage } from '../motion/start';
+
+  // The name fills the width exactly, on one line, at any size: measured at 100px and scaled.
+  onPage(() => {
+    const box = document.querySelector<HTMLElement>('[data-fit]');
+    if (!box) return;
+    const text = box.firstElementChild as HTMLElement;
+    const fit = () => {
+      box.style.fontSize = '100px';
+      box.style.fontSize = `${(100 * box.clientWidth) / text.getBoundingClientRect().width - 0.1}px`;
+    };
+    const ro = new ResizeObserver(fit);
+    ro.observe(box);
+    document.fonts.ready.then(fit);
+    return () => ro.disconnect();
+  });
+
+  // The poster: the name drawn into the picture, so it is part of it. It is filled with the photo
+  // itself brightened (lit by the same light, with the same grain) under a soft glow, its foot runs
+  // off the bottom edge, and the picture fades into the page there. The result replaces the image's
+  // source, so the mercury distorts the name with everything else. Redrawn when the stage resizes.
+  onPage(() => {
+    const stage = document.querySelector<HTMLElement>('.ftr__stage');
+    const img = stage?.querySelector<HTMLImageElement>('img');
+    if (!stage || !img) return;
+    const best = img.srcset.split(',').pop()!.trim().split(' ')[0] || img.src;
+    const name = stage.querySelector('[data-fit] span')!.textContent!.toUpperCase();
+    const photo = new Image();
+    photo.src = best;
+    let url = '';
+    let timer = 0;
+    let live = true;
+
+    const cover = (ctx: CanvasRenderingContext2D, W: number, H: number, fy = 0.38) => {
+      const k = Math.max(W / photo.naturalWidth, H / photo.naturalHeight);
+      const w = photo.naturalWidth * k;
+      const h = photo.naturalHeight * k;
+      ctx.drawImage(photo, (W - w) / 2, (H - h) * fy, w, h);
+    };
+
+    const bake = async () => {
+      await Promise.all([document.fonts.ready, photo.decode()]);
+      if (!live) return;
+      const r = stage.getBoundingClientRect();
+      const dpr = Math.min(2, devicePixelRatio || 1);
+      const W = Math.round(r.width * dpr);
+      const H = Math.round(r.height * dpr);
+      if (!W || !H) return;
+      const c = document.createElement('canvas');
+      c.width = W;
+      c.height = H;
+      const ctx = c.getContext('2d')!;
+      cover(ctx, W, H);
+
+      // The letters, fitted to the width between the margins, a fifth of their height below the edge.
+      const margin = parseFloat(getComputedStyle(stage.querySelector('[data-fit]')!).left) * dpr;
+      const font = (px: number) => `900 ${px}px Display, 'Display Fallback', sans-serif`;
+      const t = document.createElement('canvas');
+      t.width = W;
+      t.height = H;
+      const tx = t.getContext('2d')!;
+      tx.font = font(100);
+      const size = (100 * (W - margin * 2)) / tx.measureText(name).width;
+      tx.font = font(size);
+      const cap = tx.measureText(name).actualBoundingBoxAscent;
+      tx.textAlign = 'center';
+      tx.textBaseline = 'alphabetic';
+      tx.fillStyle = '#ecece6';
+      tx.fillText(name, W / 2, H + cap * 0.2);
+      // Lit from within: the photo, brightened, shows through the letters.
+      tx.globalCompositeOperation = 'source-atop';
+      tx.globalAlpha = 0.55;
+      tx.filter = 'brightness(1.9) contrast(1.1)';
+      cover(tx, W, H);
+
+      // A soft glow of the same letters, then the letters.
+      ctx.save();
+      ctx.filter = `blur(${Math.round(size * 0.08)}px)`;
+      ctx.globalAlpha = 0.35;
+      ctx.globalCompositeOperation = 'screen';
+      ctx.drawImage(t, 0, 0);
+      ctx.restore();
+      ctx.drawImage(t, 0, 0);
+      // The foot of the picture fades into the page.
+      const g = ctx.createLinearGradient(0, H * 0.82, 0, H);
+      g.addColorStop(0, 'rgb(11 11 11 / 0)');
+      g.addColorStop(1, 'rgb(11 11 11 / 0.85)');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, H * 0.82, W, H * 0.18);
+
+      const blob = await new Promise<Blob | null>((ok) => c.toBlob(ok, 'image/webp', 0.9));
+      if (!blob || !live) return;
+      const next = URL.createObjectURL(blob);
+      img.removeAttribute('srcset');
+      img.removeAttribute('sizes');
+      img.src = next;
+      await img.decode().catch(() => {});
+      if (url) URL.revokeObjectURL(url);
+      url = next;
+      stage.classList.add('is-baked');
+    };
+
+    const ro = new ResizeObserver(() => {
+      clearTimeout(timer);
+      timer = window.setTimeout(() => void bake(), 150);
+    });
+    ro.observe(stage);
+    return () => {
+      live = false;
+      ro.disconnect();
+      clearTimeout(timer);
+    };
+  });
+</script>
+
+<style>
+  .ftr {
+    padding-bottom: 0;
+  }
+  /* The invitation: the words on the left; on the right, what it might be about, each a way in. */
+  .ftr__ask {
+    display: grid;
+    gap: 2rem var(--gutter);
+    padding-block: clamp(3.5rem, 7vw, 5rem) clamp(2.5rem, 5vw, 4rem);
+  }
+  .ftr__title {
+    font-size: clamp(3.5rem, 1rem + 9vw, 9.5rem);
+    margin-left: -0.04em;
+    white-space: nowrap;
+  }
+  .ftr__lede {
+    max-width: 30rem;
+    color: var(--muted);
+  }
+  .ftr__topics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.9rem;
+    padding: 0;
+    list-style: none;
+  }
+  .ftr__topics .btn {
+    --h: 2.4rem;
+    font-weight: 500;
+  }
+  @media (min-width: 900px) {
+    .ftr__ask {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      align-items: end;
+    }
+    .ftr__title {
+      grid-column: 1 / 7;
+    }
+    .ftr__side {
+      grid-column: 7 / -1;
+      padding-bottom: 0.3rem;
+    }
+  }
+  /* About closes on the address running as a headline; it pauses under the pointer. */
+  .ftr__mail {
+    position: relative;
+    display: block;
+    overflow: clip;
+    padding-block: clamp(3rem, 6vw, 4.5rem) clamp(2rem, 4vw, 3rem);
+    font-size: clamp(3.5rem, 12vw, 11rem);
+    /* Room for the @ and the descenders: the marquee clips its box. */
+    line-height: 1.2;
+    text-decoration: none;
+    text-transform: none;
+    white-space: nowrap;
+  }
+  .ftr__track {
+    display: inline-flex;
+    gap: 0.5em;
+    padding-right: 0.5em;
+  }
+  :global(html.motion) .ftr__track {
+    animation: ftr-marquee 26s linear infinite;
+  }
+  @media (hover: hover) {
+    :global(html.motion) .ftr__mail:hover .ftr__track {
+      animation-play-state: paused;
+    }
+  }
+  @keyframes ftr-marquee {
+    to {
+      translate: -50% 0;
+    }
+  }
+
+  /* The stage: the silhouette edge to edge, the whole figure in view, my name across its foot. */
+  /* One screen under the fixed header: at the foot of the page it fills exactly what shows. */
+  .ftr__end {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    height: calc(100svh - 4rem);
+    min-height: 32rem;
+  }
+  .ftr__stage {
+    position: relative;
+    min-height: 0;
+    overflow: hidden;
+    background: #0b0b0b;
+  }
+  /* Phones: the picture keeps a little under half the screen, the links the rest. */
+  @media (max-width: 899px) {
+    .ftr__end {
+      height: auto;
+      grid-template-rows: 42svh auto;
+    }
+  }
+  .ftr__glow {
+    position: absolute;
+    inset: 0;
+  }
+  .ftr__glow :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 38%;
+  }
+  .ftr__name {
+    position: absolute;
+    left: var(--margin);
+    right: var(--margin);
+    bottom: clamp(0.5rem, 1.6vw, 1.25rem);
+    z-index: 1;
+    color: #ededE7;
+    font-size: 10vw; /* before the script fits it */
+    font-weight: 900;
+    line-height: 0.8;
+    letter-spacing: -0.005em;
+    text-align: center;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .ftr__name span {
+    display: inline-block;
+  }
+  /* Once the name is part of the picture, the text stays only for screen readers. */
+  .ftr__stage:global(.is-baked) .ftr__name {
+    clip-path: inset(50%);
+    opacity: 0;
+  }
+
+  /* Four short columns: the work, the rest of the site, elsewhere, and how to reach me. */
+  .ftr__cols {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem var(--gutter);
+    padding-top: clamp(1.25rem, 2.5vw, 2rem);
+  }
+
+  /* On phones the contact column takes the full width, so the address never breaks. */
+  .ftr__cols > div:last-child {
+    grid-column: 1 / -1;
+  }
+  @media (min-width: 900px) {
+    .ftr__cols {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .ftr__cols > div:last-child {
+      grid-column: auto;
+    }
+  }
+  .ftr__cols h3 {
+    margin-bottom: 0.4rem;
+    font-size: var(--t-xs);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .ftr__cols ul {
+    display: grid;
+    gap: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .ftr__cols a,
+  .ftr__meta a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    font-size: var(--t-s);
+    text-decoration: none;
+    overflow-wrap: anywhere;
+    transition: color var(--d-s) var(--ease);
+  }
+  .ftr__cols a span {
+    margin-left: 0.3em;
+    color: var(--muted);
+  }
+  @media (hover: hover) {
+    .ftr__cols a:hover {
+      color: var(--muted);
+    }
+    .ftr__meta a:hover {
+      color: var(--ink);
+    }
+  }
+  .ftr__meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 1.75rem;
+    margin-top: clamp(1rem, 2vw, 1.5rem);
+    padding-block: 0.75rem 1rem;
+    border-top: 1px solid var(--line);
+    font-size: var(--t-xs);
+    color: var(--muted);
+  }
+</style>

@@ -1,0 +1,102 @@
+---
+// First visit only: a black screen, a real progress counter, and the chrome monogram pouring into
+// place, then flying past the camera as the page appears (src/motion/loader.ts).
+import { Image } from 'astro:assets';
+import mark from '../assets/brand/ring.webp';
+---
+
+<div class="loader" id="loader" aria-hidden="true" transition:persist>
+  <Image class="loader__mark" src={mark} alt="" width={160} height={mark.height} loading="eager" fetchpriority="high" />
+  <span class="loader__count num" data-loader-count>000</span>
+  <span class="loader__name">Malik Sohaib</span>
+</div>
+<script is:inline>
+  // Decide before first paint: the loader plays once per session, never under reduced motion.
+  (function () {
+    var h = document.documentElement;
+    var show = false;
+    try {
+      show = h.classList.contains('motion') && !sessionStorage.getItem('loaded');
+    } catch (e) {}
+    h.classList.add(show ? 'is-loading' : 'is-ready');
+  })();
+</script>
+
+<style>
+  .loader {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    display: none;
+    place-items: center;
+    background: #0b0b0b;
+    color: #ededE7;
+  }
+  :global(html.is-loading) .loader {
+    display: grid;
+  }
+  .loader__mark {
+    width: min(34vw, 11rem);
+    height: auto;
+    animation: pour 1400ms var(--ease) both;
+  }
+  /* Poured: it drops in soft and tall, then settles into shape. */
+  @keyframes pour {
+    0% {
+      opacity: 0;
+      filter: blur(18px);
+      transform: translateY(-14%) scale(0.9, 1.35);
+    }
+    55% {
+      opacity: 1;
+      filter: blur(2px);
+      transform: translateY(2%) scale(1.06, 0.94);
+    }
+    100% {
+      filter: blur(0);
+      transform: none;
+    }
+  }
+  .loader__count {
+    position: absolute;
+    left: var(--margin);
+    bottom: 1.5rem;
+    font-size: clamp(3rem, 8vw, 6rem);
+    line-height: 0.8;
+  }
+  .loader__name {
+    position: absolute;
+    right: var(--margin);
+    bottom: 1.75rem;
+    font-size: var(--t-s);
+    color: #8f8f89;
+  }
+  /* The hand-off: the mark flies past the camera while the screen clears. */
+  .loader.is-out {
+    animation: clear 900ms var(--ease) forwards;
+  }
+  .loader.is-out .loader__mark {
+    animation: through 900ms cubic-bezier(0.7, 0, 0.84, 0) forwards;
+  }
+  .loader.is-out .loader__count,
+  .loader.is-out .loader__name {
+    transition: opacity 300ms linear;
+    opacity: 0;
+  }
+  @keyframes through {
+    to {
+      transform: scale(14);
+      opacity: 0;
+      filter: blur(6px);
+    }
+  }
+  @keyframes clear {
+    0%,
+    35% {
+      background-color: #0b0b0b;
+    }
+    100% {
+      background-color: transparent;
+    }
+  }
+</style>

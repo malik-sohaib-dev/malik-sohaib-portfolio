@@ -1,0 +1,376 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import portrait from '../assets/portrait/profile-coat.webp';
+import Poster from '../components/Poster.astro';
+import { about, site } from '../data/site';
+import { posters } from '../data/posters';
+---
+
+<Base title="About" close="mail" image="/og/about.jpg" imageAlt="Malik Sohaib in profile, in a wool coat, in black and white." description="Malik Sohaib: a full-stack and AI engineer from Pakistan who takes products from an idea to production. How he works, his stack, and what people say.">
+  <section class="ab-hero" data-field="base" aria-labelledby="ab-title">
+    <div class="wrap ab-hero__in">
+      <h1 class="ab-hero__title display" id="ab-title">{about.greeting}</h1>
+      <figure class="ab-hero__portrait">
+        <span class="ab-hero__photo" data-liquid>
+          <Image src={portrait} alt="Malik Sohaib in profile, in a wool coat over a turtleneck, in black and white." widths={[600, 1000, 1400]} sizes="(min-width: 900px) 50vw, 100vw" loading="eager" />
+        </span>
+      </figure>
+      <div class="ab-hero__bio">
+        {about.bio.map((p) => <p>{p}</p>)}
+      </div>
+      <ul class="ab-hero__now" aria-label="Currently">
+        {
+          about.current.map((c) => (
+            <li>
+              <b>{c.what}</b> <span>{c.where}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="verbs" data-field="contrast" aria-labelledby="verbs-title">
+    <div class="wrap verbs__in">
+      <h2 class="verbs__title display" id="verbs-title">How I work</h2>
+      <ol class="verbs__list" data-verbs>
+        {
+          about.verbs.map((v, i) => (
+            <li class="verb" data-verb={v.poster}>
+              <span class="verb__n num">0{i + 1}</span>
+              <h3 class="verb__word display">{v.word}</h3>
+              <p class="verb__text">{v.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+      <div class="verbs__poster" aria-hidden="true">
+        {
+          about.verbs.map((v, i) => (
+            <div class:list={['verbs__swap', { 'is-on': i === 0 }]} data-verb-poster={v.poster}>
+              <Poster poster={posters[v.poster]} sizes="(min-width: 900px) 30vw, 0px" decorative />
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="stack" data-field="base" aria-labelledby="stack-title">
+    <div class="wrap">
+      <h2 class="stack__title display" id="stack-title">What I build with</h2>
+      <ul class="stack__grid">
+        {about.stack.map((s) => <li class="stack__tile">{s}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <section class="said" data-field="base" aria-labelledby="said-title">
+    <div class="wrap">
+      <h2 class="sr-only" id="said-title">What people I worked with say</h2>
+      <ul class="said__list">
+        {
+          about.testimonials.map((t) => (
+            <li>
+              <figure class="quote">
+                <blockquote class="quote__text">“{t.quote}”</blockquote>
+                <figcaption class="quote__by">
+                  <b>{t.author}</b> {t.role}
+                </figcaption>
+              </figure>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="said__more">
+        Full recommendations are on <a href={site.socials[0].href} target="_blank" rel="noopener">LinkedIn</a>.
+      </p>
+    </div>
+  </section>
+
+</Base>
+
+<style>
+  /* Hero: the hello laid over the edge of a large portrait, then the story beside it. The words
+     sit above the picture, so the two read as layers, not as things placed side by side. */
+  .ab-hero__in {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 2rem var(--gutter);
+    padding-block: clamp(2rem, 5vw, 3.5rem) clamp(4rem, 9vw, 6rem);
+  }
+  .ab-hero__title {
+    position: relative;
+    z-index: 2;
+    grid-column: 1 / -1;
+    font-size: clamp(3.25rem, 0.6rem + 8.4vw, 8.5rem);
+    line-height: 0.92;
+    margin-left: -0.04em;
+    text-transform: none;
+    text-shadow: 0 0.04em 0.4em rgb(0 0 0 / 0.35);
+    pointer-events: none;
+  }
+  .ab-hero__portrait {
+    position: relative;
+    z-index: 1;
+    grid-column: 1 / -1;
+    margin-top: -2.6rem;
+  }
+  .ab-hero__photo {
+    position: relative;
+    display: block;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 6px;
+    background: #121212;
+  }
+  .ab-hero__photo :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .ab-hero__bio {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: 1.25rem;
+    font-size: clamp(1.25rem, 1.05rem + 0.8vw, 1.75rem);
+    line-height: 1.35;
+  }
+  .ab-hero__now {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: 0.5rem;
+    font-size: var(--t-s);
+  }
+  .ab-hero__now li {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+  }
+  .ab-hero__now span:last-child {
+    color: var(--muted);
+  }
+  @media (min-width: 900px) {
+    .ab-hero__in {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+    .ab-hero__title {
+      grid-column: 1 / 10;
+      grid-row: 1;
+      align-self: start;
+      margin-top: 1.5rem;
+    }
+    .ab-hero__portrait {
+      grid-column: 6 / -1;
+      grid-row: 1 / span 3;
+      margin-top: 0;
+    }
+    .ab-hero__bio {
+      grid-column: 1 / 6;
+      grid-row: 2;
+      align-self: end;
+    }
+    .ab-hero__now {
+      grid-column: 1 / 6;
+      grid-row: 3;
+    }
+  }
+
+  /* How I work: rows on the left; the poster for the row in focus on the right. */
+  .verbs {
+    padding-block: clamp(5rem, 12vw, 9rem);
+  }
+  .verbs__in {
+    display: grid;
+    gap: 2rem var(--gutter);
+  }
+  .verbs__title {
+    font-size: var(--t-xl);
+    margin-left: -0.04em;
+  }
+  .verbs__list {
+    border-top: 1px solid var(--line);
+  }
+  .verb {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    gap: 0.4rem 1rem;
+    padding-block: 1.4rem;
+    border-bottom: 1px solid var(--line);
+    outline-offset: -2px;
+    cursor: default;
+  }
+  .verb__n {
+    grid-row: 1 / span 2;
+    font-size: 1.1rem;
+    color: var(--muted);
+    padding-top: 0.5rem;
+  }
+  .verb__word {
+    font-size: var(--t-l);
+    transition: translate var(--d-m) var(--ease);
+  }
+  .verb__text {
+    max-width: 34rem;
+    color: var(--muted);
+    font-size: var(--t-s);
+  }
+  .verb.is-on .verb__word {
+    translate: 0.15em 0;
+  }
+  .verb.is-on .verb__n {
+    color: var(--ink);
+    box-shadow: inset 0 -3px 0 var(--signal);
+  }
+  .verbs__poster {
+    display: none;
+  }
+  @media (min-width: 900px) {
+    .verbs__in {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+    .verbs__title {
+      grid-column: 1 / -1;
+    }
+    .verbs__list {
+      grid-column: 1 / 7;
+    }
+    .verbs__poster {
+      display: block;
+      grid-column: 8 / -1;
+      position: sticky;
+      top: 6rem;
+      align-self: start;
+      aspect-ratio: 4 / 5;
+    }
+    .verbs__swap {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      scale: 0.97;
+      transition:
+        opacity var(--d-m) var(--ease),
+        scale var(--d-m) var(--ease);
+    }
+    .verbs__swap.is-on {
+      opacity: 1;
+      scale: 1;
+    }
+  }
+
+  /* Stack: tiles that flood ink on hover. */
+  .stack {
+    padding-block: clamp(5rem, 12vw, 9rem) clamp(3rem, 6vw, 4rem);
+  }
+  .stack__title {
+    font-size: var(--t-l);
+    margin-bottom: 1.75rem;
+  }
+  .stack__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(9.5rem, 30%), 1fr));
+    border-top: 1px solid var(--line);
+    border-left: 1px solid var(--line);
+  }
+  .stack__tile {
+    display: grid;
+    place-items: center;
+    min-height: clamp(3.75rem, 10vw, 5.5rem);
+    padding: 0.5rem;
+    font-size: clamp(0.8125rem, 0.75rem + 0.3vw, 1rem);
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    font-weight: 600;
+    text-align: center;
+    transition:
+      background-color var(--d-s) var(--ease),
+      color var(--d-s) var(--ease);
+  }
+  @media (hover: hover) {
+    .stack__tile:hover {
+      background: var(--ink);
+      color: var(--ground);
+    }
+  }
+
+  /* What people say: big quotes, one per row. */
+  .said {
+    padding-block: clamp(3rem, 8vw, 6rem) clamp(5rem, 12vw, 9rem);
+  }
+  .said__list {
+    display: grid;
+    gap: clamp(2.5rem, 6vw, 4rem);
+  }
+  .quote__text {
+    margin: 0;
+    max-width: 52rem;
+    font-size: clamp(1.4rem, 1.1rem + 1.2vw, 2.25rem);
+    line-height: 1.25;
+    text-indent: -0.45em;
+  }
+  .quote__by {
+    margin-top: 1rem;
+    font-size: var(--t-s);
+    color: var(--muted);
+  }
+  .quote__by b {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .said__more a {
+    display: inline-block;
+    padding-block: 0.3rem;
+    transition: color var(--d-s) var(--ease);
+  }
+  @media (hover: hover) {
+    .said__more a:hover {
+      color: var(--ink);
+    }
+  }
+  .said__more {
+    margin-top: 2.5rem;
+    font-size: var(--t-s);
+    color: var(--muted);
+  }
+  @media (min-width: 900px) {
+    .said__list li:nth-child(2) {
+      margin-left: 25%;
+    }
+    .said__list li:nth-child(3) {
+      margin-left: 8%;
+    }
+  }
+</style>
+
+<script>
+  import { onPage } from '../motion/start';
+
+  // The row in focus (hovered, focused, or crossing the middle of the screen) picks the poster.
+  onPage(() => {
+    const list = document.querySelector<HTMLElement>('[data-verbs]');
+    if (!list) return;
+    const rows = [...list.querySelectorAll<HTMLElement>('[data-verb]')];
+    const swaps = [...document.querySelectorAll<HTMLElement>('[data-verb-poster]')];
+    const pick = (row: HTMLElement) => {
+      rows.forEach((r) => r.classList.toggle('is-on', r === row));
+      swaps.forEach((s) => s.classList.toggle('is-on', s.dataset.verbPoster === row.dataset.verb));
+    };
+    const onEvent = (e: Event) => {
+      const row = (e.target as HTMLElement).closest<HTMLElement>('[data-verb]');
+      if (row) pick(row);
+    };
+    const io = new IntersectionObserver((entries) => entries.forEach((e) => e.isIntersecting && pick(e.target as HTMLElement)), {
+      rootMargin: '-45% 0px -50% 0px',
+    });
+    rows.forEach((r) => io.observe(r));
+    pick(rows[0]);
+    list.addEventListener('pointerover', onEvent);
+    list.addEventListener('focusin', onEvent);
+    return () => {
+      io.disconnect();
+      list.removeEventListener('pointerover', onEvent);
+      list.removeEventListener('focusin', onEvent);
+    };
+  });
+</script>

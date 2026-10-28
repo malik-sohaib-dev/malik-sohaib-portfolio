@@ -1,0 +1,164 @@
+---
+// A project poster. Three bands that never overlap: a meta line, the art in its own window
+// (a grayscale Blender sculpture of the product, stirred by src/motion/liquid.ts on hover),
+// and the type: title, one plain sentence, status.
+import { Image } from 'astro:assets';
+import type { Poster } from '../data/posters';
+
+interface Props {
+  poster: Poster;
+  /** Rendered width in the layout, for responsive image sizes. */
+  sizes?: string;
+  eager?: boolean;
+  /** Morph into the same poster on the next page (view transitions). One per page. */
+  morph?: boolean;
+  /** A preview inside a decorative container: not a link, and out of the accessibility tree. */
+  decorative?: boolean;
+}
+const { poster: p, sizes = '(min-width: 900px) 40vw, 92vw', eager = false, morph = false, decorative = false } = Astro.props;
+const external = /^https?:/.test(p.href);
+const Tag = decorative ? 'div' : 'a';
+---
+
+<Tag
+  class="poster"
+  {...decorative ? { 'aria-hidden': 'true' } : { href: p.href, 'data-cursor': external ? 'Visit site' : 'Case study', ...(external ? { target: '_blank', rel: 'noopener' } : {}) }}
+  data-poster
+  style={morph ? `view-transition-name: poster-${p.slug}` : undefined}
+>
+  <span class="poster__head" aria-hidden="true">
+    <span><b class="num">{p.index}</b> {p.kind}</span>
+    <span>{p.meta.join(' · ')}</span>
+  </span>
+  <span class="poster__window">
+    <span class="poster__bg" aria-hidden="true" data-liquid>
+      <Image src={p.art} alt="" widths={[480, 720, 1200]} sizes={sizes} loading={eager || decorative ? 'eager' : 'lazy'} />
+      {/* The sculpture's loop. It plays while on screen (or while shown, for a decorative preview) and fades in over the still. */}
+      <video muted loop playsinline preload="none" {...decorative ? { 'data-loop-manual': '' } : { 'data-loop': '' }}>
+        <source src={`/media/loops/${p.slug}.webm`} type="video/webm" />
+        <source src={`/media/loops/${p.slug}.mp4`} type="video/mp4" />
+      </video>
+    </span>
+  </span>
+  <span class="poster__foot">
+    <span class="poster__title display">{p.title}</span>
+    <span class="poster__line">{p.caption}</span>
+    <span class="poster__status" aria-hidden="true">
+      {p.status}{external && ' ↗'}
+    </span>
+  </span>
+</Tag>
+
+<style>
+  .poster {
+    --pad: clamp(10px, 4cqi, 18px);
+    position: relative;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: calc(var(--pad) * 0.75);
+    aspect-ratio: 4 / 5;
+    padding: var(--pad);
+    overflow: hidden;
+    isolation: isolate;
+    container-type: inline-size;
+    color: #ededE7;
+    text-decoration: none;
+    background: #0d0d0d;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
+  }
+  .poster__head {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font-size: clamp(0.625rem, 3.4cqi, 0.8125rem);
+    color: #a9a9a3;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .poster__head b {
+    color: #ededE7;
+    font-size: 1.15em;
+  }
+  /* The art sits in its own window: nothing is printed over it. */
+  /* Each band keeps its own row, so the art keeps the stretch when a small poster drops its head. */
+  .poster__window {
+    grid-row: 2;
+    position: relative;
+    overflow: hidden;
+    border-radius: 3px;
+    background: #050505;
+  }
+  .poster__bg {
+    position: absolute;
+    inset: 0;
+  }
+  .poster__bg :global(img),
+  .poster__bg video,
+  .poster__bg :global(canvas) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .poster__bg video {
+    opacity: 0;
+    transition: opacity 400ms linear;
+  }
+  .poster__bg video.is-playing {
+    opacity: 1;
+  }
+  .poster__bg :global(canvas) {
+    opacity: 0;
+    transition: opacity 200ms linear;
+  }
+  :global(html:not(.liquid-on)) .poster__bg {
+    transition: scale var(--d-l) var(--ease);
+  }
+  .poster__foot {
+    grid-row: 3;
+    display: grid;
+    gap: 0.3em;
+  }
+  .poster__title {
+    font-size: min(13cqi, 4.5rem);
+    line-height: 0.86;
+    transition: translate var(--d-m) var(--ease);
+  }
+  .poster__line {
+    font-size: clamp(0.6875rem, 3.8cqi, 0.9375rem);
+    line-height: 1.35;
+    color: #c9c9c3;
+  }
+  .poster__status {
+    display: flex;
+    align-items: center;
+    gap: 0.45em;
+    margin-top: 0.15em;
+    font-size: clamp(0.625rem, 3.2cqi, 0.8125rem);
+    color: #a9a9a3;
+  }
+  .poster {
+    transform-style: flat;
+    will-change: transform;
+  }
+  /* Small posters keep the title and the line, and drop the meta and status. */
+  @container (max-width: 240px) {
+    .poster__head,
+    .poster__status {
+      display: none;
+    }
+  }
+  @media (hover: hover) {
+    .poster:hover .poster__title,
+    .poster:focus-visible .poster__title {
+      translate: 0.06em 0;
+    }
+    .poster:hover {
+      box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.28);
+    }
+    :global(html:not(.liquid-on)) .poster:hover .poster__bg {
+      scale: 1.04;
+    }
+  }
+</style>

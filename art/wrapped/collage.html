@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Malik Sohaib, wrapped: editorial collage</title>
+<!--
+  The Wrapped film as an editorial collage: my portraits, the work and huge type layered like print,
+  pages sliding over each other, tapes and prints slapped on as the words are said, the ground
+  switching between paper, black and photo. Every frame is a pure function of time (await render(t));
+  engine.js holds the timeline and the shared parts. One edit lays out as 16:9 or 9:16.
+-->
+<style>
+@font-face { font-family: D; src: url(../../public/fonts/display.woff2); font-weight: 100 900; }
+@font-face { font-family: T; src: url(../../public/fonts/text.woff2); font-weight: 300 800; }
+* { box-sizing: border-box; margin: 0; }
+:root { --u: calc(min(100vw, 100vh) / 100); --ink: #0c0c0c; --paper: #e9e8e2; --white: #ededE7; }
+html, body { width: 100vw; height: 100vh; overflow: hidden; background: #000; }
+body { font-family: T, sans-serif; -webkit-font-smoothing: antialiased; }
+#cam { position: absolute; inset: 0; overflow: hidden; }
+.sc { position: absolute; inset: 0; overflow: hidden; visibility: hidden; }
+.paper { background: var(--paper); color: var(--ink); }
+.black { background: #0b0b0b; color: var(--white); }
+.sc::after { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0.14; mix-blend-mode: overlay; z-index: 30;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+.d { font-family: D; font-weight: 900; text-transform: uppercase; line-height: 0.82; letter-spacing: -0.01em; }
+.a { position: absolute; }
+.gray { filter: grayscale(1) contrast(1.05); }
+.panel { position: absolute; overflow: hidden; box-shadow: 0 calc(var(--u) * 2) calc(var(--u) * 5) rgb(0 0 0 / 0.38); background: #111; }
+.panel img, .panel video { display: block; width: 100%; height: 100%; object-fit: cover; }
+.halftone { position: absolute; inset: 0; background: radial-gradient(circle, rgb(0 0 0 / 0.22) 30%, transparent 32%) 0 0 / calc(var(--u) * 0.6) calc(var(--u) * 0.6); mix-blend-mode: multiply; opacity: 0.35; }
+.tape { position: absolute; padding: 0.3em 0.75em 0.22em; background: rgb(237 237 231 / 0.94); color: var(--ink); font-family: D; font-weight: 800; text-transform: uppercase; font-size: calc(var(--u) * 3); line-height: 1; box-shadow: 0 2px 10px rgb(0 0 0 / 0.25); white-space: nowrap; z-index: 12; }
+.tape.ink { background: var(--ink); color: var(--white); }
+.print { position: absolute; padding: calc(var(--u) * 0.8); background: #f4f3ee; box-shadow: 0 calc(var(--u) * 1) calc(var(--u) * 3) rgb(0 0 0 / 0.35); z-index: 9; }
+.print img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.stamp { position: absolute; z-index: 14; padding: 0.18em 0.42em 0.08em; border: calc(var(--u) * 0.5) solid currentColor; font-family: D; font-weight: 900; text-transform: uppercase; line-height: 1; white-space: nowrap; }
+.photo-text { background: url(../../src/assets/portrait/profile-glow.webp) 50% 40% / cover; -webkit-background-clip: text; background-clip: text; color: transparent; filter: grayscale(1) brightness(1.4) contrast(1.1); }
+.k { font-size: calc(var(--u) * 2.1); font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; }
+.card { position: absolute; padding: calc(var(--u) * 3); background: #f6f5f0; color: var(--ink); box-shadow: 0 calc(var(--u) * 1.5) calc(var(--u) * 4) rgb(0 0 0 / 0.3); z-index: 8; }
+.card .d { font-size: calc(var(--u) * 9); }
+.card p { margin-top: calc(var(--u) * 1.4); font-size: calc(var(--u) * 2.6); font-weight: 600; }
+.card small { display: block; margin-top: calc(var(--u) * 0.8); font-size: calc(var(--u) * 2); color: #555; }
+.pill { display: inline-flex; align-items: center; padding: 0.55em 1.1em; border-radius: 999px; background: var(--white); color: var(--ink); font-weight: 600; font-size: calc(var(--u) * 2.8); white-space: nowrap; }
+
+/* Product frames: a browser with its address, a game screen with its name, a phone. Real colour. */
+.dev { position: absolute; background: #121212; box-shadow: 0 calc(var(--u) * 2) calc(var(--u) * 5) rgb(0 0 0 / 0.45), inset 0 0 0 1px rgb(255 255 255 / 0.1); }
+.dev .scr { position: absolute; overflow: hidden; background: #000; }
+.dev .scr img, .dev .scr video { display: block; width: 100%; height: 100%; object-fit: cover; }
+.dev.browser { border-radius: calc(var(--u) * 1); overflow: hidden; aspect-ratio: 16 / 10.9; }
+.dev.browser .bar { position: absolute; left: 0; right: 0; top: 0; height: calc(var(--u) * 2.4); display: flex; align-items: center; gap: calc(var(--u) * 0.6); padding: 0 calc(var(--u) * 1); border-bottom: 1px solid rgb(255 255 255 / 0.08); }
+.dev.browser .bar i { width: calc(var(--u) * 0.6); height: calc(var(--u) * 0.6); border-radius: 50%; background: rgb(255 255 255 / 0.25); }
+.dev.browser .bar span { flex: 1; max-width: 58%; margin: 0 auto; padding: 0.2em 0.8em; border-radius: 999px; background: rgb(255 255 255 / 0.08); color: #bdbdb7; font-size: calc(var(--u) * 1.15); text-align: center; white-space: nowrap; overflow: hidden; }
+.dev.browser .scr { left: 0; right: 0; bottom: 0; top: calc(var(--u) * 2.4); }
+.dev.game { border-radius: calc(var(--u) * 1.4); aspect-ratio: 16 / 9.4; }
+.dev.game .scr { inset: calc(var(--u) * 0.55); border-radius: calc(var(--u) * 0.9); }
+.dev.game .lbl { position: absolute; left: calc(var(--u) * 1.4); top: calc(var(--u) * 1.4); z-index: 2; padding: 0.3em 0.75em; border-radius: 999px; background: rgb(12 12 12 / 0.75); color: var(--white); font-size: calc(var(--u) * 1.4); font-weight: 600; }
+.dev.phone { border-radius: calc(var(--u) * 3.4); aspect-ratio: 9 / 19; }
+.dev.phone .scr { inset: calc(var(--u) * 0.7); border-radius: calc(var(--u) * 2.8); }
+
+/* The moving collage: framed screens on a tilted plane, columns drifting in opposite directions.
+   The plane fades out under the type (data-fade side). */
+.plane { position: absolute; inset: 0; overflow: hidden; perspective: calc(var(--u) * 220); z-index: 1; }
+.plane .grid { position: absolute; left: 50%; top: 50%; width: 160%; display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: calc(var(--u) * 2.2); align-items: start; transform: translate(-50%, -50%) rotateX(var(--rx)) rotateZ(var(--rz)); transform-style: preserve-3d; }
+.plane .col { display: grid; gap: calc(var(--u) * 2.2); will-change: transform; }
+.plane .dev { position: relative; }
+.plane .dev.phone { width: 62%; justify-self: center; }
+.plane[data-side='left'] { -webkit-mask-image: linear-gradient(90deg, transparent 8%, #000 52%); }
+.plane[data-side='right'] { -webkit-mask-image: linear-gradient(270deg, transparent 8%, #000 52%); }
+body.port .plane[data-side] { -webkit-mask-image: linear-gradient(180deg, transparent 6%, #000 34%, #000 82%, transparent 96%); }
+
+/* Captions: three words; the one being said is boxed. */
+#caps { position: absolute; left: 6%; right: 6%; bottom: 6.5%; z-index: 50; text-align: center; font-family: D; font-weight: 800; text-transform: uppercase; font-size: calc(var(--u) * 5.6); line-height: 1.1; }
+body.port #caps { bottom: 12%; font-size: calc(var(--u) * 8); }
+#caps span { display: inline-block; margin: 0 0.04em; padding: 0.04em 0.16em 0; }
+#caps[data-tone='light'] span { color: rgb(12 12 12 / 0.38); background: rgb(233 232 226 / 0.88); }
+#caps[data-tone='light'] span.said { color: var(--ink); }
+#caps[data-tone='light'] span.now { color: var(--paper); background: var(--ink); }
+#caps[data-tone='dark'] span { color: rgb(237 237 231 / 0.45); background: rgb(11 11 11 / 0.7); }
+#caps[data-tone='dark'] span.said { color: var(--white); }
+#caps[data-tone='dark'] span.now { color: var(--ink); background: var(--white); }
+#flash { position: absolute; inset: 0; background: #fff; opacity: 0; z-index: 60; pointer-events: none; }
+.tc { position: absolute; top: 3.2%; left: 3%; z-index: 40; font-size: calc(var(--u) * 1.6); font-weight: 600; letter-spacing: 0.12em; opacity: 0.7; }
+
+/* ---- scene layouts (16:9 first; body.port rearranges) ---- */
+#s-name .malik { left: 3%; top: 4%; font-size: calc(var(--u) * 34); z-index: 2; }
+#s-name .me { left: 46%; top: 9%; width: 34%; height: 80%; z-index: 5; }
+#s-name .sohaib { right: 3%; top: 44%; font-size: calc(var(--u) * 34); z-index: 8; -webkit-text-stroke: calc(var(--u) * 0.3) var(--paper); }
+#s-name .role { left: 6%; top: 48%; }
+#s-name .print { left: 8%; bottom: 10%; width: 15%; height: 22%; }
+body.port #s-name .malik { left: 4%; top: 7%; font-size: calc(var(--u) * 31); }
+body.port #s-name .me { left: 12%; top: 20%; width: 76%; height: 52%; }
+body.port #s-name .sohaib { right: auto; left: 4%; top: 63%; font-size: calc(var(--u) * 31); }
+body.port #s-name .role { left: auto; right: 6%; top: 18%; }
+body.port #s-name .print { left: auto; right: 4%; bottom: auto; top: 44%; width: 26%; height: 14%; }
+
+#s-idea .give { left: 6%; top: 18%; font-size: calc(var(--u) * 2.4); }
+#s-idea .idea { left: 6%; top: 25%; font-size: calc(var(--u) * 7); }
+#s-idea .p1 { left: 34%; top: 8%; width: 36%; z-index: 3; }
+#s-idea .p2 { left: 52%; top: 40%; width: 34%; z-index: 5; }
+#s-idea .p3 { left: 66%; top: 6%; width: 30%; z-index: 2; }
+#s-idea .product { left: 4%; top: 46%; font-size: calc(var(--u) * 24); z-index: 10; color: #fff; text-shadow: 0 0.04em 0.35em rgb(0 0 0 / 0.7); }
+body.port #s-idea .give { top: 9%; }
+body.port #s-idea .idea { top: 12%; }
+body.port #s-idea .p1 { left: 5%; top: 19%; width: 78%; }
+body.port #s-idea .p2 { left: 14%; top: 33%; width: 80%; }
+body.port #s-idea .p3 { left: 8%; top: 47%; width: 70%; z-index: 4; }
+body.port #s-idea .product { top: 58%; font-size: calc(var(--u) * 21); }
+
+#s-years .four { left: 8%; top: 6%; font-size: calc(var(--u) * 90); line-height: 0.78; }
+#s-years .yrs { left: 46%; top: 42%; font-size: calc(var(--u) * 7); }
+#s-years .of { left: 46.4%; top: 58%; font-size: calc(var(--u) * 3.4); font-weight: 600; max-width: 40%; }
+body.port #s-years .four { left: 50%; top: 8%; translate: -50% 0; }
+body.port #s-years .yrs { left: 10%; top: 62%; font-size: calc(var(--u) * 11); }
+body.port #s-years .of { left: 10%; top: 72%; font-size: calc(var(--u) * 4.4); max-width: 80%; }
+
+#s-contrib .num { left: 6%; top: 12%; font-size: calc(var(--u) * 27); }
+#s-contrib .lbl { left: 6.4%; top: 44%; }
+#s-contrib .bars { position: absolute; left: 52%; right: 6%; bottom: 14%; height: 62%; display: flex; gap: calc(var(--u) * 2); align-items: flex-end; }
+#s-contrib .bar { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%; }
+#s-contrib .bar i { display: block; width: 100%; background: #f4f3ee; box-shadow: 0 6px 20px rgb(0 0 0 / 0.5); }
+#s-contrib .bar b { font-family: D; font-weight: 800; font-size: calc(var(--u) * 3); margin-bottom: calc(var(--u) * 0.8); }
+#s-contrib .bar span { position: relative; margin-top: calc(var(--u) * -1.6); font-size: calc(var(--u) * 2); }
+body.port #s-contrib .num { left: 6%; top: 8%; font-size: calc(var(--u) * 24); }
+body.port #s-contrib .lbl { top: 23%; }
+body.port #s-contrib .bars { left: 6%; right: 6%; top: 34%; bottom: auto; height: 40%; }
+
+#s-teams .track { position: absolute; inset: 0; }
+#s-teams .c1 { left: 6%; top: 18%; width: 27%; }
+#s-teams .c2 { left: 37%; top: 26%; width: 27%; }
+#s-teams .c3 { left: 68%; top: 14%; width: 27%; }
+#s-teams .senior { right: 6%; top: 52%; font-size: calc(var(--u) * 5); color: var(--ink); }
+body.port #s-teams .c1 { left: 8%; top: 7%; width: 70%; }
+body.port #s-teams .c2 { left: 22%; top: 29%; width: 70%; }
+body.port #s-teams .c3 { left: 8%; top: 51%; width: 70%; }
+body.port #s-teams .senior { right: 6%; top: 66%; }
+
+#s-own .q1 { left: 4%; top: 12%; width: 34%; }
+#s-own .q2 { left: 34%; top: 44%; width: 32%; z-index: 3; }
+#s-own .q3 { left: 62%; top: 10%; width: 34%; }
+#s-own .products { left: 3%; top: 30%; font-size: calc(var(--u) * 22); z-index: 10; color: #fff; text-shadow: 0 0.04em 0.35em rgb(0 0 0 / 0.7); }
+#s-own .of { left: 42%; top: 58%; font-size: calc(var(--u) * 5.4); }
+body.port #s-own .q1 { left: 6%; top: 6%; width: 76%; }
+body.port #s-own .q2 { left: 16%; top: 54%; width: 78%; }
+body.port #s-own .q3 { left: 10%; top: 68%; width: 70%; }
+body.port #s-own .products { top: 36%; font-size: calc(var(--u) * 19); }
+body.port #s-own .of { left: 30%; top: 47%; }
+
+#s-ez .name { left: 3%; top: 6%; font-size: calc(var(--u) * 24); z-index: 1; color: rgb(12 12 12 / 0.9); }
+#s-ez .ph1 { left: 26%; top: 12%; width: 44%; z-index: 4; }
+#s-ez .ph2 { left: 58%; top: 40%; width: 30%; z-index: 5; }
+#s-ez .ph3 { left: 86%; top: 8%; width: 10%; z-index: 6; }
+#s-ez .print { left: 6%; top: 52%; width: 15%; height: 24%; }
+#s-ez .real { left: 30%; top: 74%; font-size: calc(var(--u) * 4.4); z-index: 7; }
+#s-ez .k { left: 3.4%; top: 33%; }
+body.port #s-ez .name { top: 5%; font-size: calc(var(--u) * 19); }
+body.port #s-ez .k { top: 15%; }
+body.port #s-ez .ph1 { left: 5%; top: 20%; width: 90%; }
+body.port #s-ez .ph2 { left: 22%; top: 38%; width: 72%; }
+body.port #s-ez .ph3 { left: 6%; top: 46%; width: 26%; }
+body.port #s-ez .print { left: auto; right: 6%; top: auto; bottom: 22%; width: 30%; height: 12%; }
+body.port #s-ez .real { left: 8%; top: 74%; }
+
+#s-havoc .name { left: 4%; top: 7%; font-size: calc(var(--u) * 15); z-index: 10; }
+#s-havoc .main { left: 30%; top: 10%; width: 50%; z-index: 4; }
+#s-havoc .g1 { left: 4%; top: 46%; width: 26%; z-index: 5; }
+#s-havoc .g2 { left: 70%; top: 56%; width: 26%; z-index: 5; }
+#s-havoc .g3 { left: 76%; top: 6%; width: 21%; z-index: 3; }
+#s-havoc .sessions { left: 50%; top: 64%; font-size: calc(var(--u) * 6.6); color: var(--white); }
+body.port #s-havoc .name { top: 5%; font-size: calc(var(--u) * 16); }
+body.port #s-havoc .main { left: 5%; top: 22%; width: 90%; }
+body.port #s-havoc .g1 { left: 5%; top: 50%; width: 46%; }
+body.port #s-havoc .g2 { left: 49%; top: 56%; width: 46%; }
+body.port #s-havoc .g3 { left: 20%; top: 64%; width: 46%; }
+body.port #s-havoc .sessions { left: 18%; top: 47%; }
+
+#s-gym .name { right: 4%; top: 8%; font-size: calc(var(--u) * 20); text-align: right; }
+#s-gym .card2 { left: 5%; top: 14%; width: 50%; z-index: 4; }
+#s-gym .card3 { left: 44%; top: 44%; width: 34%; z-index: 5; }
+#s-gym .days { left: 78%; top: 60%; font-size: calc(var(--u) * 9); color: var(--ink); z-index: 6; }
+body.port #s-gym .name { right: 6%; top: 6%; font-size: calc(var(--u) * 19); }
+body.port #s-gym .card2 { left: 5%; top: 22%; width: 90%; }
+body.port #s-gym .card3 { left: 18%; top: 44%; width: 76%; }
+body.port #s-gym .days { left: 8%; top: 62%; }
+
+#s-build .ph { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; text-align: center; visibility: hidden; }
+#s-build .ph .d { font-size: calc(var(--u) * 20); max-width: 90vw; }
+#s-build .ph .tape { position: relative; margin-bottom: calc(var(--u) * 3); }
+#s-build .ph.photo { background: url(../../src/assets/portrait/profile-coat.webp) 50% 30% / cover; }
+#s-build .ph.photo::before { content: ''; position: absolute; inset: 0; background: rgb(0 0 0 / 0.45); }
+#s-build .ph.photo > * { position: relative; }
+body.port #s-build .ph .d { font-size: calc(var(--u) * 19); }
+
+#s-layers .line { position: absolute; left: 8%; right: 8%; top: 50%; height: calc(var(--u) * 0.5); background: var(--ink); transform-origin: 0 50%; }
+#s-layers .from, #s-layers .to { top: 30%; font-size: calc(var(--u) * 9); }
+#s-layers .from { left: 8%; }
+#s-layers .to { right: 8%; }
+#s-layers .stop { top: 46%; }
+body.port #s-layers .line { left: 50%; right: auto; top: 18%; width: calc(var(--u) * 0.6); height: 56%; transform-origin: 50% 0; }
+body.port #s-layers .from { left: 8%; top: 9%; }
+body.port #s-layers .to { left: auto; right: 8%; top: 76%; }
+
+#s-ask .l1 { left: 6%; top: 24%; font-size: calc(var(--u) * 19); }
+#s-ask .l2 { left: 6%; top: 50%; font-size: calc(var(--u) * 19); }
+#s-ask .l2 .inv { background: var(--white); color: var(--ink); padding: 0 0.08em; }
+body.port #s-ask .l1, body.port #s-ask .l2 { font-size: calc(var(--u) * 17); }
+body.port #s-ask .l1 { top: 30%; }
+body.port #s-ask .l2 { top: 48%; }
+
+#s-talk .photo { position: absolute; left: 46%; top: 0; width: 54%; height: 100%; object-fit: cover; object-position: 46% 40%; }
+#s-talk .panel2 { position: absolute; left: 0; top: 0; bottom: 0; width: 49%; background: #0b0b0b; z-index: 4; }
+#s-talk .lt { left: 5%; top: 14%; font-size: calc(var(--u) * 27); line-height: 0.8; z-index: 5; }
+#s-talk .contact { left: 5.4%; top: 72%; z-index: 6; }
+#s-talk .contact .k { margin-top: calc(var(--u) * 2.4); color: #a9a9a3; }
+#s-talk .cursor { position: absolute; z-index: 7; width: calc(var(--u) * 3.4); }
+#s-talk .ripple { position: absolute; z-index: 6; width: calc(var(--u) * 8); height: calc(var(--u) * 8); margin: calc(var(--u) * -4) 0 0 calc(var(--u) * -4); border-radius: 50%; border: 2px solid var(--white); opacity: 0; }
+body.port #s-talk .photo { left: 0; width: 100%; height: 50%; object-position: 50% 40%; }
+body.port #s-talk .panel2 { top: 48%; width: 100%; }
+body.port #s-talk .lt { top: 52%; left: 7%; font-size: calc(var(--u) * 30); }
+body.port #s-talk .contact { left: 7%; top: 82%; }
+</style>
+</head>
+<body>
+<div id="cam">
+
+  <section class="sc paper" id="s-name">
+    <div class="a d malik" data-slam="l" data-word="name:Malik">Malik</div>
+    <div class="panel me" data-drop data-r="1.5" data-at="0.15"><img class="gray" src="../../src/assets/portrait/profile-coat.webp" alt=""><div class="halftone"></div></div>
+    <div class="a d sohaib" data-slam="r" data-word="name:Sohaib">Sohaib</div>
+    <span class="tape role" data-slap data-r="-3" data-at="1.25">Full-stack &amp; AI engineer</span>
+    <div class="print" data-slap data-r="-6" data-at="1.45"><img class="gray" src="../../src/assets/posters/mini-havoc-art.webp" alt=""></div>
+  </section>
+
+  <section class="sc black" id="s-idea">
+    <div class="plane" data-plane="s-idea"></div>
+    <p class="a k give" data-fade data-word="idea:Give">Give me an</p>
+    <span class="tape idea" data-slap data-r="-2" data-word="idea:idea">Idea</span>
+    <div class="a d product" data-slam="b" data-word="idea:product">Product</div>
+  </section>
+
+  <section class="sc paper" id="s-years">
+    <div class="a d four photo-text" data-punch data-at="0">4</div>
+    <span class="tape ink yrs" data-slap data-r="-2" data-word="years:years">Years</span>
+    <p class="a of" data-fade data-word="years:shipping">of shipping software</p>
+  </section>
+
+  <section class="sc black" id="s-contrib">
+    <div class="a d num" data-count>0</div>
+    <span class="tape lbl" data-slap data-r="-2" data-word="contrib:contributions">Contributions</span>
+    <div class="bars"></div>
+  </section>
+
+  <section class="sc paper" id="s-teams">
+    <div class="track">
+      <div class="card c1" data-slap data-r="-2" data-beat="team1"><div class="d">USA</div><p>Education nonprofit</p><small>Council for Education · 2022</small></div>
+      <div class="card c2" data-slap data-r="1.5" data-beat="team2"><div class="d">Lahore</div><p>Solar engineering</p><small>BH Group · 2022 to 2023</small></div>
+      <div class="card c3" data-slap data-r="-1" data-beat="team3"><div class="d">Germany</div><p>Arthur</p><small>2023 to now</small></div>
+      <span class="stamp senior" data-slap data-r="-8" data-word="team3:senior">Senior engineer</span>
+    </div>
+  </section>
+
+  <section class="sc black" id="s-own">
+    <div class="plane" data-plane="s-own"></div>
+    <div class="a d products" data-slam="l" data-word="own:products">Products</div>
+    <span class="tape of" data-slap data-r="2" data-word="own:own">of my own</span>
+  </section>
+
+  <section class="sc paper" id="s-ez">
+    <div class="plane" data-plane="s-ez"></div>
+    <div class="a d name" data-slam="l" data-word="ezvenda:EzVenda">EzVenda</div>
+    <p class="a k" data-fade data-at="0.4">01 · Commerce platform</p>
+    <div class="print" data-slap data-r="5" data-word="ezvenda:online"><img class="gray" src="../../src/assets/posters/ezvenda-art.webp" alt=""></div>
+    <span class="tape ink real" data-slap data-r="-4" data-word="ezvenda:real">A real merchant</span>
+  </section>
+
+  <section class="sc black" id="s-havoc">
+    <div class="plane" data-plane="s-havoc"></div>
+    <div class="a d name" data-slam="l" data-word="havoc:Mini">Mini<br>Havoc</div>
+    <span class="stamp sessions" data-slap data-r="-7" data-word="havoc:hundreds">100s of sessions</span>
+  </section>
+
+  <section class="sc paper" id="s-gym">
+    <div class="plane" data-plane="s-gym"></div>
+    <div class="a d name" data-slam="r" data-word="gympaid:GymPaid">GymPaid</div>
+    <span class="stamp days" data-slap data-r="-9" data-word="gympaid:two">2 days</span>
+  </section>
+
+  <section class="sc paper" id="s-build">
+    <div class="ph paper" data-word="build:Web"><span class="tape ink">01</span><p class="d">Web apps</p></div>
+    <div class="ph black" data-word="build:Real-time"><span class="tape">02</span><p class="d">Real-time<br>games</p></div>
+    <div class="ph photo" data-word="build:AI" style="color:var(--white)"><span class="tape">03</span><p class="d">AI agents</p></div>
+    <div class="ph paper" data-word="build:Tools"><span class="tape ink">04</span><p class="d">Tools for your<br>business</p></div>
+  </section>
+
+  <section class="sc paper" id="s-layers">
+    <div class="a d from" data-slam="l" data-word="layers:idea">Idea</div>
+    <div class="a d to" data-slam="r" data-word="layers:production">Production</div>
+    <div class="line"></div>
+  </section>
+
+  <section class="sc black" id="s-ask">
+    <div class="a d l1"><span data-slam="b" data-word="ask:Got" style="display:inline-block">Got</span> <span data-slam="b" data-word="ask:something" style="display:inline-block">something</span></div>
+    <div class="a d l2"><span data-slam="b" data-word="ask:to" style="display:inline-block">to</span> <span class="inv" data-slam="b" data-word="ask:build" style="display:inline-block">build?</span></div>
+  </section>
+
+  <section class="sc black" id="s-talk">
+    <img class="photo gray" src="../../src/assets/portrait/profile-glow.webp" alt="">
+    <div class="panel2"></div>
+    <div class="a d lt"><span class="photo-text" data-slam="b" data-word="talk:Let's" style="display:inline-block">Let’s</span><br><span class="photo-text" data-slam="b" data-word="talk:talk" style="display:inline-block">talk.</span></div>
+    <div class="a contact" data-fade data-end="0.15">
+      <span class="pill">maliksohaib.official@gmail.com</span>
+      <p class="k">Projects · Roles · Advice · Just hi</p>
+    </div>
+    <svg class="cursor" viewBox="0 0 24 24"><path d="M4 2l15 9-6.5 1.6L10 19z" fill="#0c0c0c" stroke="#ededE7" stroke-width="1.4"/></svg>
+    <div class="ripple"></div>
+  </section>
+
+  <div id="caps"></div>
+</div>
+<div id="flash"></div>
+
+<script src="engine.js"></script>
+<script>
+const { TL, FACTS, B, clamp, win, ease, back, when, nf, scenes, captions, drawCaptions, seek, ready, set } = Film;
+const W = innerWidth, H = innerHeight;
+
+const S = scenes([
+  { id: 's-name', beats: ['name'] },
+  { id: 's-idea', beats: ['idea'], caps: true, tone: 'dark' },
+  { id: 's-years', beats: ['years'] },
+  { id: 's-contrib', beats: ['contrib'] },
+  { id: 's-teams', beats: ['team1', 'team2', 'team3'], caps: true, tone: 'light' },
+  { id: 's-own', beats: ['own'] },
+  { id: 's-ez', beats: ['ezvenda'], caps: true, tone: 'light' },
+  { id: 's-havoc', beats: ['havoc'], caps: true, tone: 'dark' },
+  { id: 's-gym', beats: ['gympaid'], caps: true, tone: 'light' },
+  { id: 's-build', beats: ['build'] },
+  { id: 's-layers', beats: ['layers'], caps: true, tone: 'light' },
+  { id: 's-ask', beats: ['ask'] },
+  { id: 's-talk', beats: ['talk'] },
+]);
+
+// The moving collages: which screens, how the plane tilts, and which side the type sits on.
+const WK = '../../src/assets/work/';
+const GM = '../../public/media/games/';
+const B_ = (img, url) => ({ k: 'browser', img, url });
+const G_ = (clip, label) => ({ k: 'game', clip, label });
+const P_ = (img) => ({ k: 'phone', img });
+const PLANES = {
+  's-idea': { side: 'left', rx: 52, rz: -30, n: 4, items: [B_('ezvenda-builder.webp', 'app.ezvenda.com/store'), G_('crossfire', 'Mini Havoc'), B_('gympaid-due.webp', 'gympaid.ezvenda.com'), B_('ezvenda-ai.webp', 'app.ezvenda.com/ai'), G_('hexdrop', 'Hex Drop'), B_('gympaid-members.webp', 'gympaid.ezvenda.com/members'), P_('ezvenda-product.webp'), B_('ezvenda-orders.webp', 'app.ezvenda.com/orders')] },
+  's-own': { side: 'left', rx: 48, rz: 28, n: 4, items: [B_('ezvenda-store.webp', 'app.ezvenda.com/store'), G_('sumo', 'Sumo Out!'), B_('gympaid-plans.webp', 'gympaid.ezvenda.com/plans'), B_('ezvenda-customers.webp', 'app.ezvenda.com/customers'), G_('brawl', 'Havoc Golf'), B_('gympaid-due.webp', 'gympaid.ezvenda.com'), B_('ezvenda-products.webp', 'app.ezvenda.com/products')] },
+  's-ez': { side: 'left', rx: 54, rz: -34, n: 4, items: [B_('ezvenda-builder.webp', 'app.ezvenda.com/store'), P_('ezvenda-home.webp'), B_('ezvenda-order.webp', 'app.ezvenda.com/orders'), B_('ezvenda-ai.webp', 'app.ezvenda.com/ai'), P_('ezvenda-product.webp'), B_('ezvenda-desktop.webp', 'hilal-traders.ezvenda.store'), B_('ezvenda-orders.webp', 'app.ezvenda.com/orders'), P_('ezvenda-checkout.webp'), B_('ezvenda-customers.webp', 'app.ezvenda.com/customers')] },
+  's-havoc': { side: 'left', rx: 50, rz: -28, n: 4, items: [G_('brawl', 'Havoc Golf'), G_('crossfire', 'Crossfire'), G_('sumo', 'Sumo Out!'), G_('hexdrop', 'Hex Drop'), G_('hush', 'Hush'), G_('floor', 'Colour Floor')] },
+  's-gym': { side: 'right', rx: 52, rz: 30, n: 3, items: [B_('gympaid-due.webp', 'gympaid.ezvenda.com'), B_('gympaid-members.webp', 'gympaid.ezvenda.com/members'), B_('gympaid-plans.webp', 'gympaid.ezvenda.com/plans'), B_('gympaid-card.png', 'gympaid.ezvenda.com')] },
+};
+const frameHTML = (it) =>
+  it.k === 'browser'
+    ? `<div class="dev browser"><div class="bar"><i></i><i></i><i></i><span>${it.url}</span></div><div class="scr"><img src="${WK}${it.img}" alt="" style="object-position:top left"></div></div>`
+    : it.k === 'game'
+      ? `<div class="dev game"><span class="lbl">${it.label}</span><div class="scr"><video src="${GM}${it.clip}.webm" muted></video></div></div>`
+      : `<div class="dev phone"><div class="scr"><img src="${WK}${it.img}" alt="" style="object-position:top"></div></div>`;
+for (const [id, pl] of Object.entries(PLANES)) {
+  const el = document.querySelector(`[data-plane="${id}"]`);
+  el.dataset.side = pl.side;
+  const per = Math.max(3, Math.ceil((pl.items.length * 1.5) / pl.n));
+  const cols = Array.from({ length: pl.n }, (_, c) => Array.from({ length: per }, (_, k) => pl.items[(c * 2 + k) % pl.items.length]));
+  el.innerHTML = `<div class="grid" style="--n:${pl.n};--rx:${pl.rx}deg;--rz:${pl.rz}deg">${cols.map((col) => `<div class="col">${[...col, ...col].map(frameHTML).join('')}</div>`).join('')}</div>`;
+}
+const planeCols = [...document.querySelectorAll('.plane .col')];
+
+const groups = captions(S);
+const caps = document.getElementById('caps');
+
+// When each element arrives: a word ("beat:word"), a beat's start, or seconds into its scene.
+function at(el, scene) {
+  if (el.dataset.word) {
+    const [beat, word] = el.dataset.word.split(':');
+    return when(beat, word) - 0.04;
+  }
+  if (el.dataset.beat) return B[el.dataset.beat].start - 0.05;
+  if (el.dataset.end) return B[scene.beats[scene.beats.length - 1]].end + Number(el.dataset.end);
+  return scene.from + Number(el.dataset.at || 0);
+}
+
+// Bars, once: paper strips, one per year.
+const bars = document.querySelector('#s-contrib .bars');
+const years = Object.keys(FACTS.perYear);
+const max = Math.max(...Object.values(FACTS.perYear));
+for (const y of years) bars.insertAdjacentHTML('beforeend', `<div class="bar"><b>0</b><i></i><span class="tape">${y}</span></div>`);
+
+// Layers: the five stops as tapes along the line.
+const stops = ['Design', 'Frontend', 'Backend', 'AI', 'Launch'];
+const layers = document.getElementById('s-layers');
+stops.forEach((s, i) => {
+  const port = document.body.classList.contains('port');
+  layers.insertAdjacentHTML('beforeend', `<span class="tape ${i % 2 ? 'ink' : ''} stop" data-r="${i % 2 ? 3 : -3}" style="${port ? `left:${i % 2 ? 54 : 18}%;top:${22 + i * 10}%` : `left:${12 + i * 16}%;top:${i % 2 ? 56 : 40}%`}">${s}</span>`);
+});
+const stopEls = [...layers.querySelectorAll('.stop')];
+
+
+window.render = async (t) => {
+  let flash = 0;
+  const waits = [];
+  for (const [i, s] of S.entries()) {
+    // A page slides in over the one before; the one before stays until it is covered.
+    const on = t >= s.from && t < s.to + 0.3;
+    s.el.style.visibility = on ? 'visible' : 'hidden';
+    if (!on) continue;
+    const lt = t - s.from;
+    const p = i === 0 ? 1 : ease(lt / 0.3);
+    const side = ['inset(0 0 0 X%)', 'inset(0 X% 0 0)', 'inset(X% 0 0 0)'][i % 3].replace('X', ((1 - p) * 100).toFixed(2));
+    s.el.style.clipPath = p < 1 ? side : 'none';
+    // The page drifts a touch while it is up.
+    s.el.style.transform = `scale(${1 + Math.min(lt, 4) * 0.008})`;
+
+    s.el.querySelectorAll('[data-slam]').forEach((el) => {
+      const a = at(el, s);
+      const q = ease(win(t, a, a + 0.3));
+      const d = el.dataset.slam;
+      const off = d === 'l' ? { x: -W * 0.5 * (1 - q) } : d === 'r' ? { x: W * 0.5 * (1 - q) } : { y: H * 0.25 * (1 - q) };
+      set(el, { ...off, o: t < a ? 0 : 1, blur: (1 - q) * 22, s: 1 + (1 - q) * 0.1 });
+    });
+    s.el.querySelectorAll('[data-slap]').forEach((el) => {
+      const a = at(el, s);
+      const q = back(win(t, a, a + 0.32));
+      const r = Number(el.dataset.r || 0);
+      set(el, { s: 1.45 - 0.45 * q, r: r + (1 - clamp(q)) * 12, o: t < a ? 0 : 1 });
+    });
+    s.el.querySelectorAll('[data-drop]').forEach((el) => {
+      const a = at(el, s);
+      const q = back(win(t, a, a + 0.45));
+      const r = Number(el.dataset.r || 0);
+      set(el, { y: -H * 0.18 * (1 - q), r: r + (1 - clamp(q)) * 6, o: clamp((t - a) / 0.08) });
+    });
+    s.el.querySelectorAll('[data-fade]').forEach((el) => {
+      const a = at(el, s);
+      const q = ease(win(t, a, a + 0.4));
+      set(el, { y: (1 - q) * 18, o: q });
+    });
+    s.el.querySelectorAll('[data-punch]').forEach((el) => {
+      const a = at(el, s);
+      const q = back(win(t, a, a + 0.4));
+      el.style.transform = `scale(${1.6 - 0.6 * q})`;
+      el.style.opacity = t < a ? 0 : 1;
+    });
+    if (i > 0 && lt < 0.12) flash = Math.max(flash, (i % 4 === 0 ? 0.35 : 0) * (1 - lt / 0.12));
+  }
+
+  // Contributions count up while the paper strips rise.
+  const c0 = B.contrib.start;
+  document.querySelector('#s-contrib [data-count]').textContent = nf.format(Math.round(FACTS.total * ease(win(t, c0, c0 + 1.4))));
+  bars.querySelectorAll('.bar').forEach((bar, i) => {
+    const v = FACTS.perYear[years[i]];
+    const q = back(win(t, c0 + 0.2 + i * 0.15, c0 + 0.8 + i * 0.15));
+    bar.querySelector('i').style.height = `${Math.max(0.5, (v / max) * 82 * clamp(q, 0, 1.08))}%`;
+    bar.querySelector('b').textContent = nf.format(Math.round(v * clamp(q)));
+  });
+  // Teams: the camera moves along the cards as they are named.
+  {
+    const s = S.find((x) => x.id === 's-teams');
+    const port = document.body.classList.contains('port');
+    const q = ease(win(t, s.from, s.to));
+    document.querySelector('#s-teams .track').style.transform = port ? `translateY(${(0.5 - q) * 4}%)` : `translateX(${(0.5 - q) * 6}%)`;
+  }
+  // The collages drift: each column at its own pace, neighbours opposite, looping on its own height.
+  for (const [i, col] of planeCols.entries()) {
+    const half = col.offsetHeight / 2;
+    if (!half) continue;
+    const speed = H * (0.05 + (i % 4) * 0.012) * (i % 2 ? 1 : -1);
+    const y = (((t * speed) % half) + half) % half;
+    col.style.transform = `translateY(${-y}px)`;
+  }
+  // Clips play in their frames while their scene is up (each from its own start).
+  for (const s of S) {
+    if (t < s.from || t >= s.to + 0.3) continue;
+    s.el.querySelectorAll('video').forEach((v, k) => v.readyState >= 1 && waits.push(seek(v, t - s.from + k * 1.7)));
+  }
+  // Build: one card per phrase, hard cuts.
+  const phrases = [...document.querySelectorAll('#s-build .ph')];
+  const sb = S.find((x) => x.id === 's-build');
+  phrases.forEach((ph, i) => {
+    const a = at(ph, sb) - 0.04;
+    const next = i < phrases.length - 1 ? at(phrases[i + 1], sb) - 0.04 : sb.to + 0.3;
+    const on = t >= (i === 0 ? sb.from : a) && t < next;
+    ph.style.visibility = on && t >= sb.from ? 'visible' : 'hidden';
+    if (on) {
+      const q = ease(win(t, a, a + 0.25));
+      ph.querySelector('.d').style.transform = `scale(${1.25 - 0.25 * q})`;
+      if (i && t >= a && t < a + 0.08) flash = Math.max(flash, 0.4 * (1 - (t - a) / 0.08));
+    }
+  });
+  // Layers: the line draws from idea to production; the stops slap on along it.
+  {
+    const a = when('layers', 'idea');
+    const b = B.layers.end;
+    const q = ease(win(t, a, b));
+    const line = document.querySelector('#s-layers .line');
+    line.style.transform = document.body.classList.contains('port') ? `scaleY(${q})` : `scaleX(${q})`;
+    stopEls.forEach((el, i) => {
+      const s0 = a + ((b - a) * (i + 0.5)) / stopEls.length;
+      const k = back(win(t, s0, s0 + 0.3));
+      set(el, { s: 1.4 - 0.4 * k, r: Number(el.dataset.r) + (1 - clamp(k)) * 10, o: t < s0 ? 0 : 1 });
+    });
+  }
+  // The close: a cursor comes to the address and clicks it.
+  {
+    const e = B.talk.end;
+    const pill = document.querySelector('#s-talk .pill').getBoundingClientRect();
+    const cur = document.querySelector('#s-talk .cursor');
+    const tx = pill.left + pill.width * 0.82;
+    const ty = pill.top + pill.height * 0.6;
+    const q = ease(win(t, e + 0.4, e + 1.1));
+    const press = t > e + 1.15 && t < e + 1.3 ? 0.85 : 1;
+    cur.style.left = `${tx + (1 - q) * W * 0.25}px`;
+    cur.style.top = `${ty + (1 - q) * H * 0.3}px`;
+    cur.style.opacity = t < e + 0.4 ? 0 : 1;
+    cur.style.transform = `scale(${press})`;
+    const rip = document.querySelector('#s-talk .ripple');
+    const rq = win(t, e + 1.15, e + 1.75);
+    rip.style.left = `${tx}px`;
+    rip.style.top = `${ty}px`;
+    rip.style.opacity = rq > 0 && rq < 1 ? 1 - rq : 0;
+    rip.style.transform = `scale(${0.3 + rq * 1.8})`;
+    document.querySelector('#s-talk .pill').style.transform = `scale(${press === 1 ? 1 : 0.97})`;
+  }
+
+  document.getElementById('flash').style.opacity = flash;
+  drawCaptions(caps, groups, S, t);
+  await Promise.all(waits);
+};
+window.DURATION = TL.duration;
+window.READY = ready();
+</script>
+</body>
+</html>
