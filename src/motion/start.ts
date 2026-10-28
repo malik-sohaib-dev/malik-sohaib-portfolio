@@ -15,11 +15,8 @@ export function onPage(init: () => Cleanup) {
 
 function flags() {
   const html = document.documentElement;
-  // Astro replaces <html> attributes on navigation: keep the cursor style being compared.
-  try {
-    html.dataset.cursor = sessionStorage.getItem('cursor') || '1';
-  } catch {}
-  html.classList.toggle('cur-own', !!document.querySelector('html > .cur--blend, html > .cur--focus'));
+  // Astro replaces <html> attributes on navigation: the cursor's class goes back on.
+  html.classList.toggle('cur-own', !!document.querySelector('html > .cur'));
   html.classList.add('js');
   // The loader only plays on the first load; every later page is ready at once.
   if (!html.classList.contains('is-loading')) html.classList.add('is-ready');
