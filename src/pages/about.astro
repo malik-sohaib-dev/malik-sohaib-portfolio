@@ -1,5 +1,7 @@
 ---
+import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
+import portrait from '../assets/portrait/studio-dark.webp';
 import Poster from '../components/Poster.astro';
 import { about, site } from '../data/site';
 import { posters } from '../data/posters';
@@ -9,9 +11,10 @@ import { posters } from '../data/posters';
   <section class="ab-hero" data-field="base" aria-labelledby="ab-title">
     <div class="wrap ab-hero__in">
       <h1 class="ab-hero__title display" id="ab-title">{about.greeting}</h1>
-      <!-- placeholder: the owner's portrait (4:5). -->
-      <figure class="ab-hero__portrait" data-placeholder>
-        <div class="ab-hero__slot" role="img" aria-label="Portrait of Malik Sohaib, coming soon"><span>Portrait</span></div>
+      <figure class="ab-hero__portrait">
+        <span class="ab-hero__photo" data-liquid>
+          <Image src={portrait} alt="Malik Sohaib in a black shirt and dark glasses, in black and white." widths={[480, 720, 1000]} sizes="(min-width: 900px) 30vw, 75vw" loading="eager" />
+        </span>
       </figure>
       <div class="ab-hero__bio">
         {about.bio.map((p) => <p>{p}</p>)}
@@ -81,7 +84,7 @@ import { posters } from '../data/posters';
         }
       </ul>
       <p class="said__more">
-        Full recommendations are on <a href={site.socials[0].href} rel="noopener">LinkedIn</a>.
+        Full recommendations are on <a href={site.socials[0].href} target="_blank" rel="noopener">LinkedIn</a>.
       </p>
     </div>
   </section>
@@ -96,13 +99,13 @@ import { posters } from '../data/posters';
     </a>
     <div class="wrap mail__actions">
       <button class="btn" type="button" data-copy={site.email}><span data-copy-label>Copy email</span></button>
-      <a class="btn btn--ghost" href={site.whatsapp.href} rel="noopener">WhatsApp <span class="btn__arrow" aria-hidden="true">↗</span></a>
+      <a class="btn btn--ghost" href={site.whatsapp.href} target="_blank" rel="noopener">WhatsApp <span class="btn__arrow" aria-hidden="true">↗</span></a>
     </div>
   </section>
 </Base>
 
 <style>
-  /* Hero: a giant hello beside the portrait, then the story. */
+  /* Hero: the hello beside the portrait, then the story. */
   .ab-hero__in {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -111,25 +114,27 @@ import { posters } from '../data/posters';
   }
   .ab-hero__title {
     grid-column: 1 / -1;
-    font-size: clamp(4.5rem, 19vw, 16rem);
-    line-height: 0.94;
+    font-size: clamp(3.25rem, 0.6rem + 8.4vw, 8.5rem);
+    line-height: 0.92;
     margin-left: -0.04em;
     text-transform: none;
   }
   .ab-hero__portrait {
     grid-column: 1 / 4;
   }
-  .ab-hero__slot {
+  .ab-hero__photo {
+    position: relative;
+    display: block;
     aspect-ratio: 4 / 5;
-    display: grid;
-    place-items: end start;
-    padding: 0.75rem;
-    background:
-      repeating-linear-gradient(135deg, transparent 0 10px, var(--line) 10px 11px),
-      color-mix(in srgb, var(--ink) 6%, transparent);
-    border: 1px solid var(--line);
-    font-size: var(--t-xs);
-    color: var(--muted);
+    overflow: hidden;
+    border-radius: 6px;
+    background: #121212;
+  }
+  .ab-hero__photo :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 25%;
   }
   .ab-hero__bio {
     grid-column: 1 / -1;
