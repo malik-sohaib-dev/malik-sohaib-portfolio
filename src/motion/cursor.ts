@@ -80,7 +80,15 @@ export function startCursor() {
       return false;
     }
   };
-  const wake = () => void (stop ??= onFrame(tick));
+  // Guarded, so a bad frame never strands the dot where it was.
+  const safe = () => {
+    try {
+      return tick();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+  const wake = () => void (stop ??= onFrame(safe));
 
   addEventListener(
     'pointermove',

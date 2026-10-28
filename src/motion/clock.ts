@@ -5,8 +5,17 @@ type Task = (now: number) => boolean | void;
 const tasks = new Set<Task>();
 let raf = 0;
 
+// A task that throws is dropped and reported; the others, the cursor among them, keep running.
+// (One throw used to end the loop for good and freeze everything on it where it stood.)
 function frame(now: number) {
-  for (const t of tasks) if (t(now) === false) tasks.delete(t);
+  for (const t of tasks) {
+    try {
+      if (t(now) === false) tasks.delete(t);
+    } catch (e) {
+      tasks.delete(t);
+      console.error(e);
+    }
+  }
   raf = tasks.size ? requestAnimationFrame(frame) : 0;
 }
 
