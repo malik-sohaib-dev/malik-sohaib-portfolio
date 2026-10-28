@@ -294,6 +294,72 @@ elif scene_name == 'mercury':
     o.data.materials.append(CHROME)
     o.rotation_euler = (0, math.radians(-8), math.radians(14))
     camera(target=(0, 0.2, 1.45), dist=8.2, height=1.5, lens=58)
+elif scene_name == 'ez-bag':
+    # A chrome shopping bag with rope handles, a coin beside it: commerce, literally.
+    bpy.ops.mesh.primitive_cube_add(size=1, location=(0, 0.3, 0.95))
+    bag = bpy.context.active_object
+    bag.scale = (1.25, 0.55, 1.6)
+    bpy.ops.object.transform_apply(scale=True)
+    b = bag.modifiers.new('bevel', 'BEVEL')
+    b.width = 0.06
+    b.segments = 8
+    sol = bag.modifiers.new('sub', 'SUBSURF')
+    sol.levels = sol.render_levels = 1
+    bag.data.materials.append(CHROME)
+    bpy.ops.object.shade_smooth()
+    bag.rotation_euler = (0, 0, math.radians(22))
+    for x in (-0.38, 0.38):
+        bpy.ops.mesh.primitive_torus_add(major_radius=0.3, minor_radius=0.045, location=(x, 0.3, 1.75), rotation=(math.radians(90), 0, 0), major_segments=64, minor_segments=24)
+        h = bpy.context.active_object
+        h.data.materials.append(CHROME)
+        bpy.ops.object.shade_smooth()
+    t = text('Rs', 0.55, (0, -0.0, 1.05), extrude=0.05)
+    t.location.y = -0.02
+    for i, (x, y, z, r) in enumerate([(1.35, -0.6, 0.05, 0.3), (1.7, -0.2, 0.05, 0.24)]):
+        bpy.ops.mesh.primitive_cylinder_add(radius=r, depth=r * 0.22, location=(x, y, z), vertices=96)
+        c = bpy.context.active_object
+        c.modifiers.new('b', 'BEVEL').width = r * 0.08
+        c.data.materials.append(CHROME)
+        bpy.ops.object.shade_smooth()
+    camera(target=(0.25, 0.3, 1.0), dist=8.4, height=1.7, lens=60)
+elif scene_name == 'ez-phone':
+    # A chrome phone standing on the floor, showing the real shop screen in grayscale.
+    bpy.ops.mesh.primitive_cube_add(size=1, location=(0, 0.3, 1.32))
+    ph = bpy.context.active_object
+    ph.scale = (1.22, 0.12, 2.5)
+    bpy.ops.object.transform_apply(scale=True)
+    bv = ph.modifiers.new('bevel', 'BEVEL')
+    bv.width = 0.16
+    bv.segments = 12
+    ph.data.materials.append(CHROME)
+    bpy.ops.object.shade_smooth()
+    ph.rotation_euler = (0, 0, math.radians(-14))
+    # The screen: an emissive image, desaturated, just in front of the body.
+    bpy.ops.mesh.primitive_plane_add(size=1, location=(0, 0, 0))
+    sc = bpy.context.active_object
+    sc.scale = (1.06, 2.32, 1)
+    bpy.ops.object.transform_apply(scale=True)
+    # Same turn as the body, just in front of its face.
+    yaw = math.radians(-14)
+    sc.rotation_euler = (math.radians(90), 0, yaw)
+    off = -0.066
+    sc.location = (-off * math.sin(yaw), 0.3 + off * math.cos(yaw), 1.32)
+    m = bpy.data.materials.new('screen')
+    m.use_nodes = True
+    nt = m.node_tree
+    nt.nodes.remove(nt.nodes['Principled BSDF'])
+    tex = nt.nodes.new('ShaderNodeTexImage')
+    tex.image = bpy.data.images.load(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'out', 'ez-screen.png'))
+    hs = nt.nodes.new('ShaderNodeHueSaturation')
+    hs.inputs['Saturation'].default_value = 0.0
+    em = nt.nodes.new('ShaderNodeEmission')
+    em.inputs['Strength'].default_value = 1.1
+    nt.links.new(tex.outputs['Color'], hs.inputs['Color'])
+    nt.links.new(hs.outputs['Color'], em.inputs['Color'])
+    nt.links.new(em.outputs['Emission'], nt.nodes['Material Output'].inputs['Surface'])
+    sc.data.materials.append(m)
+    ground(text('Rs', 0.9, (1.45, -0.7, 0.4), extrude=0.12))
+    camera(target=(0.2, 0.2, 1.35), dist=8.6, height=1.6, lens=58)
 elif scene_name == 'mini-havoc':
     bean((0, 0.2, 0), 1.0, math.radians(-10))
     bean((-1.25, 1.0, 0), 0.75, math.radians(18))
