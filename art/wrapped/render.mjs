@@ -52,7 +52,7 @@ for (const shape of SHAPES) {
 
   // Sound: the narration over the bed, at the loudness Reels play at.
   const mix = path.join(voice, 'mix.wav');
-  execFileSync(ffmpeg, ['-v', 'error', '-y', '-i', path.join(voice, 'narration.wav'), '-i', path.join(voice, 'sfx.wav'), '-filter_complex', '[0]aresample=48000,pan=stereo|c0=c0|c1=c0[v];[1]volume=0.3[s];[v][s]amix=inputs=2:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=9[a]', '-map', '[a]', '-ar', '48000', mix]);
+  execFileSync(ffmpeg, ['-v', 'error', '-y', '-i', path.join(voice, 'narration.wav'), '-i', path.join(voice, 'sfx.wav'), '-filter_complex', '[0]aresample=48000,pan=stereo|c0=c0|c1=c0[v];[1]volume=0.5[s];[v][s]amix=inputs=2:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=9[a]', '-map', '[a]', '-ar', '48000', mix]);
 
   const frames = path.join(out, 'f_%05d.png');
   const base = path.join(media, `wrapped-${shape.name}`);

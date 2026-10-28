@@ -152,7 +152,7 @@ body.port #ask .d { font-size: calc(var(--u) * 17); }
 
   <section class="sc" id="own">
     <p class="d small" data-at="side">On the side</p>
-    <p class="d big"><span class="w chrome" data-at="Products">Products</span><br><span class="w chrome" data-at="of">of his own</span></p>
+    <p class="d big"><span class="w chrome" data-at="Products">Products</span><br><span class="w chrome" data-at="of">of my own</span></p>
   </section>
 
   <section class="sc" id="ezvenda"><div class="product">
@@ -308,7 +308,7 @@ window.render = async (t) => {
     if (s.enter === 'whip') (tf = `translateX(${(1 - p) * 38 * s.alt}%)`), (blur = (1 - p) * 30);
     if (s.enter === 'punch') (tf = `scale(${1 + (1 - p) * 0.35})`), (blur = (1 - p) * 14);
     if (s.enter === 'rise') (tf = `translateY(${(1 - p) * 14}%)`), (blur = (1 - p) * 16);
-    tf += ` scale(${1 + lt * 0.012 + out * 0.08})`; // a slow push, a quick one out
+    tf += ` scale(${1 + Math.min(lt, 3) * 0.012 + out * 0.08})`; // a slow push (capped, for long scenes), a quick one out
     s.el.style.transform = tf;
     s.el.style.filter = blur + out * 20 > 0.2 ? `blur(${blur + out * 20}px)` : '';
     s.el.style.opacity = (s.enter === 'cut' ? 1 : clamp(lt / 0.12)) * (1 - out);
