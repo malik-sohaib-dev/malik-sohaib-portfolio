@@ -17,9 +17,7 @@ const mailto = (subject: string) => `mailto:${site.email}?subject=${encodeURICom
 <footer class="ftr" id="contact" data-field="base">
   <div class="wrap ftr__ask">
     <h2 class="ftr__title display">
-      Let’s
-      <br />
-      talk.
+      Let’s talk.
     </h2>
     <div class="ftr__side">
       <p class="ftr__lede">Whatever it is, write to me. Pick what it’s about and the email starts itself.</p>
@@ -48,13 +46,15 @@ const mailto = (subject: string) => `mailto:${site.email}?subject=${encodeURICom
       WhatsApp <span class="btn__arrow" aria-hidden="true">↗</span>
     </a>
   </div>
+  <!-- The end, one screen tall: the silhouette takes what the links leave. -->
+  <div class="ftr__end">
   <div class="ftr__stage" data-liquid-surface>
     <span class="ftr__glow" data-liquid>
       <Image src={glow} alt="Malik Sohaib in profile, a silhouette against soft light." widths={[800, 1400, 2400]} sizes="100vw" loading="lazy" />
     </span>
     <p class="ftr__name display" data-fit><span>Malik Sohaib Ahmad</span></p>
   </div>
-  <div class="wrap">
+  <div class="wrap ftr__bottom">
     <nav class="ftr__cols" aria-label="Footer">
       <div>
         <h3>Work</h3>
@@ -110,6 +110,7 @@ const mailto = (subject: string) => `mailto:${site.email}?subject=${encodeURICom
       <a href="#top">Back to top ↑</a>
     </div>
   </div>
+  </div>
 </footer>
 
 <script>
@@ -151,17 +152,18 @@ const mailto = (subject: string) => `mailto:${site.email}?subject=${encodeURICom
 
 <style>
   .ftr {
-    padding-bottom: 2rem;
+    padding-bottom: 0;
   }
   /* The invitation: the words on the left; on the right, what it might be about, each a way in. */
   .ftr__ask {
     display: grid;
     gap: 2rem var(--gutter);
-    padding-block: clamp(4.5rem, 9vw, 7rem) clamp(2rem, 4vw, 3rem);
+    padding-block: clamp(3.5rem, 7vw, 5rem) clamp(1rem, 2vw, 1.5rem);
   }
   .ftr__title {
-    font-size: var(--t-mega);
+    font-size: clamp(3.5rem, 1rem + 9vw, 9.5rem);
     margin-left: -0.04em;
+    white-space: nowrap;
   }
   .ftr__lede {
     max-width: 30rem;
@@ -170,13 +172,13 @@ const mailto = (subject: string) => `mailto:${site.email}?subject=${encodeURICom
   .ftr__topics {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.6rem;
-    margin-top: 1.25rem;
+    gap: 0.5rem;
+    margin-top: 0.9rem;
     padding: 0;
     list-style: none;
   }
   .ftr__topics .btn {
-    --h: 2.6rem;
+    --h: 2.4rem;
     font-weight: 500;
   }
   @media (min-width: 900px) {
@@ -189,7 +191,7 @@ const mailto = (subject: string) => `mailto:${site.email}?subject=${encodeURICom
     }
     .ftr__side {
       grid-column: 7 / -1;
-      padding-bottom: 0.6rem;
+      padding-bottom: 0.3rem;
     }
   }
   /* The address as a giant marquee: it pauses under the pointer. */
@@ -197,7 +199,7 @@ const mailto = (subject: string) => `mailto:${site.email}?subject=${encodeURICom
     position: relative;
     display: block;
     overflow: clip;
-    font-size: clamp(3.5rem, 12vw, 11rem);
+    font-size: clamp(2.75rem, 8vw, 7.5rem);
     /* Room for the @ and the descenders: the marquee clips its box. */
     line-height: 1.2;
     padding-block: 0.02em 0.08em;
@@ -227,21 +229,28 @@ const mailto = (subject: string) => `mailto:${site.email}?subject=${encodeURICom
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
-    padding-block: 1rem clamp(3rem, 6vw, 4.5rem);
+    padding-block: 0.5rem clamp(2rem, 4vw, 3rem);
   }
 
   /* The stage: the silhouette edge to edge, the whole figure in view, my name across its foot. */
+  /* One screen under the fixed header: at the foot of the page it fills exactly what shows. */
+  .ftr__end {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    height: calc(100svh - 4rem);
+    min-height: 32rem;
+  }
   .ftr__stage {
     position: relative;
-    aspect-ratio: 16 / 9;
-    max-height: 100svh;
-    width: 100%;
+    min-height: 0;
     overflow: hidden;
     background: #0b0b0b;
   }
+  /* Phones: the picture keeps a little under half the screen, the links the rest. */
   @media (max-width: 899px) {
-    .ftr__stage {
-      aspect-ratio: 4 / 5;
+    .ftr__end {
+      height: auto;
+      grid-template-rows: 42svh auto;
     }
   }
   .ftr__glow {
@@ -252,13 +261,13 @@ const mailto = (subject: string) => `mailto:${site.email}?subject=${encodeURICom
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: 50% 30%;
+    object-position: 50% 38%;
   }
   .ftr__name {
     position: absolute;
     left: var(--margin);
     right: var(--margin);
-    bottom: clamp(0.75rem, 2.4vw, 2rem);
+    bottom: clamp(0.5rem, 1.6vw, 1.25rem);
     z-index: 1;
     color: #ededE7;
     font-size: 10vw; /* before the script fits it */
@@ -277,17 +286,24 @@ const mailto = (subject: string) => `mailto:${site.email}?subject=${encodeURICom
   .ftr__cols {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 2.25rem var(--gutter);
-    padding-top: clamp(2.5rem, 5vw, 4rem);
+    gap: 1.25rem var(--gutter);
+    padding-top: clamp(1.25rem, 2.5vw, 2rem);
   }
 
+  /* On phones the contact column takes the full width, so the address never breaks. */
+  .ftr__cols > div:last-child {
+    grid-column: 1 / -1;
+  }
   @media (min-width: 900px) {
     .ftr__cols {
       grid-template-columns: repeat(4, minmax(0, 1fr));
     }
+    .ftr__cols > div:last-child {
+      grid-column: auto;
+    }
   }
   .ftr__cols h3 {
-    margin-bottom: 0.9rem;
+    margin-bottom: 0.4rem;
     font-size: var(--t-xs);
     font-weight: 600;
     letter-spacing: 0.08em;
@@ -296,7 +312,7 @@ const mailto = (subject: string) => `mailto:${site.email}?subject=${encodeURICom
   }
   .ftr__cols ul {
     display: grid;
-    gap: 0.35rem;
+    gap: 0;
     padding: 0;
     list-style: none;
   }
@@ -304,7 +320,8 @@ const mailto = (subject: string) => `mailto:${site.email}?subject=${encodeURICom
   .ftr__meta a {
     display: inline-flex;
     align-items: center;
-    min-height: 32px;
+    min-height: 28px;
+    font-size: var(--t-s);
     text-decoration: none;
     overflow-wrap: anywhere;
     transition: color var(--d-s) var(--ease);
@@ -326,8 +343,8 @@ const mailto = (subject: string) => `mailto:${site.email}?subject=${encodeURICom
     flex-wrap: wrap;
     justify-content: space-between;
     gap: 0.5rem 1.75rem;
-    margin-top: clamp(3rem, 7vw, 5rem);
-    padding-top: 1.25rem;
+    margin-top: clamp(1rem, 2vw, 1.5rem);
+    padding-block: 0.75rem 1rem;
     border-top: 1px solid var(--line);
     font-size: var(--t-xs);
     color: var(--muted);
