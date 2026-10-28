@@ -228,54 +228,255 @@ html.motion [data-reveal].is-in {
   translate: 0 0;
 }
 
-/* The mercury drop cursor (src/motion/cursor.ts). It sits on top of everything and never takes clicks. */
-.cursor {
+/* Cursor styles (src/motion/cursor.ts). Followers sit on top of everything and never take clicks. */
+.cur {
   position: fixed;
   top: 0;
   left: 0;
   z-index: 200;
   pointer-events: none;
-  width: 0;
-  height: 0;
   opacity: 0;
   transition: opacity 300ms var(--ease);
 }
-.cursor.is-in {
+.cur.is-in {
   opacity: 1;
 }
-/* A 14px chrome drop, offset below-right of the pointer so it never covers what you aim at. */
-.cursor__drop {
+/* 2 and 3 draw their own pointer, so the system one goes. */
+html.cur-own,
+html.cur-own * {
+  cursor: none !important;
+}
+
+/* 1 and 4: buttons lean toward the pointer. */
+html[data-cursor='1'] :is(.btn, .hdr__menu),
+html[data-cursor='4'] :is(.btn, .hdr__menu) {
+  translate: var(--mx, 0) var(--my, 0);
+  transition: translate 500ms var(--ease);
+}
+
+/* 2 Blend: a dot that inverts what is under it, a ring over links, a negative lens over posters. */
+.cur--blend {
+  width: 0;
+  height: 0;
+  mix-blend-mode: difference;
+}
+.cur--blend .cur__dot {
   position: absolute;
-  left: 14px;
-  top: 14px;
-  width: 14px;
-  height: 14px;
-  margin: -7px 0 0 -7px;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #ffffff 0%, #d9d9d3 22%, #6d6d68 52%, #1a1a19 70%, #b9b9b3 100%);
-  box-shadow: 0 2px 8px rgb(0 0 0 / 0.35);
-  will-change: transform;
+  background: #fff;
+  transition: scale 480ms var(--ease);
 }
-.cursor__label {
+.cur--blend .cur__ring {
   position: absolute;
-  left: 14px;
-  top: 14px;
-  translate: -50% -50%;
-  font-family: var(--f-text);
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #0b0b0b;
-  white-space: nowrap;
+  width: 64px;
+  height: 64px;
+  margin: -32px 0 0 -32px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1.5px #fff;
   opacity: 0;
-  scale: 0.6;
+  scale: 0.3;
   transition:
-    opacity 220ms var(--ease),
-    scale 420ms var(--ease);
+    opacity 260ms var(--ease),
+    scale 520ms var(--ease);
 }
-.cursor.is-on .cursor__label {
+.cur--blend.is-link .cur__dot {
+  scale: 4.4;
+}
+/* Over a poster the dot shrinks to a point inside a thin ring, and says where it goes. */
+.cur--blend.is-lens .cur__dot {
+  scale: 0.5;
+}
+.cur--blend.is-lens .cur__ring {
   opacity: 1;
   scale: 1;
 }
-.cursor.is-on.is-down .cursor__label {
-  scale: 0.9;
+.cur--blend.is-down .cur__dot {
+  scale: 0.7;
+}
+.cur--blend.is-lens.is-down .cur__ring {
+  scale: 0.85;
+}
+.cur--blend .cur__tag {
+  position: absolute;
+  left: 44px;
+  top: -9px;
+  color: #fff;
+  font-family: var(--f-text);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  opacity: 0;
+  translate: -8px 0;
+  transition:
+    opacity 260ms var(--ease),
+    translate 480ms var(--ease);
+}
+.cur--blend.is-lens .cur__tag {
+  opacity: 1;
+  translate: 0 0;
+}
+
+/* 3 Focus: a thin plus; brackets lock onto what you can act on. */
+.cur--focus {
+  width: 0;
+  height: 0;
+  mix-blend-mode: difference;
+}
+.cur--focus .cur__plus {
+  position: absolute;
+  width: 17px;
+  height: 17px;
+  margin: -8.5px 0 0 -8.5px;
+  background:
+    linear-gradient(#fff, #fff) center / 1px 100% no-repeat,
+    linear-gradient(#fff, #fff) center / 100% 1px no-repeat;
+  transition:
+    rotate 480ms var(--ease),
+    scale 480ms var(--ease);
+}
+.cur--focus.is-locked .cur__plus {
+  scale: 0.5;
+}
+.cur--box {
+  width: 18px;
+  height: 18px;
+  mix-blend-mode: difference;
+  opacity: 0;
+}
+.cur--box.is-in {
+  opacity: 0.55;
+}
+.cur--box.is-locked {
+  opacity: 1;
+}
+.cur--box i {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border: 0 solid #fff;
+}
+.cur--box i:nth-child(1) {
+  left: 0;
+  top: 0;
+  border-width: 1.5px 0 0 1.5px;
+}
+.cur--box i:nth-child(2) {
+  right: 0;
+  top: 0;
+  border-width: 1.5px 1.5px 0 0;
+}
+.cur--box i:nth-child(3) {
+  left: 0;
+  bottom: 0;
+  border-width: 0 0 1.5px 1.5px;
+}
+.cur--box i:nth-child(4) {
+  right: 0;
+  bottom: 0;
+  border-width: 0 1.5px 1.5px 0;
+}
+.cur--box .cur__name {
+  position: absolute;
+  left: 0;
+  bottom: 100%;
+  padding-bottom: 6px;
+  color: #fff;
+  font-family: var(--f-text);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  translate: 0 4px;
+  transition:
+    opacity 220ms var(--ease),
+    translate 420ms var(--ease);
+}
+.cur--box.is-locked.has-name .cur__name {
+  opacity: 1;
+  translate: 0 0;
+}
+
+/* 4 Orbit: a ring of words turning round the pointer, over posters. */
+.cur--orbit {
+  width: 0;
+  height: 0;
+  mix-blend-mode: difference;
+}
+.cur--orbit svg {
+  position: absolute;
+  width: 120px;
+  max-width: none;
+  height: 120px;
+  margin: -60px 0 0 -60px;
+  fill: #fff;
+  font-family: var(--f-text);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  scale: 0.6;
+  transition: scale 520ms var(--ease);
+  animation: cur-spin 9s linear infinite;
+}
+.cur--orbit.is-in svg {
+  scale: 1;
+}
+.cur--orbit .cur__arrow {
+  position: absolute;
+  translate: -50% -52%;
+  color: #fff;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+@keyframes cur-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cur--orbit svg {
+    animation: none;
+  }
+}
+
+/* The comparison picker, bottom left. Goes once a style is chosen. */
+.cur-pick {
+  position: fixed;
+  left: 12px;
+  bottom: 12px;
+  z-index: 210;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgb(14 14 14 / 0.86);
+  backdrop-filter: blur(10px);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.14);
+  color: #ededE7;
+  font-family: var(--f-text);
+  font-size: 0.75rem;
+}
+.cur-pick > span {
+  padding: 0 8px;
+  color: #8f8f89;
+}
+.cur-pick button {
+  min-height: 30px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+}
+.cur-pick button[aria-pressed='true'] {
+  background: #ededE7;
+  color: #0b0b0b;
 }

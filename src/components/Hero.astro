@@ -57,7 +57,7 @@ const services = [
   <nav class="hs__dock" aria-label="Selected work" data-dock>
     {
       apps.map((p) => (
-        <a class="hs__app" href={p.href} data-cursor="View" data-peek={p.slug}>
+        <a class="hs__app" href={p.href} data-cursor={/^https?:/.test(p.href) ? 'Visit site' : 'Case study'} data-peek={p.slug}>
           <span class="hs__icon">
             <Image src={p.art} alt="" widths={[160, 320]} sizes="(min-width: 900px) 60px, 34vw" loading="lazy" />
           </span>

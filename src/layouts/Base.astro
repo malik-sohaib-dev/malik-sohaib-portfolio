@@ -54,6 +54,12 @@ const jsonLd = {
     <link rel="preload" href="/fonts/display.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/text.woff2" as="font" type="font/woff2" crossorigin />
     <script is:inline>
+      // Compare cursor styles with ?cursor=1..4 (remembered for the session).
+      try {
+        var q = new URLSearchParams(location.search).get('cursor');
+        if (/^[1-4]$/.test(q || '')) sessionStorage.setItem('cursor', q);
+        document.documentElement.dataset.cursor = sessionStorage.getItem('cursor') || '1';
+      } catch (e) {}
       document.documentElement.classList.add('js');
       if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('motion');
     </script>
